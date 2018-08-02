@@ -23,6 +23,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+#unix:
+LIBS += -L/usr/local/lib64/ -lvisa
+
+#unix:
+INCLUDEPATH += /usr/local/include
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
@@ -32,7 +38,7 @@ SOURCES += \
     databaseinterfaceclass.cpp \
     environmentcontrolclass.cpp \
     connectioninterfaceclass.cpp \
-    controltti.cpp
+    controlttipower.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -42,7 +48,7 @@ HEADERS += \
     databaseinterfaceclass.h \
     environmentcontrolclass.h \
     connectioninterfaceclass.h \
-    controltti.h
+    controlttipower.h
 
 FORMS += \
         mainwindow.ui

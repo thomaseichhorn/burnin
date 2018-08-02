@@ -7,12 +7,15 @@ using namespace std;
 EnvironmentControlClass::EnvironmentControlClass()
 {}
 
-void EnvironmentControlClass::InitEnv(){
+void EnvironmentControlClass::InitEnv()
+{
 
 }
-double EnvironmentControlClass::getTemp(){
+double EnvironmentControlClass::getTemp()
+{
 
 }
-void EnvironmentControlClass::setTemp(double pTemp){
+void EnvironmentControlClass::setTemp(double pTemp)
+{
 
 }

@@ -5,9 +5,9 @@
 using namespace std;
 
 DatabaseInterfaceClass::DatabaseInterfaceClass()
-{
-}
+{}
 
-void DatabaseInterfaceClass::InitDatabase(){
+void DatabaseInterfaceClass::InitDatabase()
+{
 
 }

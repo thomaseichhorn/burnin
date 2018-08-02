@@ -2,27 +2,12 @@
 #include "visa.h"
 #include "visatype.h"
 
-#include <iostream>
 #include <QTcpSocket>
+
+#include <iostream>
 
 using namespace std;
 
-PowerControlClass::PowerControlClass(){
+PowerControlClass::PowerControlClass(){}
 
-}
 
-void PowerControlClass::InitPwr(){
-
-}
-void PowerControlClass::setVoltage(double volt){
-
-}
-double PowerControlClass::getVoltage(){
-
-}
-bool PowerControlClass::onSupply(){
-
-}
-bool PowerControlClass::offSupply(){
-
-}

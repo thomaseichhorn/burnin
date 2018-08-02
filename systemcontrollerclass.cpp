@@ -1,8 +1,10 @@
 #include "systemcontrollerclass.h"
 
+#include <QCoreApplication>
 #include <QFile>
 #include <QTextStream>
 #include <QString>
+#include <QTime>
 
 #include <string>
 #include <vector>
@@ -11,82 +13,96 @@ using namespace std;
 
 SystemControllerClass::SystemControllerClass()
 {
-    fVolt = nullptr;
     fDaqControl = nullptr;
     fEnv = nullptr;
     fDatabase = nullptr;
+    fTTiVolt = nullptr;
+    fConnect = nullptr;
 }
+
+SystemControllerClass::~SystemControllerClass()
+{
+    delete fConnect;
+    delete fTTiVolt;
+    delete fDaqControl;
+    delete fEnv;
+    delete fDatabase;
+}
+
 void SystemControllerClass::Initialize()
 {
-    fVolt->InitPwr();
+    fTTiVolt = new ControlTTiPower();
+    fDaqControl = new DAQControlClass();
+    fEnv = new EnvironmentControlClass();
+    fDatabase = new DatabaseInterfaceClass();
+    fConnect = new ConnectionInterfaceClass();
+
+    fTTiVolt->InitPwr();
     fDaqControl->InitDAQ();
     fEnv->InitEnv();
     fDatabase->InitDatabase();
-    SystemControllerClass *fSys = new SystemControllerClass();
-    vector<string> *cVec;
-    cVec = fSys->readFile();
-    fSys->doList(cVec);
+    fConnect->raspInitialize();
 }
 
 vector<string>* SystemControllerClass::readFile()
 {
     vector<string> *cVec = new vector<string>();
-    QFile cFile("/home/taras/testfile.txt");
+    QFile cFile("/home/fedorcht/TestFile.txt");
     cFile.open(QFile::ReadOnly);
-    QTextStream pStream(&cFile);
-    while(!pStream.atEnd()){
-        string pStr = pStream.readLine().toStdString();
-        cVec->push_back(pStr);
+    QTextStream cStream(&cFile);
+    while(!cStream.atEnd()){
+        string cStr = cStream.readLine().toStdString();
+        cVec->push_back(cStr);
     }
     cFile.flush();
     cFile.close();
     return cVec;
 }
 
-void SystemControllerClass::doList(vector<string>* cVec)
+void SystemControllerClass::doWait(int pSec)
 {
-    struct cParam{
-        string cName;
-        double cValue;
-    };
-    vector<cParam> cList;
-    size_t cTemp , cVolt , cDAQ , cWait;
+    QTime cDieTime= QTime::currentTime().addSecs(pSec);
+       while (QTime::currentTime() < cDieTime){
+           QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+       }
+}
+
+vector<SystemControllerClass::fParam>* SystemControllerClass::doList(vector<string>* pVec)
+{
+    vector<fParam> *cList;
+    size_t cTemp , cVolt , cWait;
     string cStr;
-    cParam cObj;
-    for(vector<string>::iterator i = cVec->begin() ; i != cVec->end() ; i++){
-        cStr = (*i);
+    fParam cObj;
+    string cPosStr;
+    size_t cPos;
+    for(vector<string>::iterator cIter = pVec->begin() ; cIter != pVec->end() ; cIter++){
+        cStr = (*cIter);
         cout << cStr << endl;
-        cTemp = cStr.find('T');
-        cVolt = cStr.find('V');
-        cDAQ = cStr.find('D');
-        cWait = cStr.find('W');
+        cTemp = cStr.find('Temperature');
+        cVolt = cStr.find('Voltage');
+        cWait = cStr.find('Wait');
 
         //Temp
         if( !cTemp ){
-            //string tPosStr;
-            size_t cPos;
             cPos = cStr.find("=");
-            auto cPosStr = cStr.substr(cPos+1);
+            cPosStr = cStr.substr(cPos+1);
             double cTemp = stod(cPosStr.c_str(), 0);
             //fEnv->setTemp(pTemp);
             cout << cTemp << endl;
-            cObj.cName = "T";
+            cObj.cName = "Temperature";
             cObj.cValue = cTemp;
-            cList.push_back(cObj);
+
+            cList->push_back(cObj);
         }
         //Voltage
         if( !cVolt ){
-            string cPosStr;
-            size_t cPos;
             cPos = cStr.find("=");
             cPosStr = cStr.substr(cPos+1);
             double cVolt = stod(cPosStr.c_str(), 0);
-            cObj.cName = "V";
+            cout << "voltage" << cVolt << endl;
+            cObj.cName = "Voltage";
             cObj.cValue = cVolt;
-            cList.push_back(cObj);
-        }
-        if( !cDAQ ){
-
+            cList->push_back(cObj);
         }
         if( !cWait ){
             string cPosStr;
@@ -94,11 +110,12 @@ void SystemControllerClass::doList(vector<string>* cVec)
             cPos = cStr.find("=");
             cPosStr = cStr.substr(cPos+1);
             double cW = stod(cStr.substr(cPos+1));
-            cObj.cName = "W";
+            cout << "Wait" << cW << endl;
+            cObj.cName = "Wait";
             cObj.cValue = cW;
         }
 
     }
-
+    return cList;
 }
 

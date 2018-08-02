@@ -5,28 +5,33 @@
 #include "daqcontrolclass.h"
 #include "environmentcontrolclass.h"
 #include "databaseinterfaceclass.h"
+#include "controlttipower.h"
+#include "connectioninterfaceclass.h"
 
 #include <string>
-#include <map>
 
 using namespace  std;
-
-class PowerControlClass;
 
 class SystemControllerClass
 {
 public:
     SystemControllerClass();
+    ~SystemControllerClass();
+    struct fParam{
+        string cName;
+        double cValue;
+    };
     void Initialize();
+    vector<string>* readFile();
+    vector<fParam>* doList(vector<string> *);
+    void doWait(int pSec);
+
 private:
-    PowerControlClass *fVolt;
+    ConnectionInterfaceClass *fConnect;
+    ControlTTiPower *fTTiVolt;
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
-
-    void doWait();
-    void doList(vector<string> *);
-    vector<string>* readFile();
 };
 
 #endif // SYSTEMCONTROLLERCLASS_H

@@ -7,6 +7,7 @@ using namespace std;
 DAQControlClass::DAQControlClass()
 {}
 
-bool DAQControlClass::InitDAQ(){
+bool DAQControlClass::InitDAQ()
+{
 
 }

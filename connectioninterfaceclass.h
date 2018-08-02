@@ -10,13 +10,13 @@ class ConnectionInterfaceClass : public QObject
     Q_OBJECT
 public:
     explicit ConnectionInterfaceClass(QObject *parent = nullptr);
-    bool doConnect();
+    bool raspInitialize();
     double getMeasurement();
 signals:
 
 public slots:
 private:
-    QTcpSocket *cSocket;
+    QTcpSocket *fSocket;
 };
 
 #endif // CONNECTIONINTERFACECLASS_H
