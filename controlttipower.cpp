@@ -1,5 +1,7 @@
 #include "controlttipower.h"
 
+#include <QThread>
+
 #include <iostream>
 
 
@@ -19,27 +21,52 @@ bool ControlTTiPower::InitPwr()
     else{
         fStatus = viOpen(fDefaultRm , "TCPIP::192.168.1.180::9221::SOCKET" , VI_NULL ,  pTimeout , &fVi);
         if(fStatus < VI_SUCCESS) return false;
-        else return true;
+        else{
+            cout << "Connected to TTi!" << endl;
+            return true;
+        }
     }
 }
 
-void ControlTTiPower::getVoltAndCurrSet(int pId)
+QString ControlTTiPower::getCurrApp(int pId)
 {
-    char pBufferSet[256];
-    viPrintf(fVi , "V%d? \n" , pId);
-    viPrintf(fVi , "I%d? \n" , pId);
-    viScanf(fVi , "%t" , pBufferSet);
-    printf(pBufferSet);
+    char cBuff[256];
+    viPrintf(fVi , "I%dO? \n" , pId);
+    viScanf(fVi , "%t" , cBuff);
+    QString cStr = QString(cBuff);
+//    cStr.remove( 0 , 2);
 
+    return cStr;
+}
+QString ControlTTiPower::getCurrSet(int pId)
+{
+    char cBuff[256];
+    viPrintf(fVi , "I%d? \n" , pId);
+    viScanf(fVi , "%t" , cBuff);
+    QString cStr = QString(cBuff);
+//    cStr.remove(0 , 2);
+
+    return cStr;
 }
 
-void ControlTTiPower::getVoltAndCurrApp(int pId)
+QString ControlTTiPower::getVoltApp(int pId)
 {
-    char pBufferAppp[256];
+    char cBuff[256];
     viPrintf(fVi , "V%dO? \n" , pId);
-    viPrintf(fVi , "I%dO? \n" , pId);
-    viScanf(fVi , "%t" , pBufferAppp);
-    printf(pBufferAppp);
+    viScanf(fVi , "%t" , cBuff);
+    QString cStr = QString(cBuff);
+
+    return cStr;;
+}
+
+QString ControlTTiPower::getVoltSet(int pId)
+{
+    char cBuff[256];
+    viPrintf(fVi , "V%d? \n" , pId);
+    viScanf(fVi , "%t" , cBuff);
+    QString cStr = QString(cBuff);
+
+    return cStr;
 }
 
 void ControlTTiPower::setVolt(int pId , double pVoltage)
@@ -72,7 +99,9 @@ void ControlTTiPower::onPowerAll()
 
 void ControlTTiPower::offPower(int pId)
 {
-    viPrintf(fVi , "OP%d \n" , pId);
+
+    viPrintf(fVi , "OP%d 0 \n" , pId);
+    cout << "Off" << endl;
 }
 
 void ControlTTiPower::offPowerAll()

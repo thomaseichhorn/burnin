@@ -18,8 +18,10 @@ class ControlTTiPower:public PowerControlClass
 public:
     ControlTTiPower();
     bool InitPwr();
-    void getVoltAndCurrSet(int pId);
-    void getVoltAndCurrApp(int pId);
+    QString getVoltSet(int pId);
+    QString getCurrSet(int pId);
+    QString getVoltApp(int pId);
+    QString getCurrApp(int pId);
     void setVolt(int pId , double pVoltage);
     void setCurr(int pId , double pCurrent);
     void setVoltAndCurr(double cI1 , double cV1 , double cI2 , double cV2);

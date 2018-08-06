@@ -20,8 +20,10 @@ public:
     int fId;
 
     virtual bool InitPwr() = 0;
-    virtual void getVoltAndCurrSet(int pId) = 0;
-    virtual void getVoltAndCurrApp(int pId) = 0;
+    virtual QString getVoltSet(int pId) = 0;
+    virtual QString getCurrSet(int pId) = 0;
+    virtual QString getVoltApp(int pId) = 0;
+    virtual QString getCurrApp(int pId) = 0;
     virtual void setVolt(int pId, double pVoltage) = 0;
     virtual void setCurr(int pId , double pCurrent) = 0;
     virtual void setVoltAndCurr(double pI1 , double pV1 , double pI2 , double pV2) = 0;

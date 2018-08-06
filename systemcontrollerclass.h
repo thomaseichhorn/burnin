@@ -17,21 +17,23 @@ class SystemControllerClass
 public:
     SystemControllerClass();
     ~SystemControllerClass();
-    struct fParam{
-        string cName;
-        double cValue;
-    };
-    void Initialize();
-    vector<string>* readFile();
-    vector<fParam>* doList(vector<string> *);
-    void doWait(int pSec);
 
-private:
-    ConnectionInterfaceClass *fConnect;
+    ConnectionInterfaceClass *fConnectRasp;
     ControlTTiPower *fTTiVolt;
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
+    struct fParam{
+        string cName;
+        double cValue;
+    };
+
+    void Initialize();
+    vector<string>* readFile();
+    vector<fParam>* doList(vector<string> *);
+    void Wait(int pSec);
+
+private:
 };
 
 #endif // SYSTEMCONTROLLERCLASS_H

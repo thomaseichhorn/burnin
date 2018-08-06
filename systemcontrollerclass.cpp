@@ -13,35 +13,34 @@ using namespace std;
 
 SystemControllerClass::SystemControllerClass()
 {
-    fDaqControl = nullptr;
-    fEnv = nullptr;
-    fDatabase = nullptr;
-    fTTiVolt = nullptr;
-    fConnect = nullptr;
-}
-
-SystemControllerClass::~SystemControllerClass()
-{
-    delete fConnect;
-    delete fTTiVolt;
-    delete fDaqControl;
-    delete fEnv;
-    delete fDatabase;
-}
-
-void SystemControllerClass::Initialize()
-{
     fTTiVolt = new ControlTTiPower();
     fDaqControl = new DAQControlClass();
     fEnv = new EnvironmentControlClass();
     fDatabase = new DatabaseInterfaceClass();
-    fConnect = new ConnectionInterfaceClass();
+    fConnectRasp = new ConnectionInterfaceClass();
+//    fDaqControl = nullptr;
+//    fEnv = nullptr;
+//    fDatabase = nullptr;
+//    fTTiVolt = nullptr;
+//    fConnect = nullptr;
+}
 
+SystemControllerClass::~SystemControllerClass()
+{
+//    delete fConnectRasp;
+//    delete fTTiVolt;
+//    delete fDaqControl;
+//    delete fEnv;
+//    delete fDatabase;
+}
+
+void SystemControllerClass::Initialize()
+{
     fTTiVolt->InitPwr();
     fDaqControl->InitDAQ();
     fEnv->InitEnv();
     fDatabase->InitDatabase();
-    fConnect->raspInitialize();
+    fConnectRasp->raspInitialize();
 }
 
 vector<string>* SystemControllerClass::readFile()
@@ -59,7 +58,7 @@ vector<string>* SystemControllerClass::readFile()
     return cVec;
 }
 
-void SystemControllerClass::doWait(int pSec)
+void SystemControllerClass::Wait(int pSec)
 {
     QTime cDieTime= QTime::currentTime().addSecs(pSec);
        while (QTime::currentTime() < cDieTime){
