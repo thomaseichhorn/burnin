@@ -1,6 +1,7 @@
 #include "controlttipower.h"
 
 #include <QThread>
+#include <QDebug>
 
 #include <iostream>
 
@@ -34,7 +35,6 @@ QString ControlTTiPower::getCurrApp(int pId)
     viPrintf(fVi , "I%dO? \n" , pId);
     viScanf(fVi , "%t" , cBuff);
     QString cStr = QString(cBuff);
-//    cStr.remove( 0 , 2);
 
     return cStr;
 }
@@ -44,7 +44,7 @@ QString ControlTTiPower::getCurrSet(int pId)
     viPrintf(fVi , "I%d? \n" , pId);
     viScanf(fVi , "%t" , cBuff);
     QString cStr = QString(cBuff);
-//    cStr.remove(0 , 2);
+    cStr.remove(0 , 2);
 
     return cStr;
 }
@@ -55,8 +55,11 @@ QString ControlTTiPower::getVoltApp(int pId)
     viPrintf(fVi , "V%dO? \n" , pId);
     viScanf(fVi , "%t" , cBuff);
     QString cStr = QString(cBuff);
+    string cString = cStr.toStdString();
+    cString.substr(0 , cString.size()-1);
+    cStr = QString::fromStdString(cString);
 
-    return cStr;;
+    return cStr;
 }
 
 QString ControlTTiPower::getVoltSet(int pId)
@@ -65,7 +68,7 @@ QString ControlTTiPower::getVoltSet(int pId)
     viPrintf(fVi , "V%d? \n" , pId);
     viScanf(fVi , "%t" , cBuff);
     QString cStr = QString(cBuff);
-
+    cStr.remove(0, 2);
     return cStr;
 }
 
@@ -99,9 +102,7 @@ void ControlTTiPower::onPowerAll()
 
 void ControlTTiPower::offPower(int pId)
 {
-
     viPrintf(fVi , "OP%d 0 \n" , pId);
-    cout << "Off" << endl;
 }
 
 void ControlTTiPower::offPowerAll()

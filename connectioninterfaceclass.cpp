@@ -1,9 +1,11 @@
-#include "connectioninterfaceclass.h"
+#include <iostream>
 
 #include <QThread>
 #include <QString>
+#include <QTextCodec>
 
-#include <iostream>
+#include "connectioninterfaceclass.h"
+#include "mainwindow.h"
 
 using namespace std;
 
@@ -14,13 +16,12 @@ ConnectionInterfaceClass::ConnectionInterfaceClass(QObject *parent) : QObject(pa
 bool ConnectionInterfaceClass::raspInitialize()
 {
     fSocket = new QTcpSocket(this);
-    fSocket->connectToHost("fhlthermorasp1.desy.de" , 50007);
+    fSocket->connectToHost("fhlthermorasp1.desy.de", 50007);
     if(!fSocket->waitForDisconnected(5000)){
         qDebug() << "Error:" << fSocket->errorString();
         return false;
     }
     else{
-        printf("Connected to raspberry pi!");
         return true;
     }
     fSocket->close();
@@ -28,5 +29,20 @@ bool ConnectionInterfaceClass::raspInitialize()
 
 double ConnectionInterfaceClass::getMeasurement()
 {
-    //returns information from sensors on raspberry
+
+}
+
+QString ConnectionInterfaceClass::getInfoFromSensors()
+{
+    fSocket = new QTcpSocket(this);
+    fSocket->connectToHost("fhlthermorasp1.desy.de" , 50007);
+    char *array = new char[512];
+    fSocket->waitForReadyRead();
+
+    QByteArray buffer;
+    buffer = fSocket->readAll();
+    fSocket->close();
+    QString DataAsString = QTextCodec::codecForMib(106)->toUnicode(buffer);
+
+    return DataAsString;
 }

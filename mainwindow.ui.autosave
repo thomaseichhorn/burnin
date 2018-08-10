@@ -19,9 +19,6 @@
   <property name="windowTitle">
    <string>Test window</string>
   </property>
-  <property name="toolButtonStyle">
-   <enum>Qt::ToolButtonIconOnly</enum>
-  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="minimumSize">
     <size>
@@ -262,12 +259,9 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox">
-                    <property name="frame">
-                     <bool>false</bool>
-                    </property>
-                    <property name="readOnly">
-                     <bool>true</bool>
+                   <widget class="QLabel" name="V1_setted_label">
+                    <property name="text">
+                     <string/>
                     </property>
                    </widget>
                   </item>

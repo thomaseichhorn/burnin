@@ -12,6 +12,7 @@ public:
     explicit ConnectionInterfaceClass(QObject *parent = nullptr);
     bool raspInitialize();
     double getMeasurement();
+    QString getInfoFromSensors();
 signals:
 
 public slots:

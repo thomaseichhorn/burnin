@@ -1,13 +1,14 @@
-#include "systemcontrollerclass.h"
+#include <string>
+#include <vector>
 
 #include <QCoreApplication>
+#include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
 #include <QString>
 #include <QTime>
 
-#include <string>
-#include <vector>
+#include "systemcontrollerclass.h"
 
 using namespace std;
 
@@ -43,18 +44,21 @@ void SystemControllerClass::Initialize()
     fConnectRasp->raspInitialize();
 }
 
-vector<string>* SystemControllerClass::readFile()
+vector<QString>* SystemControllerClass::readFile()
 {
-    vector<string> *cVec = new vector<string>();
-    QFile cFile("/home/fedorcht/TestFile.txt");
+    vector<QString> *cVec = new vector<QString>();
+    QString cFilter = "*.txt";
+    QString cFileName = QFileDialog::getOpenFileName( nullptr , "Open a file" , "/home/" , cFilter);
+    QFile cFile(cFileName);
     cFile.open(QFile::ReadOnly);
     QTextStream cStream(&cFile);
     while(!cStream.atEnd()){
-        string cStr = cStream.readLine().toStdString();
+        QString cStr = cStream.readLine();
         cVec->push_back(cStr);
     }
     cFile.flush();
     cFile.close();
+
     return cVec;
 }
 
@@ -66,15 +70,15 @@ void SystemControllerClass::Wait(int pSec)
        }
 }
 
-vector<SystemControllerClass::fParam>* SystemControllerClass::doList(vector<string>* pVec)
+vector<SystemControllerClass::fObjParam>* SystemControllerClass::doList(vector<string>* pVec)
 {
-    vector<fParam> *cList;
+    vector<fObjParam> *cList;
     size_t cTemp , cVolt , cWait;
     string cStr;
-    fParam cObj;
+    fObjParam cObj;
     string cPosStr;
     size_t cPos;
-    for(vector<string>::iterator cIter = pVec->begin() ; cIter != pVec->end() ; cIter++){
+    for(vector<string>::iterator cIter = pVec->begin(); cIter != pVec->end(); cIter++){
         cStr = (*cIter);
         cout << cStr << endl;
         cTemp = cStr.find('Temperature');
@@ -82,7 +86,7 @@ vector<SystemControllerClass::fParam>* SystemControllerClass::doList(vector<stri
         cWait = cStr.find('Wait');
 
         //Temp
-        if( !cTemp ){
+        if(!cTemp){
             cPos = cStr.find("=");
             cPosStr = cStr.substr(cPos+1);
             double cTemp = stod(cPosStr.c_str(), 0);
@@ -94,7 +98,7 @@ vector<SystemControllerClass::fParam>* SystemControllerClass::doList(vector<stri
             cList->push_back(cObj);
         }
         //Voltage
-        if( !cVolt ){
+        if(!cVolt){
             cPos = cStr.find("=");
             cPosStr = cStr.substr(cPos+1);
             double cVolt = stod(cPosStr.c_str(), 0);
@@ -103,7 +107,7 @@ vector<SystemControllerClass::fParam>* SystemControllerClass::doList(vector<stri
             cObj.cValue = cVolt;
             cList->push_back(cObj);
         }
-        if( !cWait ){
+        if(!cWait){
             string cPosStr;
             size_t cPos;
             cPos = cStr.find("=");

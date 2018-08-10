@@ -1,12 +1,10 @@
 #ifndef POWERCONTROLCLASS_H
 #define POWERCONTROLCLASS_H
 
+#include <QString>
+
 #include "visa.h"
 #include "visatype.h"
-
-#include <QTcpSocket>
-
-#include <string>
 
 using namespace std;
 

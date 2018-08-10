@@ -1,6 +1,8 @@
 #ifndef SYSTEMCONTROLLERCLASS_H
 #define SYSTEMCONTROLLERCLASS_H
 
+#include <string>
+
 #include "powercontrolclass.h"
 #include "daqcontrolclass.h"
 #include "environmentcontrolclass.h"
@@ -8,7 +10,6 @@
 #include "controlttipower.h"
 #include "connectioninterfaceclass.h"
 
-#include <string>
 
 using namespace  std;
 
@@ -23,14 +24,14 @@ public:
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
-    struct fParam{
+    struct fObjParam{
         string cName;
         double cValue;
     };
 
     void Initialize();
-    vector<string>* readFile();
-    vector<fParam>* doList(vector<string> *);
+    vector<QString>* readFile();
+    vector<fObjParam>* doList(vector<string> *);
     void Wait(int pSec);
 
 private:

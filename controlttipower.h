@@ -1,15 +1,12 @@
 #ifndef CONTROLTTIPOWER_H
 #define CONTROLTTIPOWER_H
 
-#include "powercontrolclass.h"
+#include <QObject>
 
 #include "visa.h"
 #include "visatype.h"
 
-#include <QObject>
-
-#include <string>
-#include <vector>
+#include "powercontrolclass.h"
 
 using namespace std;
 

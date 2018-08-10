@@ -38,7 +38,8 @@ SOURCES += \
     databaseinterfaceclass.cpp \
     environmentcontrolclass.cpp \
     connectioninterfaceclass.cpp \
-    controlttipower.cpp
+    controlttipower.cpp \
+    additionalwindow.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -48,10 +49,12 @@ HEADERS += \
     databaseinterfaceclass.h \
     environmentcontrolclass.h \
     connectioninterfaceclass.h \
-    controlttipower.h
+    controlttipower.h \
+    additionalwindow.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    additionalwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

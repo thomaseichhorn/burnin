@@ -1,7 +1,5 @@
 #include "environmentcontrolclass.h"
 
-#include <iostream>
-
 using namespace std;
 
 EnvironmentControlClass::EnvironmentControlClass()
