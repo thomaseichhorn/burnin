@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QListWidgetItem>
+#include <QStandardItemModel>
 
 #include "systemcontrollerclass.h"
 #include "environmentcontrolclass.h"
@@ -25,7 +26,8 @@ public:
     ~MainWindow();
     SystemControllerClass *fControl;
     AdditionalWindow *fAddWnd;
-    void getVoltAndCurr();
+    void getVoltAndCurr1();
+    void getVoltAndCurr2();
 
 private slots:
 
@@ -47,11 +49,13 @@ private slots:
 
     void on_Start_pushButton_clicked();
 
-    void on_AddedListWidget_itemDoubleClicked(QListWidgetItem *pItem);
+    void RaspWidget(QString pStr);
 
-    void RaspWidget(QString);
+    void updateGetVAC1(vector<QString>);
 
-    void updateGetVAC(QString);
+    void updateGetVAC2(QString pStr);
+
+    void on_AddedComands_tabelView_doubleClicked(const QModelIndex &index);
 
 private:
     int fIDMW1;
@@ -61,6 +65,7 @@ private:
     void doListOfCommands();
     void statusWidget();
     void getMeasurments();
+    QStandardItemModel *model;
 
 
 

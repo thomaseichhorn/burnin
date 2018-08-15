@@ -1,6 +1,8 @@
 #ifndef ADDITIONALTHREAD_H
 #define ADDITIONALTHREAD_H
 
+#include <vector>
+
 #include <QObject>
 #include <QString>
 
@@ -16,17 +18,18 @@ public:
     AdditionalThread(QString pName , SystemControllerClass *pControl);
 
 signals:
+    void send(vector<QString>);
     void sendToThread(QString);
+    void sendToThread2(QString);
 
 public slots:
     void getVAC1();
+    void getVAC2();
     void getRaspSensors();
 
 private:
     QString fName;
-    ControlTTiPower *fThread;
-    SystemControllerClass *fObj;
-    ConnectionInterfaceClass *fCon;
+    SystemControllerClass *fAddControl;
 };
 
 #endif // ADDITIONALTHREAD_H

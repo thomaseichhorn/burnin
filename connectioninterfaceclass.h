@@ -12,7 +12,6 @@ class ConnectionInterfaceClass : public QObject
 public:
     explicit ConnectionInterfaceClass(QObject *parent = nullptr);
     bool raspInitialize();
-    double getMeasurement();
     QString getInfoFromSensors();
 signals:
 

@@ -27,22 +27,15 @@ bool ConnectionInterfaceClass::raspInitialize()
     fSocket->close();
 }
 
-double ConnectionInterfaceClass::getMeasurement()
-{
-
-}
-
 QString ConnectionInterfaceClass::getInfoFromSensors()
 {
     fSocket = new QTcpSocket(this);
     fSocket->connectToHost("fhlthermorasp1.desy.de" , 50007);
-    char *array = new char[512];
     fSocket->waitForReadyRead();
-
     QByteArray buffer;
     buffer = fSocket->readAll();
     fSocket->close();
-    QString DataAsString = QTextCodec::codecForMib(106)->toUnicode(buffer);
+    QString cData = QTextCodec::codecForMib(106)->toUnicode(buffer);
 
-    return DataAsString;
+    return cData;
 }

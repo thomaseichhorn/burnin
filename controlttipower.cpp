@@ -44,7 +44,6 @@ QString ControlTTiPower::getCurrSet(int pId)
     viPrintf(fVi , "I%d? \n" , pId);
     viScanf(fVi , "%t" , cBuff);
     QString cStr = QString(cBuff);
-    cStr.remove(0 , 2);
 
     return cStr;
 }
@@ -66,7 +65,7 @@ QString ControlTTiPower::getVoltSet(int pId)
     viScanf(fVi , "%t" , cBuff);
 
     QString cStr = QString(cBuff);
-    qDebug() << cStr ;
+    cStr = cStr.remove(0 ,2);
     return cStr;
 }
 

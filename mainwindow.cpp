@@ -1,13 +1,18 @@
+#include <iostream>
+
 #include <QFile>
 #include <QFileDialog>
 #include <QThread>
 #include <QStandardItemModel>
 #include <QTimer>
+#include <QAbstractItemModel>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 #include "additionalthread.h"
+
+int i = 1;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -16,11 +21,35 @@ MainWindow::MainWindow(QWidget *parent) :
     fIDMW1 = 0;
     fIDMW2 = 0;
 
+    ui->setupUi(this);
+
     fControl = new SystemControllerClass();
     fControl->Initialize();
-    ui->setupUi(this);
+    model = new QStandardItemModel(this);
+
+    QStandardItem *cItem1 = new QStandardItem("Added commands:");
+    model->setItem( 0 , 0 , cItem1);
+    model->index(0 , 0);
+    QStandardItem *cItem2 = new QStandardItem("Start time:");
+    model->setItem( 0 , 1 , cItem2);
+    model->index(0 , 1);
+    QStandardItem *cItem3 = new QStandardItem("End time:");
+    model->setItem( 0 , 2 , cItem3);
+    model->index(0 , 2);
+    QStandardItem *cItem4 = new QStandardItem("Status:");
+    model->setItem( 0 , 3 , cItem4);
+    model->index(0 , 3);
+
+    ui->AddedComands_tabelView->setModel(model);
+    ui->AddedComands_tabelView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->AddedComands_tabelView->horizontalHeader()->setStretchLastSection(true);
+    ui->AddedComands_tabelView->resizeColumnsToContents();
+    ui->AddedComands_tabelView->verticalHeader()->setVisible(false);
+    ui->AddedComands_tabelView->horizontalHeader()->setVisible(false);
+
     this->doListOfCommands();
-    this->getVoltAndCurr();
+    this->getVoltAndCurr1();
+    this->getVoltAndCurr2();
     this->getMeasurments();
 }
 
@@ -83,21 +112,37 @@ void MainWindow::on_I2_set_doubleSpinBox_valueChanged(double pCurr)
     fControl->Wait(1);
 }
 
-void MainWindow::getVoltAndCurr()
+void MainWindow::getVoltAndCurr1()
 {
-    AdditionalThread *cThread = cThread = new AdditionalThread("A", fControl);
-    QThread *cQThread = cQThread = new QThread();
+    AdditionalThread *cThread  = new AdditionalThread("A", fControl);
+    QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC1()));
-    connect(cThread, SIGNAL(sendToThread(QString)),this , SLOT(updateGetVAC(QString)));
+    connect(cThread, SIGNAL(send(vector<QString>)),this , SLOT(updateGetVAC1(vector<QString>)));
     cThread->moveToThread(cQThread);
     cQThread->start();
 
 }
 
-void MainWindow::updateGetVAC(QString cStrVAC1)
+void MainWindow::getVoltAndCurr2()
 {
-    ui->ID1_VoltAndCurr_label->setText(cStrVAC1);
+    AdditionalThread *cThread = new AdditionalThread("C", fControl);
+    QThread *cQThread = new QThread();
+    connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC2()));
+    connect(cThread, SIGNAL(sendToThread2(QString)),this , SLOT(updateGetVAC2(QString)));
+    cThread->moveToThread(cQThread);
+    cQThread->start();
 }
+
+void MainWindow::updateGetVAC1(vector<QString> pVec)
+{
+    ui->ID1_VoltAndCurr_label->setText(pVec[1]);
+}
+
+void MainWindow::updateGetVAC2(QString pStr)
+{
+    ui->ID2_VoltAndCurr_label->setText(pStr);
+}
+
 
 //creates a List with all commands
 void MainWindow::doListOfCommands()
@@ -146,8 +191,11 @@ void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
         cObj.cValue = 0;
         fVec.push_back(cObj);
     }
-    QListWidgetItem *cItem = new QListWidgetItem(cStr);
-    ui->AddedListWidget->addItem(cItem);
+    QStandardItem *cItem = new QStandardItem(cStr);
+    model->setItem(i , 0, cItem);
+    model->index(i, 0);
+    i++;
+    ui->AddedComands_tabelView->resizeColumnsToContents();
 }
 
 //reads file and writes it to AddWidget, QString into name field of fParam and string after = to value field
@@ -174,20 +222,18 @@ void MainWindow::on_readConfig_push_button_clicked()
             cObj.cValue = 0;
             fVec.push_back(cObj);
         }
-
-        QListWidgetItem *cItem = new QListWidgetItem(cStr);
-        ui->AddedListWidget->addItem(cItem);
+    }
+    for(vector<QString>::iterator iter = cVec->begin(); iter != cVec->end(); ++iter){
+        cStr = (*iter);
+        QStandardItem *cItem = new QStandardItem(cStr);
+        model->setItem(i , 0, cItem);
+        model->index(i , 0);
+        i++;
+        ui->AddedComands_tabelView->setModel(model);
+        ui->AddedComands_tabelView->resizeColumnsToContents();
     }
 }
 
-//removes item from widget and vector(fVec) when doule-clicked
-void MainWindow::on_AddedListWidget_itemDoubleClicked(QListWidgetItem *pItem)
-{
-    int cRow = ui->AddedListWidget->row(pItem);
-    delete ui->AddedListWidget->takeItem(ui->AddedListWidget->row(pItem));
-    vector<SystemControllerClass::fObjParam>::iterator iter = fVec.begin();
-    fVec.erase(iter + cRow);
-}
 
 void MainWindow::statusWidget()
 {
@@ -202,15 +248,26 @@ void MainWindow::on_Start_pushButton_clicked()
 
 void MainWindow::getMeasurments()
 {
-    AdditionalThread *cThread = cThread = new AdditionalThread("A" , fControl);
-    QThread *cQThread = cQThread = new QThread();
+    AdditionalThread *cThread = new AdditionalThread("B" , fControl);
+    QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getRaspSensors()));
     connect(cThread, SIGNAL(sendToThread(QString)),this , SLOT(RaspWidget(QString)));
     cThread->moveToThread(cQThread);
     cQThread->start();
 }
+
 //reads sensor on rasp and sets info to Raspberry sensors
 void MainWindow::RaspWidget(QString pStr)
 {
     ui->raspberrySensors_textBrowser->setText(pStr);
+}
+
+void MainWindow::on_AddedComands_tabelView_doubleClicked(const QModelIndex &index)
+{
+    int cRow = index.row();
+    ui->AddedComands_tabelView->model()->removeRow(cRow);
+    vector<SystemControllerClass::fObjParam>::iterator iter = fVec.begin();
+    fVec.erase(iter + cRow);
+    i--;
+
 }
