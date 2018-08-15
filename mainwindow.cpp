@@ -6,10 +6,8 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "additionalwindow.h"
-#include "environmentcontrolclass.h"
-#include "powercontrolclass.h"
-#include "controlttipower.h"
+
+#include "additionalthread.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,14 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     fControl->Initialize();
     ui->setupUi(this);
     this->doListOfCommands();
-    //this->getVoltAndCurr();
-    //QTimer *timer1 = new QTimer(this);
-    QTimer *timer2 = new QTimer(this);
-    //connect(timer1 , SIGNAL(timeout()), this , SLOT(sLotGetVoltAndCurr()));
-    connect(timer2, SIGNAL(timeout()), this, SLOT(RaspWidget()));
-    //timer1->start(10000);
-    timer2->start(10000);
-
+    this->getVoltAndCurr();
+    this->getMeasurments();
 }
 
 MainWindow::~MainWindow()
@@ -37,6 +29,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
+//Turn on the first part of TTi
 void MainWindow::on_Status1_On_checkBox_stateChanged(int pArg)
 {
     fIDMW1 = pArg;
@@ -50,6 +44,7 @@ void MainWindow::on_Status1_On_checkBox_stateChanged(int pArg)
     }
 }
 
+//Turns on the second part of the TTi
 void MainWindow::on_Status2_On_checkBox_3_stateChanged(int pArg)
 {
     fIDMW2 = pArg;
@@ -63,6 +58,7 @@ void MainWindow::on_Status2_On_checkBox_3_stateChanged(int pArg)
     }
 }
 
+//Set func
 void MainWindow::on_V1_set_doubleSpinBox_valueChanged(double pArg)
 {
     fControl->fTTiVolt->setVolt(1 , pArg);
@@ -89,29 +85,18 @@ void MainWindow::on_I2_set_doubleSpinBox_valueChanged(double pCurr)
 
 void MainWindow::getVoltAndCurr()
 {
-    QString cStrVSet1 , cStrVApp1 , cStrISet1 , cStrIApp1;
+    AdditionalThread *cThread = cThread = new AdditionalThread("A", fControl);
+    QThread *cQThread = cQThread = new QThread();
+    connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC1()));
+    connect(cThread, SIGNAL(sendToThread(QString)),this , SLOT(updateGetVAC(QString)));
+    cThread->moveToThread(cQThread);
+    cQThread->start();
 
-       cStrVSet1 = fControl->fTTiVolt->getVoltSet(1);
-       cStrISet1 = fControl->fTTiVolt->getCurrSet(1);
-       cStrVApp1 = fControl->fTTiVolt->getVoltApp(1);
-       cStrIApp1 = fControl->fTTiVolt->getCurrApp(1);
+}
 
-       //ui->V1_setted_label->setText(cStrVSet1);
-       ui->V1_App_label->setText(cStrVApp1);
-       ui->I1_setted_label->setText(cStrISet1);
-       ui->I1_App_label->setText(cStrIApp1);
-
-       QString cStrVSet2 , cStrVApp2 , cStrISet2 , cStrIApp2;
-
-       cStrVSet2 = fControl->fTTiVolt->getVoltSet(2);
-       cStrISet2 = fControl->fTTiVolt->getCurrSet(2);
-       cStrVApp2  = fControl->fTTiVolt->getVoltApp(2);
-       cStrIApp2 = fControl->fTTiVolt->getCurrApp(2);
-
-       ui->V2_setted_label->setText(cStrVSet2);
-       ui->V2_App_label->setText(cStrVApp2);
-       ui->I2_settted_label->setText(cStrISet2);
-       ui->I2_App_label->setText(cStrIApp2);
+void MainWindow::updateGetVAC(QString cStrVAC1)
+{
+    ui->ID1_VoltAndCurr_label->setText(cStrVAC1);
 }
 
 //creates a List with all commands
@@ -139,7 +124,7 @@ void MainWindow::doListOfCommands()
     ui->listOfCommands->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-//func for add command to the list and vector from listOfCommands to AddedWidget
+//func which adds command to the list and vector from listOfCommands to AddedWidget
 void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
 {
     SystemControllerClass::fObjParam cObj;
@@ -165,7 +150,7 @@ void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
     ui->AddedListWidget->addItem(cItem);
 }
 
-//read file and write it to AddWidget,data QString into name field of fParam and string after = to value field
+//reads file and writes it to AddWidget, QString into name field of fParam and string after = to value field
 void MainWindow::on_readConfig_push_button_clicked()
 {
     SystemControllerClass::fObjParam cObj;
@@ -215,15 +200,17 @@ void MainWindow::on_Start_pushButton_clicked()
     //reads data from fVec and calls needed objects
 }
 
-void MainWindow::RaspWidget()
+void MainWindow::getMeasurments()
 {
-    QString cStr;
-    cStr = fControl->fConnectRasp->getInfoFromSensors();
-    ui->raspberrySensors_textBrowser->setText(cStr);
+    AdditionalThread *cThread = cThread = new AdditionalThread("A" , fControl);
+    QThread *cQThread = cQThread = new QThread();
+    connect(cQThread , SIGNAL(started()), cThread, SLOT(getRaspSensors()));
+    connect(cThread, SIGNAL(sendToThread(QString)),this , SLOT(RaspWidget(QString)));
+    cThread->moveToThread(cQThread);
+    cQThread->start();
 }
-
-void MainWindow::sLotGetVoltAndCurr()
+//reads sensor on rasp and sets info to Raspberry sensors
+void MainWindow::RaspWidget(QString pStr)
 {
-    getVoltAndCurr();
+    ui->raspberrySensors_textBrowser->setText(pStr);
 }
-

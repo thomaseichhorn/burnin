@@ -1,6 +1,6 @@
+//interfaces the DAQ system
 #ifndef DAQCONTROLCLASS_H
 #define DAQCONTROLCLASS_H
-
 
 class DAQControlClass
 {

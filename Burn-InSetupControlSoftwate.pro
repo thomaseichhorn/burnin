@@ -39,7 +39,8 @@ SOURCES += \
     environmentcontrolclass.cpp \
     connectioninterfaceclass.cpp \
     controlttipower.cpp \
-    additionalwindow.cpp
+    additionalwindow.cpp \
+    additionalthread.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -50,7 +51,8 @@ HEADERS += \
     environmentcontrolclass.h \
     connectioninterfaceclass.h \
     controlttipower.h \
-    additionalwindow.h
+    additionalwindow.h \
+    additionalthread.h
 
 FORMS += \
         mainwindow.ui \

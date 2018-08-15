@@ -1,3 +1,4 @@
+//additional window for enter value in case of wait or set temperature
 #ifndef ADDITIONALWINDOW_H
 #define ADDITIONALWINDOW_H
 

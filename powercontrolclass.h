@@ -1,3 +1,4 @@
+//generic class for control the voltages on the modules
 #ifndef POWERCONTROLCLASS_H
 #define POWERCONTROLCLASS_H
 
@@ -18,6 +19,7 @@ public:
     int fId;
 
     virtual bool InitPwr() = 0;
+    virtual QString getVoltAndCurr(int pId) = 0;
     virtual QString getVoltSet(int pId) = 0;
     virtual QString getCurrSet(int pId) = 0;
     virtual QString getVoltApp(int pId) = 0;

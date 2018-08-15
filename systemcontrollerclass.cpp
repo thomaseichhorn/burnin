@@ -19,11 +19,6 @@ SystemControllerClass::SystemControllerClass()
     fEnv = new EnvironmentControlClass();
     fDatabase = new DatabaseInterfaceClass();
     fConnectRasp = new ConnectionInterfaceClass();
-//    fDaqControl = nullptr;
-//    fEnv = nullptr;
-//    fDatabase = nullptr;
-//    fTTiVolt = nullptr;
-//    fConnect = nullptr;
 }
 
 SystemControllerClass::~SystemControllerClass()

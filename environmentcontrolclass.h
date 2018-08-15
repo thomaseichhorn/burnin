@@ -1,7 +1,8 @@
+//class wich interfaces all enviromental
 #ifndef ENVIRONMENTCONTROLCLASS_H
 #define ENVIRONMENTCONTROLCLASS_H
 
-#include "connectioninterfaceclass.h"
+#include "connectioninterfaceclass.h" 
 
 class EnvironmentControlClass
 {

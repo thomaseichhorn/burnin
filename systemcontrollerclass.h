@@ -1,3 +1,4 @@
+//main control class which supervises all the other classes
 #ifndef SYSTEMCONTROLLERCLASS_H
 #define SYSTEMCONTROLLERCLASS_H
 
@@ -24,11 +25,12 @@ public:
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
+    //struct for the vector which contains commands
     struct fObjParam{
         string cName;
         double cValue;
     };
-
+    //check if all devices are connected
     void Initialize();
     vector<QString>* readFile();
     vector<fObjParam>* doList(vector<string> *);

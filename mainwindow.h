@@ -9,6 +9,7 @@
 #include "powercontrolclass.h"
 #include "controlttipower.h"
 #include "additionalwindow.h"
+#include "additionalthread.h"
 
 namespace Ui {
 class MainWindow;
@@ -48,9 +49,9 @@ private slots:
 
     void on_AddedListWidget_itemDoubleClicked(QListWidgetItem *pItem);
 
-    void RaspWidget();
+    void RaspWidget(QString);
 
-    void sLotGetVoltAndCurr();
+    void updateGetVAC(QString);
 
 private:
     int fIDMW1;
@@ -60,6 +61,8 @@ private:
     void doListOfCommands();
     void statusWidget();
     void getMeasurments();
+
+
 
 };
 

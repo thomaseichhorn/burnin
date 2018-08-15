@@ -1,3 +1,4 @@
+//connects to the raspberry and get the information from sensors
 #ifndef CONNECTIONINTERFACECLASS_H
 #define CONNECTIONINTERFACECLASS_H
 
