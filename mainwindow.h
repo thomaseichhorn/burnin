@@ -51,11 +51,12 @@ private slots:
 
     void RaspWidget(QString pStr);
 
-    void updateGetVAC1(vector<QString>);
+    void updateGetVAC1(QString pStr);
 
     void updateGetVAC2(QString pStr);
 
     void on_AddedComands_tabelView_doubleClicked(const QModelIndex &index);
+
 
 private:
     int fIDMW1;
@@ -66,6 +67,9 @@ private:
     void statusWidget();
     void getMeasurments();
     QStandardItemModel *model;
+    QString transformQStringSet(QString pStr);
+    QString transformQStringApp(QString pStr);
+    QString deleteSpaces(QString pStr);
 
 
 

@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -223,28 +223,28 @@
                   <item>
                    <widget class="QLabel" name="label_11">
                     <property name="text">
-                     <string>V_setted</string>
+                     <string>V set(V)</string>
                     </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="QLabel" name="label_12">
                     <property name="text">
-                     <string>I_setted</string>
+                     <string>I set(A)</string>
                     </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="QLabel" name="label_7">
                     <property name="text">
-                     <string>V_App</string>
+                     <string>V applied(V)</string>
                     </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="QLabel" name="label_8">
                     <property name="text">
-                     <string>I_App</string>
+                     <string>I applied(A)</string>
                     </property>
                    </widget>
                   </item>
@@ -276,20 +276,28 @@
                    <widget class="QDoubleSpinBox" name="I1_set_doubleSpinBox"/>
                   </item>
                   <item>
-                   <spacer name="verticalSpacer">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                   <widget class="QLabel" name="V1_setted">
+                    <property name="text">
+                     <string/>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>40</height>
-                     </size>
-                    </property>
-                   </spacer>
+                   </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="ID1_VoltAndCurr_label">
+                   <widget class="QLabel" name="I1_setted">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="V1_App">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="I1_App">
                     <property name="text">
                      <string/>
                     </property>
@@ -320,20 +328,28 @@
                    <widget class="QDoubleSpinBox" name="I2_set_doubleSpinBox"/>
                   </item>
                   <item>
-                   <spacer name="verticalSpacer_2">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                   <widget class="QLabel" name="V2_setted">
+                    <property name="text">
+                     <string/>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>40</height>
-                     </size>
-                    </property>
-                   </spacer>
+                   </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="ID2_VoltAndCurr_label">
+                   <widget class="QLabel" name="I2_setted">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="V2_app">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="I2_app">
                     <property name="text">
                      <string/>
                     </property>

@@ -15,7 +15,7 @@ class ControlTTiPower:public PowerControlClass
 public:
     ControlTTiPower();
     bool InitPwr();
-    QString getVoltAndCurr(int pId);
+    QString getVoltAndCurr();
     QString getVoltSet(int pId);
     QString getCurrSet(int pId);
     QString getVoltApp(int pId);
