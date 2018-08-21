@@ -32,36 +32,40 @@ bool ControlTTiPower::InitPwr()
 QString ControlTTiPower::getCurrApp(int pId)
 {
     char cBuff[256];
+
     viPrintf(fVi , "I%dO? \n" , pId);
     viScanf(fVi , "%t" , cBuff);
-    QString cStr = QString(cBuff);
 
+    QString cStr = QString(cBuff);
     return cStr;
 }
 QString ControlTTiPower::getCurrSet(int pId)
 {
     char cBuff[256];
-    viPrintf(fVi , "I%d? \n" , pId);
-    viScanf(fVi , "%t" , cBuff);
-    QString cStr = QString(cBuff);
 
+    viPrintf(fVi , "I%d? \n" , pId);    
+    viScanf(fVi , "%t" , cBuff);
+
+    QString cStr = QString(cBuff);
     return cStr;
 }
 
 QString ControlTTiPower::getVoltApp(int pId)
 {
     char cBuff[256];
-    viPrintf(fVi , "V%dO? \n" , pId);
-    viScanf(fVi , "%t" , cBuff);
-    QString cStr = QString(cBuff);
 
+    viPrintf(fVi , "V%dO? \n" , pId);   
+    viScanf(fVi , "%t" , cBuff);
+
+    QString cStr = QString(cBuff);
     return cStr;
 }
 
 QString ControlTTiPower::getVoltSet(int pId)
 {
     char cBuff[256];
-    viPrintf(fVi , "V%d? \n" , pId);
+
+    viPrintf(fVi , "V%d? \n" , pId);    
     viScanf(fVi , "%t" , cBuff);
 
     QString cStr = QString(cBuff);
@@ -110,6 +114,7 @@ void ControlTTiPower::offPowerAll()
 QString ControlTTiPower::getVoltAndCurr()
 {
     char cBuff[256];
+
     viPrintf(fVi , "V%d? \n" , 1);
     viPrintf(fVi , "I%d? \n" , 1);
     viPrintf(fVi , "V%dO? \n" , 1);
@@ -121,6 +126,7 @@ QString ControlTTiPower::getVoltAndCurr()
     viPrintf(fVi , "I%dO? \n" , 2);
 
     viScanf(fVi , "%t" , cBuff);
+
     QString cStr = QString(cBuff);
     return cStr;
 }

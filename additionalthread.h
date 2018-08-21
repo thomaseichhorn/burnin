@@ -18,17 +18,15 @@ public:
     AdditionalThread(QString pName , SystemControllerClass *pControl);
 
 signals:
-    void send(vector<QString>);
     void sendToThread(QString);
-    void sendToThread2(QString);
 
 public slots:
-    void getVAC1();
-    void getVAC2();
+    void getVAC();
     void getRaspSensors();
 
 private:
     QString fName;
+    SystemControllerClass *fRaspControl;
     SystemControllerClass *fAddControl;
 };
 

@@ -10,6 +10,7 @@
 #include "databaseinterfaceclass.h"
 #include "controlttipower.h"
 #include "connectioninterfaceclass.h"
+#include "controlkeithleypower.h"
 
 
 using namespace  std;
@@ -25,6 +26,7 @@ public:
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
+    ControlKeithleyPower *fKeithleyControl;
     //struct for the vector which contains commands
     struct fObjParam{
         string cName;
@@ -35,6 +37,7 @@ public:
     vector<QString>* readFile();
     vector<fObjParam>* doList(vector<string> *);
     void Wait(int pSec);
+    vector<PowerControlClass> fVecSources;
 
 private:
 };

@@ -40,7 +40,8 @@ SOURCES += \
     connectioninterfaceclass.cpp \
     controlttipower.cpp \
     additionalwindow.cpp \
-    additionalthread.cpp
+    additionalthread.cpp \
+    controlkeithleypower.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -52,7 +53,8 @@ HEADERS += \
     connectioninterfaceclass.h \
     controlttipower.h \
     additionalwindow.h \
-    additionalthread.h
+    additionalthread.h \
+    controlkeithleypower.h
 
 FORMS += \
         mainwindow.ui \

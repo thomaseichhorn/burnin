@@ -6,20 +6,21 @@
 #include <QStandardItemModel>
 #include <QTimer>
 #include <QAbstractItemModel>
+#include <QMessageBox>
+
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 #include "additionalthread.h"
-
-int i = 1;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    fIDMW1 = 0;
-    fIDMW2 = 0;
+    fIDTTi1 = 0;
+    fIDTTi2 = 0;
+    fRowMax = 1;
+    fRowClicked = 0;
 
     ui->setupUi(this);
 
@@ -51,8 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->AddedComands_tabelView->setDropIndicatorShown(true);
 
     this->doListOfCommands();
-    this->getVoltAndCurr1();
-    this->getVoltAndCurr2();
+    this->getVoltAndCurr();
     this->getMeasurments();
 }
 
@@ -65,7 +65,7 @@ MainWindow::~MainWindow()
 //Turn on the first part of TTi
 void MainWindow::on_Status1_On_checkBox_stateChanged(int pArg)
 {
-    fIDMW1 = pArg;
+    fIDTTi1 = pArg;
     if( pArg){
         fControl->fTTiVolt->onPower(1);
         fControl->Wait(1);
@@ -79,7 +79,7 @@ void MainWindow::on_Status1_On_checkBox_stateChanged(int pArg)
 //Turns on the second part of the TTi
 void MainWindow::on_Status2_On_checkBox_3_stateChanged(int pArg)
 {
-    fIDMW2 = pArg;
+    fIDTTi2 = pArg;
     if( pArg ){
         fControl->fTTiVolt->onPower(2);
         fControl->Wait(1);
@@ -115,28 +115,18 @@ void MainWindow::on_I2_set_doubleSpinBox_valueChanged(double pCurr)
     fControl->Wait(1);
 }
 
-void MainWindow::getVoltAndCurr1()
+void MainWindow::getVoltAndCurr()
 {
     AdditionalThread *cThread  = new AdditionalThread("A", fControl);
     QThread *cQThread = new QThread();
-    connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC1()));
-    connect(cThread, SIGNAL(sendToThread(QString)),this , SLOT(updateGetVAC1(QString)));
+    connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC()));
+    connect(cThread, SIGNAL(sendToThread(QString)),this , SLOT(updateGetVAC(QString)));
     cThread->moveToThread(cQThread);
     cQThread->start();
 
 }
 
-void MainWindow::getVoltAndCurr2()
-{
-    AdditionalThread *cThread = new AdditionalThread("C", fControl);
-    QThread *cQThread = new QThread();
-    connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC2()));
-    connect(cThread, SIGNAL(sendToThread2(QString)),this , SLOT(updateGetVAC2(QString)));
-    cThread->moveToThread(cQThread);
-    cQThread->start();
-}
-
-void MainWindow::updateGetVAC1(QString pStr)
+void MainWindow::updateGetVAC(QString pStr)
 {
     QString cStrV1Set , cStrI1Set , cStrV1App , cStrI1App;
 
@@ -157,14 +147,14 @@ void MainWindow::updateGetVAC1(QString pStr)
     for(int i = 20 ; i != 29 ; i++){
         cStrV1App[i] = pStr[i];
     }
-    cStrV1App = transformQStringApp(cStrV1App);
+    cStrV1App = transformQString(cStrV1App);
     cStrV1App = deleteSpaces(cStrV1App);
     ui->V1_App->setText(cStrV1App);
 
     for(int i = 30 ; i != 39 ; i++){
         cStrI1App[i] = pStr[i];
     }
-    cStrI1App = transformQStringApp(cStrI1App);
+    cStrI1App = transformQString(cStrI1App);
     cStrI1App = deleteSpaces(cStrI1App);
     ui->I1_App->setText(cStrI1App);
 
@@ -187,31 +177,24 @@ void MainWindow::updateGetVAC1(QString pStr)
     for(int i = 60 ; i != 69 ; i++){
         cStrV2App[i] = pStr[i];
     }
-    cStrV2App = transformQStringApp(cStrV2App);
+    cStrV2App = transformQString(cStrV2App);
     cStrV2App = deleteSpaces(cStrV2App);
-    qDebug() << cStrV2App.size();
     ui->V2_app->setText(cStrV2App);
 
     for(int i = 69 ; i != 79 ; i++){
         cStrI2App[i] = pStr[i];
     }
-    cStrI2App = transformQStringApp(cStrI2App);
+    cStrI2App = transformQString(cStrI2App);
     cStrI2App = deleteSpaces(cStrI2App);
     ui->I2_app->setText(cStrI2App);
 }
-
-void MainWindow::updateGetVAC2(QString pStr)
-{
-
-}
-
 
 //creates a List with all commands
 void MainWindow::doListOfCommands()
 {
     QStandardItemModel *cModel = new QStandardItemModel(this);
 
-    QStandardItem *cItem1 = new QStandardItem("Set Temperature (in C)");
+    QStandardItem *cItem1 = new QStandardItem("Set Temperature (°C)");
     cModel->setItem( 0 , cItem1);
     cModel->index( 0 , 0);
 
@@ -223,7 +206,7 @@ void MainWindow::doListOfCommands()
     cModel->setItem( 2 , cItem3);
     cModel->index( 2 , 0);
 
-    QStandardItem *cItem4 = new QStandardItem("Wait (in sec)");
+    QStandardItem *cItem4 = new QStandardItem("Wait (Sec)");
     cModel->setItem( 3 , cItem4);
     cModel->index( 3 , 0);
 
@@ -236,10 +219,10 @@ void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
 {
     SystemControllerClass::fObjParam cObj;
     QString cValue;
-
     QString cStr = pIndex.data().toString();
+
     fAddWnd = new AdditionalWindow(this);
-    if(cStr == "Set Temperature (in C)" || cStr == "Wait (in sec)"){
+    if(cStr == "Set Temperature (°C)" || cStr == "Wait (Sec)"){
         fAddWnd->show();cout << endl;
         fAddWnd->exec();
         cValue = fAddWnd->getValue();
@@ -253,10 +236,11 @@ void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
         cObj.cValue = 0;
         fVec.push_back(cObj);
     }
+
     QStandardItem *cItem = new QStandardItem(cStr);
-    model->setItem(i , 0, cItem);
-    model->index(i, 0);
-    i++;
+    model->setItem(fRowMax , 0, cItem);
+    model->index(fRowMax, 0);
+    fRowMax++;
     ui->AddedComands_tabelView->resizeColumnsToContents();
 }
 
@@ -266,6 +250,7 @@ void MainWindow::on_readConfig_push_button_clicked()
     SystemControllerClass::fObjParam cObj;
     QString cStr;
     vector<QString> *cVec = new vector<QString>();
+
     cVec = fControl->readFile();
     for(vector<QString>::iterator iter = cVec->begin(); iter != cVec->end(); ++iter){
         cStr = (*iter);
@@ -288,24 +273,19 @@ void MainWindow::on_readConfig_push_button_clicked()
     for(vector<QString>::iterator iter = cVec->begin(); iter != cVec->end(); ++iter){
         cStr = (*iter);
         QStandardItem *cItem = new QStandardItem(cStr);
-        model->setItem(i , 0, cItem);
-        model->index(i , 0);
-        i++;
+        model->setItem(fRowMax , 0, cItem);
+        model->index(fRowMax , 0);
+        fRowMax++;
         ui->AddedComands_tabelView->setModel(model);
         ui->AddedComands_tabelView->resizeColumnsToContents();
     }
 }
 
-
-void MainWindow::statusWidget()
-{
-
-}
-
-
 void MainWindow::on_Start_pushButton_clicked()
 {
-    //reads data from fVec and calls needed objects
+    for(vector<SystemControllerClass::fObjParam>::iterator iter = fVec.begin() ; iter != fVec.end(); ++iter){
+        cout << (*iter).cName << "   " << (*iter).cValue << endl;
+    }
 }
 
 void MainWindow::getMeasurments()
@@ -324,27 +304,32 @@ void MainWindow::RaspWidget(QString pStr)
     ui->raspberrySensors_textBrowser->setText(pStr);
 }
 
-void MainWindow::on_AddedComands_tabelView_doubleClicked(const QModelIndex &index)
+void MainWindow::on_AddedComands_tabelView_doubleClicked(const QModelIndex &pIndex)
 {
-    int cRow = index.row();
-    ui->AddedComands_tabelView->model()->removeRow(cRow);
-    vector<SystemControllerClass::fObjParam>::iterator iter = fVec.begin();
-    fVec.erase(iter + cRow);
-    i--;
+    int cRow = pIndex.row();
+
+    QMessageBox cMsgBox;
+    cMsgBox.setText("Are you sure?");
+    cMsgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    cMsgBox.setIcon(QMessageBox::Warning);
+    cMsgBox.setDefaultButton(QMessageBox::Ok);
+    int res = cMsgBox.exec();
+    if (res == QMessageBox::Ok) //нажата кнопка Ok
+            removeRow(cRow);
 }
 
-QString MainWindow::transformQStringApp(QString pStr)
+QString MainWindow::transformQString(QString pStr)
 {
     string cStr;
     cStr = pStr.toStdString();
     size_t cPos1 = cStr.find("A");
     size_t cPos2 = cStr.find("V");
-    if(cPos1){
+    if(cPos1)
         cStr = cStr.substr(0 , cPos1);
-    }
-    if(cPos2){
+
+    if(cPos2)
         cStr = cStr.substr(0 , cPos2);
-    }
+
     pStr = QString::fromStdString(cStr);
     return pStr;
 }
@@ -352,17 +337,108 @@ QString MainWindow::transformQStringApp(QString pStr)
 QString MainWindow::deleteSpaces(QString pStr)
 {
     string str = pStr.toStdString();
-    for (std::string::iterator it = str.begin(); it != str.end(); it++)
-        {
-            std::string::iterator begin = it;
-            while (it != str.end() && ::isspace(*it) )it++;
-            if (it - begin > 1)
-                it = str.erase(begin + 1, it) - 1;
+    for (std::string::iterator it = str.begin(); it != str.end(); it++){
+        std::string::iterator begin = it;
+        while (it != str.end() && ::isspace(*it) )it++;
+        if (it - begin > 1)
+            it = str.erase(begin + 1, it) - 1;
     }
     return QString::fromStdString(str);
 }
 
-QString MainWindow::transformQStringSet(QString pStr)
+void MainWindow::removeRow(int pRow)
 {
-
+    ui->AddedComands_tabelView->model()->removeRow(pRow);
+    vector<SystemControllerClass::fObjParam>::iterator iter = fVec.begin();
+    fVec.erase(iter + pRow - 1);
+    cout << pRow << endl;
+    fRowMax--;
 }
+
+void MainWindow::on_AddedComands_tabelView_clicked(const QModelIndex &pIndex)
+{
+    fIndex = pIndex;
+}
+
+void MainWindow::on_Up_pushButton_clicked()
+{
+    int cRowIndex = fIndex.row();
+    if( cRowIndex > 1 ){
+        QString cData = ui->AddedComands_tabelView->model()->data(fIndex).toString();
+        QString cTempData = ui->AddedComands_tabelView->model()->data(ui->AddedComands_tabelView->
+                                                                      model()->index(cRowIndex-1, 0)).toString();
+        QStandardItem *cItem = new QStandardItem(cData);
+        QStandardItem *cItemTemp = new QStandardItem(cTempData);
+        model->setItem(cRowIndex-1 , cItem);
+        model->index(cRowIndex-1 , 0);
+        model->setItem(cRowIndex , cItemTemp);
+        model->index(cRowIndex , 0);
+
+        SystemControllerClass::fObjParam cObject;
+        vector<SystemControllerClass::fObjParam>::iterator cIter = fVec.begin() + cRowIndex -1;
+        vector<SystemControllerClass::fObjParam>::iterator cIterTemp = fVec.begin() +cRowIndex -2;
+
+        cObject.cName = (*cIter).cName;
+        cObject.cValue = (*cIter).cValue;
+
+        (*cIter).cName = (*cIterTemp).cName;
+        (*cIter).cValue = (*cIterTemp).cValue;
+
+        (*cIterTemp).cName = cObject.cName;
+        (*cIterTemp).cValue = cObject.cValue;
+    }
+}
+
+void MainWindow::on_Down_pushButton_clicked()
+{
+    int cRowIndex = fIndex.row();
+    if(cRowIndex != fRowMax - 1){
+        QString cData = ui->AddedComands_tabelView->model()->data(fIndex).toString();
+        QString cTempData = ui->AddedComands_tabelView->model()->data(ui->AddedComands_tabelView->
+                                                                      model()->index(cRowIndex+1, 0)).toString();
+        QStandardItem *cItem = new QStandardItem(cData);
+        QStandardItem *cItemTemp = new QStandardItem(cTempData);
+        model->setItem(cRowIndex+1 , cItem);
+        model->index(cRowIndex+1 , 0);
+        model->setItem(cRowIndex , cItemTemp);
+        model->index(cRowIndex , 0);
+
+        SystemControllerClass::fObjParam cObject;
+        vector<SystemControllerClass::fObjParam>::iterator cIter = fVec.begin() + cRowIndex -1;
+        vector<SystemControllerClass::fObjParam>::iterator cIterTemp = fVec.begin() +cRowIndex;
+
+        cObject.cName = (*cIter).cName;
+        cObject.cValue = (*cIter).cValue;
+
+        (*cIter).cName = (*cIterTemp).cName;
+        (*cIter).cValue = (*cIterTemp).cValue;
+
+        (*cIterTemp).cName = cObject.cName;
+        (*cIterTemp).cValue = cObject.cValue;
+    }
+}
+
+void MainWindow::on_Keithley_checkBox_stateChanged(int pArg)
+{
+    fIDForKeithley = pArg;
+    if( pArg){
+        fControl->fKeithleyControl->onPower();
+        fControl->Wait(0.5);
+    }
+    else{
+        fControl->fKeithleyControl->offPower();
+        fControl->Wait(0.5);
+    }
+}
+
+void MainWindow::on_Keithley_V_set_doubleSpinBox_valueChanged(double pVolt)
+{
+    fControl->fKeithleyControl->setVolt(pVolt);
+}
+
+void MainWindow::on_Keithley_CurrentCompliance_set_doubleSpinBox_valueChanged(double pCurrCompliance)
+{
+    fControl->fKeithleyControl->fCurrCompliance = pCurrCompliance;
+    fControl->Wait(0.5);
+}
+

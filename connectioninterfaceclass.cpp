@@ -10,8 +10,7 @@
 using namespace std;
 
 ConnectionInterfaceClass::ConnectionInterfaceClass(QObject *parent) : QObject(parent)
-{
-}
+{}
 
 bool ConnectionInterfaceClass::raspInitialize()
 {

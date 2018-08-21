@@ -19,16 +19,11 @@ SystemControllerClass::SystemControllerClass()
     fEnv = new EnvironmentControlClass();
     fDatabase = new DatabaseInterfaceClass();
     fConnectRasp = new ConnectionInterfaceClass();
+//    fKeithleyControl = new ControlKeithleyPower();
 }
 
 SystemControllerClass::~SystemControllerClass()
-{
-//    delete fConnectRasp;
-//    delete fTTiVolt;
-//    delete fDaqControl;
-//    delete fEnv;
-//    delete fDatabase;
-}
+{}
 
 void SystemControllerClass::Initialize()
 {
@@ -37,6 +32,7 @@ void SystemControllerClass::Initialize()
     fEnv->InitEnv();
     fDatabase->InitDatabase();
     fConnectRasp->raspInitialize();
+//    fKeithleyControl->InitPwr();
 }
 
 vector<QString>* SystemControllerClass::readFile()

@@ -27,6 +27,11 @@ public:
     void offPower(int pId);
     void onPowerAll();
     void offPowerAll();
+
+    ViSession fVi;
+    ViSession fDefaultRm;
+    ViStatus fStatus;
+    int fId;
 private:
 };
 #endif // CONTROLTTIPOWER_H

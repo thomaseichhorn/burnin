@@ -13,10 +13,6 @@ class PowerControlClass
 {
 public:
     PowerControlClass();
-    ViSession fVi;
-    ViSession fDefaultRm;
-    ViStatus fStatus;
-    int fId;
 
     virtual bool InitPwr() = 0;
     virtual QString getVoltAndCurr() = 0;
@@ -31,6 +27,8 @@ public:
     virtual void offPower(int pId) = 0;
     virtual void onPowerAll() = 0;
     virtual void offPowerAll() = 0;
+
+
 };
 
 #endif // POWERCONTROLCLASS_H

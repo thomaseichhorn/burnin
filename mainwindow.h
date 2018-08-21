@@ -24,10 +24,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    int fRowMax;
     SystemControllerClass *fControl;
     AdditionalWindow *fAddWnd;
-    void getVoltAndCurr1();
-    void getVoltAndCurr2();
 
 private slots:
 
@@ -51,28 +50,38 @@ private slots:
 
     void RaspWidget(QString pStr);
 
-    void updateGetVAC1(QString pStr);
+    void updateGetVAC(QString pStr);
 
-    void updateGetVAC2(QString pStr);
+    void on_AddedComands_tabelView_doubleClicked(const QModelIndex &pIndex);
 
-    void on_AddedComands_tabelView_doubleClicked(const QModelIndex &index);
+    void removeRow(int pRow);
 
+    void on_AddedComands_tabelView_clicked(const QModelIndex &pIndex);
+
+    void on_Up_pushButton_clicked();
+
+    void on_Keithley_checkBox_stateChanged(int pVolt);
+
+    void on_Keithley_V_set_doubleSpinBox_valueChanged(double arg1);
+
+    void on_Keithley_CurrentCompliance_set_doubleSpinBox_valueChanged(double pCurrCompliance);
+
+    void on_Down_pushButton_clicked();
 
 private:
-    int fIDMW1;
-    int fIDMW2;
-    vector<SystemControllerClass::fObjParam> fVec;
     Ui::MainWindow *ui;
+    int fRowClicked;
+    int fIDTTi1;
+    int fIDTTi2;
+    int fIDForKeithley;
+    vector<SystemControllerClass::fObjParam> fVec;
     void doListOfCommands();
-    void statusWidget();
+    void getVoltAndCurr();
     void getMeasurments();
     QStandardItemModel *model;
-    QString transformQStringSet(QString pStr);
-    QString transformQStringApp(QString pStr);
+    QModelIndex fIndex;
+    QString transformQString(QString pStr);
     QString deleteSpaces(QString pStr);
-
-
-
 };
 
 #endif // MAINWINDOW_H

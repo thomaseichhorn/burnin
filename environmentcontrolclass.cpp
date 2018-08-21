@@ -5,15 +5,20 @@ using namespace std;
 EnvironmentControlClass::EnvironmentControlClass()
 {}
 
-void EnvironmentControlClass::InitEnv()
+bool EnvironmentControlClass::InitEnv()
 {
-
+    this->InitChiller();
 }
 double EnvironmentControlClass::getTemp()
 {
 
 }
 void EnvironmentControlClass::setTemp(double pTemp)
+{
+
+}
+
+bool EnvironmentControlClass::InitChiller()
 {
 
 }
