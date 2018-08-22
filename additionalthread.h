@@ -18,11 +18,13 @@ public:
     AdditionalThread(QString pName , SystemControllerClass *pControl);
 
 signals:
-    void sendToThread(QString);
+    void sendToThread(PowerControlClass::fVACvalues *);
+    void sendToThreadString(QString);
 
 public slots:
     void getVAC();
     void getRaspSensors();
+    void getVACKeithley();
 
 private:
     QString fName;

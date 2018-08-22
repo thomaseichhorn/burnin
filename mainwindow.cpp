@@ -7,7 +7,11 @@
 #include <QTimer>
 #include <QAbstractItemModel>
 #include <QMessageBox>
-
+#include <QPushButton>
+#include <QDoubleSpinBox>
+#include <QLCDNumber>
+#include <QVBoxLayout>
+#include <QLabel>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -17,12 +21,19 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    fIDTTi1 = 0;
-    fIDTTi2 = 0;
     fRowMax = 1;
     fRowClicked = 0;
 
     ui->setupUi(this);
+
+    QHBoxLayout *low_layout = new QHBoxLayout;
+    gui_pointers_low_voltage_1 = SetVoltageSource(low_layout, "TTI 1", "TTI", 2);
+    gui_pointers_low_voltage_2 = SetVoltageSource(low_layout, "TTI 2", "TTI", 2);
+    ui->groupBox->setLayout(low_layout);
+
+    QHBoxLayout *high_layout = new QHBoxLayout;
+    gui_pointers_high_voltage_1 = SetVoltageSource(high_layout, "Keithley 1", "Keithley2410", 1);
+    ui->groupBox_2->setLayout(high_layout);
 
     fControl = new SystemControllerClass();
     fControl->Initialize();
@@ -54,6 +65,14 @@ MainWindow::MainWindow(QWidget *parent) :
     this->doListOfCommands();
     this->getVoltAndCurr();
     this->getMeasurments();
+    //connections for low voltage
+    connect(gui_pointers_low_voltage_1->i_set ,SIGNAL(valueChanged(double)) , this, SLOT(on_I1_set_doubleSpinBox_valueChanged(double)));
+    connect(gui_pointers_low_voltage_1->v_set, SIGNAL(valueChanged(double)), this, SLOT(on_V1_set_doubleSpinBox_valueChanged(double)));
+    connect(gui_pointers_low_voltage_1->onoff_button, SIGNAL(stateChanged(int)), this , SLOT(on_OnOff_button1_stateChanged(int)));
+    //connections for high voltage
+    connect(gui_pointers_high_voltage_1->onoff_button, SIGNAL(stateChanged(int)) , this , SLOT(on_Keithley_OnOff_button_stateChanged(int)));
+    connect(gui_pointers_high_voltage_1->i_set , SIGNAL(valueChanged(double)) , this , SLOT(on_Keithley_CurrentCompliance_set_doubleSpinBox_valueChanged(double)));
+    connect(gui_pointers_high_voltage_1->v_set , SIGNAL(valueChanged(double)) , this , SLOT(on_Keithley_V_set_doubleSpinBox_valueChanged(double)));
 }
 
 MainWindow::~MainWindow()
@@ -61,132 +80,92 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-//Turn on the first part of TTi
-void MainWindow::on_Status1_On_checkBox_stateChanged(int pArg)
+output_pointer_t MainWindow::SetSourceOutputLayout(std::string pType)
 {
-    fIDTTi1 = pArg;
-    if( pArg){
-        fControl->fTTiVolt->onPower(1);
-        fControl->Wait(1);
-    }
-    else{
-        fControl->fTTiVolt->offPower(1);
-        fControl->Wait(1);
-    }
+    // creta pointer list
+    output_pointer_t cOutputPointers;
+
+    // create layout
+    cOutputPointers.layout = new QVBoxLayout;
+
+    // type of the power source
+    QLabel *type = new QLabel(pType.c_str());
+    type->setMaximumHeight(20);
+    cOutputPointers.layout->addWidget(type);
+
+    // i/v set
+    cOutputPointers.i_set = new QDoubleSpinBox();
+    cOutputPointers.i_set->setMaximumHeight(20);
+    cOutputPointers.layout->addWidget(cOutputPointers.i_set);
+    cOutputPointers.v_set = new QDoubleSpinBox();
+    cOutputPointers.v_set->setMaximumHeight(20);
+    cOutputPointers.layout->addWidget(cOutputPointers.v_set);
+
+    // applied
+    cOutputPointers.i_applied = new QLCDNumber();
+    cOutputPointers.i_applied->setMaximumHeight(20);
+    cOutputPointers.layout->addWidget(cOutputPointers.i_applied);
+    cOutputPointers.v_applied = new QLCDNumber();
+    cOutputPointers.v_applied->setMaximumHeight(20);
+    cOutputPointers.layout->addWidget(cOutputPointers.v_applied);
+
+    // on off
+    cOutputPointers.onoff_button = new QCheckBox("On/Off");
+    cOutputPointers.onoff_button->setMaximumHeight(20);
+    cOutputPointers.layout->addWidget(cOutputPointers.onoff_button);
+
+    // return
+    return cOutputPointers;
 }
 
-//Turns on the second part of the TTi
-void MainWindow::on_Status2_On_checkBox_3_stateChanged(int pArg)
+output_pointer_t* MainWindow::SetVoltageSource(QLayout *pMainLayout, std::string pName, std::string pType, int pNoutputs)
 {
-    fIDTTi2 = pArg;
-    if( pArg ){
-        fControl->fTTiVolt->onPower(2);
-        fControl->Wait(1);
+    // create the output pointers
+    output_pointer_t* cOutputPointers = new output_pointer_t[pNoutputs];
+
+    // horizontal layout
+    QGroupBox *group_box = new QGroupBox(pName.c_str());
+    QHBoxLayout *group_box_layout = new QHBoxLayout;
+
+    QSize size(80,20);
+
+    // set the labels
+    QVBoxLayout *label_layout = new QVBoxLayout;
+    QLabel *label_type = new QLabel("Type:");
+    label_type->setMinimumSize(size);
+    label_layout->addWidget(label_type);
+    QLabel *label_i_set = new QLabel("I(set), A:");
+    label_i_set->setMinimumSize(size);
+    label_layout->addWidget(label_i_set);
+    QLabel *label_v_set = new QLabel("V(set), V:");
+    label_v_set->setMinimumSize(size);
+    label_layout->addWidget(label_v_set);
+    QLabel *label_i_applied = new QLabel("I(applied), A:");
+    label_i_applied->setMinimumSize(size);
+    label_layout->addWidget(label_i_applied);
+    QLabel *label_v_applied = new QLabel("V(applied), V:");
+    label_v_applied->setMinimumSize(size);
+    label_layout->addWidget(label_v_applied);
+    QLabel *label_onoff = new QLabel("On/Off:");
+    label_onoff->setMinimumSize(size);
+    label_layout->addWidget(label_onoff);
+    // now set
+    group_box_layout->addItem(label_layout);
+
+    // set the outputs
+    for (int i = 0; i < pNoutputs; i++) {
+        cOutputPointers[i] = SetSourceOutputLayout(pType);
+        group_box_layout->addItem(cOutputPointers[i].layout);
     }
-    else{
-        fControl->fTTiVolt->offPower(2);
-        fControl->Wait(1);
-    }
-}
 
-//Set func
-void MainWindow::on_V1_set_doubleSpinBox_valueChanged(double pArg)
-{
-    fControl->fTTiVolt->setVolt(1 , pArg);
-    QThread::sleep(1);
-}
+    // set the group box
+    group_box->setLayout(group_box_layout);
 
-void MainWindow::on_I1_set_doubleSpinBox_valueChanged(double pCurr)
-{
-    fControl->fTTiVolt->setCurr(1 , pCurr);
-    QThread::sleep(1);
-}
+    // finally add to the main layout
+    pMainLayout->addWidget(group_box);
 
-void MainWindow::on_V2_set_doubleSpinBox_valueChanged(double pVolt)
-{
-    fControl->fTTiVolt->setVolt(2 , pVolt);
-    fControl->Wait(1);
-}
-
-void MainWindow::on_I2_set_doubleSpinBox_valueChanged(double pCurr)
-{
-    fControl->fTTiVolt->setCurr(2 , pCurr);
-    fControl->Wait(1);
-}
-
-void MainWindow::getVoltAndCurr()
-{
-    AdditionalThread *cThread  = new AdditionalThread("A", fControl);
-    QThread *cQThread = new QThread();
-    connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC()));
-    connect(cThread, SIGNAL(sendToThread(QString)),this , SLOT(updateGetVAC(QString)));
-    cThread->moveToThread(cQThread);
-    cQThread->start();
-
-}
-
-void MainWindow::updateGetVAC(QString pStr)
-{
-    QString cStrV1Set , cStrI1Set , cStrV1App , cStrI1App;
-
-    for(int i = 0 ; i != 9 ; i++){
-        cStrV1Set[i] = pStr[i];
-    }
-    cStrV1Set = deleteSpaces(cStrV1Set);
-    cStrV1Set = cStrV1Set.remove(0, 3);
-    ui->V1_setted->setText(cStrV1Set);
-
-    for(int i = 10 ; i != 19 ; i++){
-        cStrI1Set[i] = pStr[i];
-    }
-    cStrI1Set = deleteSpaces(cStrI1Set);
-    cStrI1Set = cStrI1Set.remove(0 , 3);
-    ui->I1_setted->setText(cStrI1Set);
-
-    for(int i = 20 ; i != 29 ; i++){
-        cStrV1App[i] = pStr[i];
-    }
-    cStrV1App = transformQString(cStrV1App);
-    cStrV1App = deleteSpaces(cStrV1App);
-    ui->V1_App->setText(cStrV1App);
-
-    for(int i = 30 ; i != 39 ; i++){
-        cStrI1App[i] = pStr[i];
-    }
-    cStrI1App = transformQString(cStrI1App);
-    cStrI1App = deleteSpaces(cStrI1App);
-    ui->I1_App->setText(cStrI1App);
-
-    QString cStrV2Set , cStrI2Set , cStrV2App , cStrI2App;
-
-    for(int i = 40 ; i != 49 ; i++){
-        cStrV2Set[i] = pStr[i];
-    }
-    cStrV2Set = deleteSpaces(cStrV2Set);
-    cStrV2Set = cStrV2Set.remove(0 , 3);
-    ui->V2_setted->setText(cStrV2Set);
-
-    for(int i = 50 ; i != 59 ; i++){
-        cStrI2Set[i] = pStr[i];
-    }
-    cStrI2Set = deleteSpaces(cStrI2Set);
-    cStrI2Set = cStrI2Set.remove(0 , 3);
-    ui->I2_setted->setText(cStrI2Set);
-
-    for(int i = 60 ; i != 69 ; i++){
-        cStrV2App[i] = pStr[i];
-    }
-    cStrV2App = transformQString(cStrV2App);
-    cStrV2App = deleteSpaces(cStrV2App);
-    ui->V2_app->setText(cStrV2App);
-
-    for(int i = 69 ; i != 79 ; i++){
-        cStrI2App[i] = pStr[i];
-    }
-    cStrI2App = transformQString(cStrI2App);
-    cStrI2App = deleteSpaces(cStrI2App);
-    ui->I2_app->setText(cStrI2App);
+    // return everything
+    return cOutputPointers;
 }
 
 //creates a List with all commands
@@ -214,6 +193,18 @@ void MainWindow::doListOfCommands()
     ui->listOfCommands->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
+void MainWindow::getVoltAndCurr()
+{
+    AdditionalThread *cThread  = new AdditionalThread("A", fControl);
+    QThread *cQThread = new QThread();
+    connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC()));
+    connect(cThread, SIGNAL(sendToThread(PowerControlClass::fVACvalues*)),this,
+            SLOT(updateGetVAC(PowerControlClass::fVACvalues*)));
+    cThread->moveToThread(cQThread);
+    cQThread->start();
+
+}
+
 //func which adds command to the list and vector from listOfCommands to AddedWidget
 void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
 {
@@ -223,7 +214,7 @@ void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
 
     fAddWnd = new AdditionalWindow(this);
     if(cStr == "Set Temperature (°C)" || cStr == "Wait (Sec)"){
-        fAddWnd->show();cout << endl;
+        fAddWnd->show();
         fAddWnd->exec();
         cValue = fAddWnd->getValue();
         cObj.cName = cStr.toStdString();
@@ -293,7 +284,7 @@ void MainWindow::getMeasurments()
     AdditionalThread *cThread = new AdditionalThread("B" , fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getRaspSensors()));
-    connect(cThread, SIGNAL(sendToThread(QString)),this , SLOT(RaspWidget(QString)));
+    connect(cThread, SIGNAL(sendToThreadString(QString)),this , SLOT(RaspWidget(QString)));
     cThread->moveToThread(cQThread);
     cQThread->start();
 }
@@ -307,43 +298,14 @@ void MainWindow::RaspWidget(QString pStr)
 void MainWindow::on_AddedComands_tabelView_doubleClicked(const QModelIndex &pIndex)
 {
     int cRow = pIndex.row();
-
     QMessageBox cMsgBox;
     cMsgBox.setText("Are you sure?");
     cMsgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     cMsgBox.setIcon(QMessageBox::Warning);
     cMsgBox.setDefaultButton(QMessageBox::Ok);
     int res = cMsgBox.exec();
-    if (res == QMessageBox::Ok) //нажата кнопка Ok
+    if (res == QMessageBox::Ok)
             removeRow(cRow);
-}
-
-QString MainWindow::transformQString(QString pStr)
-{
-    string cStr;
-    cStr = pStr.toStdString();
-    size_t cPos1 = cStr.find("A");
-    size_t cPos2 = cStr.find("V");
-    if(cPos1)
-        cStr = cStr.substr(0 , cPos1);
-
-    if(cPos2)
-        cStr = cStr.substr(0 , cPos2);
-
-    pStr = QString::fromStdString(cStr);
-    return pStr;
-}
-
-QString MainWindow::deleteSpaces(QString pStr)
-{
-    string str = pStr.toStdString();
-    for (std::string::iterator it = str.begin(); it != str.end(); it++){
-        std::string::iterator begin = it;
-        while (it != str.end() && ::isspace(*it) )it++;
-        if (it - begin > 1)
-            it = str.erase(begin + 1, it) - 1;
-    }
-    return QString::fromStdString(str);
 }
 
 void MainWindow::removeRow(int pRow)
@@ -351,7 +313,6 @@ void MainWindow::removeRow(int pRow)
     ui->AddedComands_tabelView->model()->removeRow(pRow);
     vector<SystemControllerClass::fObjParam>::iterator iter = fVec.begin();
     fVec.erase(iter + pRow - 1);
-    cout << pRow << endl;
     fRowMax--;
 }
 
@@ -392,7 +353,7 @@ void MainWindow::on_Up_pushButton_clicked()
 void MainWindow::on_Down_pushButton_clicked()
 {
     int cRowIndex = fIndex.row();
-    if(cRowIndex != fRowMax - 1){
+    if(cRowIndex != fRowMax - 1){//нажата кнопка Ok
         QString cData = ui->AddedComands_tabelView->model()->data(fIndex).toString();
         QString cTempData = ui->AddedComands_tabelView->model()->data(ui->AddedComands_tabelView->
                                                                       model()->index(cRowIndex+1, 0)).toString();
@@ -418,27 +379,92 @@ void MainWindow::on_Down_pushButton_clicked()
     }
 }
 
-void MainWindow::on_Keithley_checkBox_stateChanged(int pArg)
+void MainWindow::on_OnOff_button1_stateChanged(int pArg)
 {
-    fIDForKeithley = pArg;
     if( pArg){
-        fControl->fKeithleyControl->onPower();
-        fControl->Wait(0.5);
+        fControl->fTTiVolt->onPower(1);
+        fControl->Wait(1);
     }
     else{
-        fControl->fKeithleyControl->offPower();
-        fControl->Wait(0.5);
+        fControl->fTTiVolt->offPower(1);
+        fControl->Wait(1);
     }
+}
+
+//Turns on the second part of the TTi
+void MainWindow::on_OnOff_button2_stateChanged(int pArg)
+{
+    if( pArg ){
+        fControl->fTTiVolt->onPower(2);
+        fControl->Wait(1);
+    }
+    else{
+        fControl->fTTiVolt->offPower(2);
+        fControl->Wait(1);
+    }
+}
+
+//Set func
+void MainWindow::on_V1_set_doubleSpinBox_valueChanged(double pVolt)
+{
+    fControl->fTTiVolt->setVolt(pVolt , 1);
+    QThread::sleep(0.5);
+}
+
+void MainWindow::on_I1_set_doubleSpinBox_valueChanged(double pCurr)
+{
+    fControl->fTTiVolt->setCurr(pCurr, 1);
+    QThread::sleep(0.5);
+}
+
+void MainWindow::on_V2_set_doubleSpinBox_valueChanged(double pVolt)
+{
+    fControl->fTTiVolt->setVolt(pVolt , 2);
+    fControl->Wait(0.5);
+}
+
+void MainWindow::on_I2_set_doubleSpinBox_valueChanged(double pCurr)
+{
+    fControl->fTTiVolt->setCurr(pCurr , 2);
+    fControl->Wait(0.5);
+}
+
+void MainWindow::updateGetVAC(PowerControlClass::fVACvalues* pObject)
+{
+    gui_pointers_low_voltage_1->i_set->setValue(pObject->pISet1);
+    gui_pointers_low_voltage_1->v_set->setValue(pObject->pVSet1);
+    gui_pointers_low_voltage_1->i_applied->display(pObject->pIApp1);
+    gui_pointers_low_voltage_1->v_applied->display(pObject->pVApp1);
+
+}
+
+void MainWindow::on_Keithley_OnOff_button_stateChanged(int pArg)
+{
+//    if( pArg){
+//        fControl->fKeithleyControl->onPower(0);
+//        fControl->Wait(0.5);
+//    }
+//    else{
+//        fControl->fKeithleyControl->offPower(0);
+//        fControl->Wait(0.5);
+//    }
 }
 
 void MainWindow::on_Keithley_V_set_doubleSpinBox_valueChanged(double pVolt)
 {
-    fControl->fKeithleyControl->setVolt(pVolt);
+//    fControl->fKeithleyControl->fVoltSet = pVolt;
+//    fControl->fKeithleyControl->setVolt(pVolt , 0);
 }
 
 void MainWindow::on_Keithley_CurrentCompliance_set_doubleSpinBox_valueChanged(double pCurrCompliance)
 {
-    fControl->fKeithleyControl->fCurrCompliance = pCurrCompliance;
-    fControl->Wait(0.5);
+//    fControl->fKeithleyControl->fCurrCompliance = pCurrCompliance;
+//    fControl->Wait(0.5);
 }
 
+
+void MainWindow::on_Keithley_Step_spinbox_valueChanged(int pStep)
+{
+//    fControl->fKeithleyControl->fStep = pStep;
+//    fControl->Wait(0.5);
+}

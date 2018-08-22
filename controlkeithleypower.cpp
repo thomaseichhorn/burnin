@@ -1,4 +1,3 @@
-#include "controlkeithleypower.h"
 
 
 #include <iostream>
@@ -21,6 +20,7 @@ const double inst_voltage = -150.0;
 ControlKeithleyPower::ControlKeithleyPower()
 {
     fCurrCompliance = 0;
+    fVoltSet = 0;
     fVolt = 0;
     fCurr = 0;
     fStep = 0;
@@ -81,7 +81,7 @@ bool ControlKeithleyPower::InitPwr(){
 
 }
 
-void ControlKeithleyPower::onPower()
+void ControlKeithleyPower::onPower(int pId)
 {
 //    cout << "Turning on" << endl;
     ViUInt32 writeCount ;
@@ -90,51 +90,60 @@ void ControlKeithleyPower::onPower()
     strcpy(stringinput , ":OUTP ON\r");
     fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
     QThread::sleep(1);
-    setVolt(fVolt);
+    setVolt(fVolt , 0);
     QThread::sleep(1);
 }
 
-void ControlKeithleyPower::setVolt(double pVolt)
+void ControlKeithleyPower::setVolt(double pVoltage, int pId)
 {
-//    cout << "Setting Voltage to: " <<  pVolt << " V with " <<  inst_step << " steps" << endl;
     getVoltAndCurr();
     ViUInt32 writeCount;
     char stringinput[512];
     double step = fStep;
     double sign = 1;
     double current_volt = fVolt;
-    if ( current_volt != pVolt){
-        if(pVolt < current_volt ){
+    if ( current_volt != pVoltage){
+        if(pVoltage < current_volt ){
             step = step*(-1);
             sign = -1;
         }
         current_volt = current_volt + step;
-        while((sign*(pVolt - current_volt))>=0){
-//            cout << "Setting voltage to" << fVolt << "V" << endl;
+        while((sign*(pVoltage - current_volt))>=0){
+
             sprintf(stringinput ,":SOUR:VOLT:LEV %G\r" , current_volt);
             fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
             current_volt = current_volt + step;
             QThread::sleep(1.5);
             getVoltAndCurr();
-//            cout << "fVolt = " << fVolt << "fCurr = " << fCurr << endl;
         }
-// finishing in case step doesn't match
-        sprintf(stringinput , ":SOUR:VOLT:LEV %G\r" , pVolt);
+        sprintf(stringinput , ":SOUR:VOLT:LEV %G\r" , pVoltage);
         fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
     }
 }
-QString ControlKeithleyPower::getVoltAndCurr()
+
+void ControlKeithleyPower::setCurr(double pCurrent, int pId)
+{
+    ViUInt32 writeCount;
+    char stringinput[512];
+
+    sprintf(stringinput ,":SENS:CURR:PROT %lGE-6\r" , pCurrent);
+    fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+}
+
+PowerControlClass::fVACvalues* ControlKeithleyPower::getVoltAndCurr()
 {
     ViUInt32 writeCount , retCount;
     char stringinput[512];
     unsigned char buffer[512];
+    PowerControlClass::fVACvalues *cObject;
 
     strcpy(stringinput , ":READ?\r");
     fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
     fStatus = viRead(fVi , buffer , 100 , &retCount);
     printf("%s\n" , buffer);
     QString *cStr = new QString(reinterpret_cast<const char*>(buffer));
-    //cout << cStr->toStdString() << endl;
+
     string str = cStr->toStdString();
     size_t cPos = str.find(',');
 //    cout << cPos << endl;
@@ -142,14 +151,24 @@ QString ControlKeithleyPower::getVoltAndCurr()
     QString fCurrStr = QString::fromStdString(str.substr(cPos+1, cPos + 13));
     fVolt = fVoltStr.toDouble();
     fCurr = fCurrStr.toDouble();
-//    cout << fVolt << endl;
-//    cout << fCurr << endl;
+
+    cObject->pVSet1 = fVoltSet;
+    cObject->pISet1 = fCurrCompliance;
+    cObject->pVApp1 = fVolt;
+    cObject->pIApp1 = fCurr;
+    cObject->pVSet2 = 0;
+    cObject->pISet2 = 0;
+    cObject->pVApp2 = 0;
+    cObject->pIApp2 = 0;
+
+    return cObject;
+
 }
 
-void ControlKeithleyPower::offPower()
+void ControlKeithleyPower::offPower(int pId)
 {
-//    cout << "Turning Off" << endl;
-    setVolt(0);
+
+    setVolt(0 , 0);
     QThread::sleep(0.5);
     ViUInt32 writeCount ;
     char stringinput[512];

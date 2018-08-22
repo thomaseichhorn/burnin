@@ -2,6 +2,8 @@
 
 using namespace std;
 
-PowerControlClass::PowerControlClass(){}
+PowerControlClass::PowerControlClass(){
+    fNOutputs = 0;
+}
 
 

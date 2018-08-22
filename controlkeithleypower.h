@@ -7,13 +7,16 @@ class ControlKeithleyPower:public PowerControlClass
 {
 public:
     ControlKeithleyPower();
+
     bool InitPwr();
-    QString getVoltAndCurr();
-    void setVolt(double pVolt);
-    void onPower();
-    void offPower();
+    fVACvalues* getVoltAndCurr();
+    void setVolt(double pVoltage, int pId);
+    void setCurr(double pCurrent , int pId);
+    void onPower(int pId);
+    void offPower(int pId);
 
     double fVolt;
+    double fVoltSet;
     double fCurr;
     double fStep;
     double fCurrCompliance;

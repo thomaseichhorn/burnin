@@ -2,6 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QMainWindow>
+#include "QPushButton"
+#include "QDoubleSpinBox"
+#include "QLCDNumber"
+#include "QCheckBox"
 #include <QListWidgetItem>
 #include <QStandardItemModel>
 
@@ -17,6 +22,15 @@ class MainWindow;
 class SystemControllerClass;
 }
 
+struct output_pointer_t {
+    QLayout *layout;
+    QDoubleSpinBox *i_set;
+    QDoubleSpinBox *v_set;
+    QLCDNumber *i_applied;
+    QLCDNumber *v_applied;
+    QCheckBox *onoff_button;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -30,11 +44,11 @@ public:
 
 private slots:
 
-    void on_V1_set_doubleSpinBox_valueChanged(double pArg);
+    void on_V1_set_doubleSpinBox_valueChanged(double pVolt);
 
-    void on_Status1_On_checkBox_stateChanged(int pArg);
+    void on_OnOff_button1_stateChanged(int pArg);
 
-    void on_Status2_On_checkBox_3_stateChanged(int pArg);
+    void on_OnOff_button2_stateChanged(int pArg);
 
     void on_I1_set_doubleSpinBox_valueChanged(double pCurr);
 
@@ -50,7 +64,7 @@ private slots:
 
     void RaspWidget(QString pStr);
 
-    void updateGetVAC(QString pStr);
+    void updateGetVAC(PowerControlClass::fVACvalues *pObject);
 
     void on_AddedComands_tabelView_doubleClicked(const QModelIndex &pIndex);
 
@@ -60,7 +74,7 @@ private slots:
 
     void on_Up_pushButton_clicked();
 
-    void on_Keithley_checkBox_stateChanged(int pVolt);
+    void on_Keithley_OnOff_button_stateChanged(int pVolt);
 
     void on_Keithley_V_set_doubleSpinBox_valueChanged(double arg1);
 
@@ -68,12 +82,11 @@ private slots:
 
     void on_Down_pushButton_clicked();
 
+    void on_Keithley_Step_spinbox_valueChanged(int pStep);
+
 private:
     Ui::MainWindow *ui;
     int fRowClicked;
-    int fIDTTi1;
-    int fIDTTi2;
-    int fIDForKeithley;
     vector<SystemControllerClass::fObjParam> fVec;
     void doListOfCommands();
     void getVoltAndCurr();
@@ -82,6 +95,14 @@ private:
     QModelIndex fIndex;
     QString transformQString(QString pStr);
     QString deleteSpaces(QString pStr);
+
+    output_pointer_t* gui_pointers_low_voltage_1;
+    output_pointer_t* gui_pointers_low_voltage_2;
+    output_pointer_t* gui_pointers_high_voltage_1;
+
+    output_pointer_t SetSourceOutputLayout(std::string pType);
+    output_pointer_t *SetVoltageSource(QLayout *pMainLayout, std::string pName, std::string pType,
+                                       int pNoutputs);
 };
 
 #endif // MAINWINDOW_H

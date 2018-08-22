@@ -3,6 +3,7 @@
 #include <QThread>
 #include <QDebug>
 
+#include <string>
 #include <iostream>
 
 
@@ -29,66 +30,14 @@ bool ControlTTiPower::InitPwr()
     }
 }
 
-QString ControlTTiPower::getCurrApp(int pId)
-{
-    char cBuff[256];
-
-    viPrintf(fVi , "I%dO? \n" , pId);
-    viScanf(fVi , "%t" , cBuff);
-
-    QString cStr = QString(cBuff);
-    return cStr;
-}
-QString ControlTTiPower::getCurrSet(int pId)
-{
-    char cBuff[256];
-
-    viPrintf(fVi , "I%d? \n" , pId);    
-    viScanf(fVi , "%t" , cBuff);
-
-    QString cStr = QString(cBuff);
-    return cStr;
-}
-
-QString ControlTTiPower::getVoltApp(int pId)
-{
-    char cBuff[256];
-
-    viPrintf(fVi , "V%dO? \n" , pId);   
-    viScanf(fVi , "%t" , cBuff);
-
-    QString cStr = QString(cBuff);
-    return cStr;
-}
-
-QString ControlTTiPower::getVoltSet(int pId)
-{
-    char cBuff[256];
-
-    viPrintf(fVi , "V%d? \n" , pId);    
-    viScanf(fVi , "%t" , cBuff);
-
-    QString cStr = QString(cBuff);
-    cStr = cStr.remove(0 ,2);
-    return cStr;
-}
-
-void ControlTTiPower::setVolt(int pId , double pVoltage)
+void ControlTTiPower::setVolt(double pVoltage , int pId)
 {
     viPrintf(fVi , "V%d %f\n" , pId , pVoltage);
 }
 
-void ControlTTiPower::setCurr(int pId, double pCurrent)
+void ControlTTiPower::setCurr(double pCurrent , int pId)
 {
     viPrintf(fVi , "I%d %f\n" , pId , pCurrent);
-}
-
-void ControlTTiPower::setVoltAndCurr(double pI1 , double pV1 , double pI2 , double pV2)
-{
-    viPrintf(fVi , "I1 %f\n" ,pI1);
-    viPrintf(fVi , "V1 %f\n" , pV1);
-    viPrintf(fVi , "I2 %f\n" ,pI2);
-    viPrintf(fVi , "V2 %f\n" , pV2);
 }
 
 void ControlTTiPower::onPower(int pId)
@@ -96,25 +45,15 @@ void ControlTTiPower::onPower(int pId)
     viPrintf(fVi , "OP%d 1 \n" , pId);
 }
 
-void ControlTTiPower::onPowerAll()
-{
-    viPrintf(fVi , "OPALL 1 \n");
-}
-
 void ControlTTiPower::offPower(int pId)
 {
     viPrintf(fVi , "OP%d 0 \n" , pId);
 }
 
-void ControlTTiPower::offPowerAll()
+PowerControlClass::fVACvalues *ControlTTiPower::getVoltAndCurr()
 {
-    viPrintf(fVi , "OPALL 0 \n");
-}
-
-QString ControlTTiPower::getVoltAndCurr()
-{
+    fVACvalues *cObject = new fVACvalues();
     char cBuff[256];
-
     viPrintf(fVi , "V%d? \n" , 1);
     viPrintf(fVi , "I%d? \n" , 1);
     viPrintf(fVi , "V%dO? \n" , 1);
@@ -127,6 +66,64 @@ QString ControlTTiPower::getVoltAndCurr()
 
     viScanf(fVi , "%t" , cBuff);
 
-    QString cStr = QString(cBuff);
-    return cStr;
+    QString pStr = QString(cBuff);
+    string cStr = pStr.toStdString();
+    vector<string> cVecTemp;
+
+    for(int i = 0 ; i != 8 ; i++){
+        size_t cPos = cStr.find("\r");
+        string temp = cStr.substr(0 , cPos);
+        cVecTemp.push_back(temp);
+        cStr = cStr.substr(cPos +1 , cStr.size());
+    }
+    for(size_t i = 0 ; i != cVecTemp.size() ; i++){
+        size_t pos1 = cVecTemp[i].find("V");
+        size_t pos2 = cVecTemp[i].find("I");
+        if(pos1 < 5 || pos2 < 5){
+            cVecTemp[i].erase(0 , 3);
+           // cout << cVecTemp[i] << endl;
+        }
+        else{
+            cVecTemp[i].erase(cVecTemp[i].size()-1 , cVecTemp.size());
+            //cout <<cVecTemp[i] << endl;
+        }
+    }
+    cObject->pVSet1 = QString::fromStdString(cVecTemp[0]).toDouble();
+    cObject->pISet1 = QString::fromStdString(cVecTemp[1]).toDouble();
+    cObject->pVApp1 = QString::fromStdString(cVecTemp[2]).toDouble();
+    cObject->pIApp1 = QString::fromStdString(cVecTemp[3]).toDouble();
+//    cObject->pISet1 = QString::fromStdString(cVecTemp[4]).toDouble();
+//    cObject->pISet1 = QString::fromStdString(cVecTemp[5]).toDouble();
+//    cObject->pISet1 = QString::fromStdString(cVecTemp[6]).toDouble();
+//    cObject->pISet1 = QString::fromStdString(cVecTemp[7]).toDouble();
+
+    return cObject;
+}
+
+QString ControlTTiPower::deleteSpaces(QString pStr)
+{
+    string str = pStr.toStdString();
+    for (std::string::iterator it = str.begin(); it != str.end(); it++){
+        std::string::iterator begin = it;
+        while (it != str.end() && ::isspace(*it) )it++;
+        if (it - begin > 1)
+            it = str.erase(begin + 1, it) - 1;
+    }
+    return QString::fromStdString(str);
+}
+
+QString ControlTTiPower::transformQString(QString pStr)
+{
+    string cStr;
+    cStr = pStr.toStdString();
+    size_t cPos1 = cStr.find("A");
+    size_t cPos2 = cStr.find("V");
+    if(cPos1)
+        cStr = cStr.substr(0 , cPos1);
+
+    if(cPos2)
+        cStr = cStr.substr(0 , cPos2);
+
+    pStr = QString::fromStdString(cStr);
+    return pStr;
 }

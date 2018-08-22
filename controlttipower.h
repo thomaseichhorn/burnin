@@ -14,24 +14,22 @@ class ControlTTiPower:public PowerControlClass
 {
 public:
     ControlTTiPower();
-    bool InitPwr();
-    QString getVoltAndCurr();
-    QString getVoltSet(int pId);
-    QString getCurrSet(int pId);
-    QString getVoltApp(int pId);
-    QString getCurrApp(int pId);
-    void setVolt(int pId , double pVoltage);
-    void setCurr(int pId , double pCurrent);
-    void setVoltAndCurr(double cI1 , double cV1 , double cI2 , double cV2);
-    void onPower(int pId);
-    void offPower(int pId);
-    void onPowerAll();
-    void offPowerAll();
 
     ViSession fVi;
     ViSession fDefaultRm;
     ViStatus fStatus;
     int fId;
+
+    bool InitPwr();
+    fVACvalues* getVoltAndCurr();
+
+    void setVolt(double pVoltage , int pId);
+    void setCurr(double pCurrent , int pId);
+    void onPower(int pId);
+    void offPower(int pId);
+
+    QString deleteSpaces(QString pStr);
+    QString transformQString(QString pStr);
 private:
 };
 #endif // CONTROLTTIPOWER_H

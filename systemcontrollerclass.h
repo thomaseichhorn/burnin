@@ -26,18 +26,20 @@ public:
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
-    ControlKeithleyPower *fKeithleyControl;
+    ControlKeithleyPower *fKeithleyVolt;
     //struct for the vector which contains commands
     struct fObjParam{
         string cName;
         double cValue;
     };
+
     //check if all devices are connected
     void Initialize();
     vector<QString>* readFile();
     vector<fObjParam>* doList(vector<string> *);
     void Wait(int pSec);
-    vector<PowerControlClass> fVecSources;
+    map<string, PowerControlClass* > fMapSources;
+    void ParseVSources();
 
 private:
 };

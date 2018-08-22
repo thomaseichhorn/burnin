@@ -20,6 +20,7 @@ SystemControllerClass::SystemControllerClass()
     fDatabase = new DatabaseInterfaceClass();
     fConnectRasp = new ConnectionInterfaceClass();
 //    fKeithleyControl = new ControlKeithleyPower();
+    this->ParseVSources();
 }
 
 SystemControllerClass::~SystemControllerClass()
@@ -113,3 +114,18 @@ vector<SystemControllerClass::fObjParam>* SystemControllerClass::doList(vector<s
     return cList;
 }
 
+void SystemControllerClass::ParseVSources()
+{
+
+
+    ControlTTiPower fTTiControl;
+    PowerControlClass *fPowerTTi = &fTTiControl;
+    ControlKeithleyPower fKeithleyControl;
+    PowerControlClass *fPowerKeithley = &fKeithleyControl;
+
+    fMapSources.insert( pair<string , PowerControlClass*>("TTi 1" , fPowerTTi));
+    fMapSources.insert( pair<string , PowerControlClass*>("Keithley 1" , fPowerKeithley));
+    for(auto it = fMapSources.begin() ; it != fMapSources.end() ; it++){
+        cout << it->first << it->second << endl;
+    }
+}
