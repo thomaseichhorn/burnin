@@ -30,35 +30,41 @@ LIBS += -L/usr/local/lib64/ -lvisa
 INCLUDEPATH += /usr/local/include
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-    systemcontrollerclass.cpp \
-    powercontrolclass.cpp \
+    External/FP50ComHandler.cpp \
+    External/JulaboFP50.cpp \
+    External/VJulaboFP50.cpp \
+    GUI/additionalwindow.cpp \
+    GUI/mainwindow.cpp \
+    VoltageControl/controlkeithleypower.cpp \
+    VoltageControl/controlttipower.cpp \
+    VoltageControl/powercontrolclass.cpp \
+    additionalthread.cpp \
+    connectioninterfaceclass.cpp \
     daqcontrolclass.cpp \
     databaseinterfaceclass.cpp \
     environmentcontrolclass.cpp \
-    connectioninterfaceclass.cpp \
-    controlttipower.cpp \
-    additionalwindow.cpp \
-    additionalthread.cpp \
-    controlkeithleypower.cpp
+    main.cpp \
+    systemcontrollerclass.cpp
 
 HEADERS += \
-        mainwindow.h \
-    systemcontrollerclass.h \
-    powercontrolclass.h \
+    External/FP50ComHandler.h \
+    External/JulaboFP50.h \
+    External/VJulaboFP50.h \
+    GUI/additionalwindow.h \
+    GUI/mainwindow.h \
+    VoltageControl/controlkeithleypower.h \
+    VoltageControl/controlttipower.h \
+    VoltageControl/powercontrolclass.h \
+    additionalthread.h \
+    connectioninterfaceclass.h \
     daqcontrolclass.h \
     databaseinterfaceclass.h \
     environmentcontrolclass.h \
-    connectioninterfaceclass.h \
-    controlttipower.h \
-    additionalwindow.h \
-    additionalthread.h \
-    controlkeithleypower.h
+    systemcontrollerclass.h
 
 FORMS += \
-        mainwindow.ui \
-    additionalwindow.ui
+    GUI/additionalwindow.ui \
+    GUI/mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

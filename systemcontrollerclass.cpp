@@ -14,11 +14,14 @@ using namespace std;
 
 SystemControllerClass::SystemControllerClass()
 {
+    //getObject(fNamesSources[0]) = new ControlTTiPower();
     fTTiVolt = new ControlTTiPower();
     fDaqControl = new DAQControlClass();
-    fEnv = new EnvironmentControlClass();
     fDatabase = new DatabaseInterfaceClass();
     fConnectRasp = new ConnectionInterfaceClass();
+
+
+
 //    fKeithleyControl = new ControlKeithleyPower();
     this->ParseVSources();
 }
@@ -28,12 +31,12 @@ SystemControllerClass::~SystemControllerClass()
 
 void SystemControllerClass::Initialize()
 {
-    fTTiVolt->InitPwr();
     fDaqControl->InitDAQ();
-    fEnv->InitEnv();
     fDatabase->InitDatabase();
     fConnectRasp->raspInitialize();
-//    fKeithleyControl->InitPwr();
+    getObject("TTi1")->InitPwr();
+    getObject("Keithley1")->InitPwr();
+//    EnvironmentControlClass *cJulabo = new JulaboFP50();
 }
 
 vector<QString>* SystemControllerClass::readFile()
@@ -62,70 +65,47 @@ void SystemControllerClass::Wait(int pSec)
        }
 }
 
-vector<SystemControllerClass::fObjParam>* SystemControllerClass::doList(vector<string>* pVec)
+void SystemControllerClass::doList()
 {
-    vector<fObjParam> *cList;
-    size_t cTemp , cVolt , cWait;
-    string cStr;
-    fObjParam cObj;
-    string cPosStr;
-    size_t cPos;
-    for(vector<string>::iterator cIter = pVec->begin(); cIter != pVec->end(); cIter++){
-        cStr = (*cIter);
-        cout << cStr << endl;
-        cTemp = cStr.find('Temperature');
-        cVolt = cStr.find('Voltage');
-        cWait = cStr.find('Wait');
+//    fObjParam cObject;
+//    for(vector<fObjParam>::iterator cIter= fListOfCommands.begin() ; cIter != fListOfCommands.end() ; ++cIter){
+//        string cStr = (*cIter).cName;
+//        double cValue = (*cIter).cValue;
+//        if(cStr == "Set Temperature (°C)"){
 
-        //Temp
-        if(!cTemp){
-            cPos = cStr.find("=");
-            cPosStr = cStr.substr(cPos+1);
-            double cTemp = stod(cPosStr.c_str(), 0);
-            //fEnv->setTemp(pTemp);
-            cout << cTemp << endl;
-            cObj.cName = "Temperature";
-            cObj.cValue = cTemp;
+//        }
+//        if(cStr == "Wait (Sec)"){
 
-            cList->push_back(cObj);
-        }
-        //Voltage
-        if(!cVolt){
-            cPos = cStr.find("=");
-            cPosStr = cStr.substr(cPos+1);
-            double cVolt = stod(cPosStr.c_str(), 0);
-            cout << "voltage" << cVolt << endl;
-            cObj.cName = "Voltage";
-            cObj.cValue = cVolt;
-            cList->push_back(cObj);
-        }
-        if(!cWait){
-            string cPosStr;
-            size_t cPos;
-            cPos = cStr.find("=");
-            cPosStr = cStr.substr(cPos+1);
-            double cW = stod(cStr.substr(cPos+1));
-            cout << "Wait" << cW << endl;
-            cObj.cName = "Wait";
-            cObj.cValue = cW;
-        }
+//        }
+//        if(cStr == "On power supply"){
 
-    }
-    return cList;
+//        }
+//        if(cStr == "Off power supply"){
+
+//        }
+//    }
 }
 
+//reads file and makes map with name and object of power supply
 void SystemControllerClass::ParseVSources()
 {
 
+    PowerControlClass *fPowerKeithley = new ControlKeithleyPower();
+    PowerControlClass *fPowerTTi = new ControlTTiPower();
 
-    ControlTTiPower fTTiControl;
-    PowerControlClass *fPowerTTi = &fTTiControl;
-    ControlKeithleyPower fKeithleyControl;
-    PowerControlClass *fPowerKeithley = &fKeithleyControl;
-
-    fMapSources.insert( pair<string , PowerControlClass*>("TTi 1" , fPowerTTi));
-    fMapSources.insert( pair<string , PowerControlClass*>("Keithley 1" , fPowerKeithley));
-    for(auto it = fMapSources.begin() ; it != fMapSources.end() ; it++){
-        cout << it->first << it->second << endl;
-    }
+    fMapSources.insert( pair<string , PowerControlClass*>("TTi1" , fPowerTTi));
+    fNamesSources.push_back("TTi1");
+    fMapSources.insert( pair<string , PowerControlClass*>("Keithley1" , fPowerKeithley));
+    fNamesSources.push_back("Keithley1");
 }
+
+//gets the value of key pStr
+PowerControlClass* SystemControllerClass::getObject(string pStr)
+{
+    return fMapSources[pStr];
+}
+vector<string> SystemControllerClass::getSourceNameVec()
+{
+    return fNamesSources;
+}
+

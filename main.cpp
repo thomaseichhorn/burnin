@@ -4,11 +4,16 @@
 
 #include <vector>
 #include <iostream>
+#include <locale>
 
 using namespace std;
 
 int main(int argc, char *argv[])
 {
+    //replaces commas with dots in printf
+    setlocale(LC_ALL,"");
+    setlocale(LC_NUMERIC,"");
+
     QApplication a(argc, argv);
 
     MainWindow w;

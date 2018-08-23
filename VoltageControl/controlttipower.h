@@ -21,7 +21,7 @@ public:
     int fId;
 
     bool InitPwr();
-    fVACvalues* getVoltAndCurr();
+    PowerControlClass::fVACvalues* getVoltAndCurr();
 
     void setVolt(double pVoltage , int pId);
     void setCurr(double pCurrent , int pId);

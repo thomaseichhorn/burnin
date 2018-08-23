@@ -11,13 +11,10 @@ AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pContro
 void AdditionalThread::getVAC()
 {
     while (true) {
-        PowerControlClass::fVACvalues *cObject;
-//        PowerControlClass *cObj;
-//        cObj = fAddControl->fVecSources[0];
-//        PowerControlClass::fVACvalues *cObject1 = fAddControl->fTTiVolt->getVoltAndCurr();
-        cObject = fAddControl->fTTiVolt->getVoltAndCurr();
-        emit sendToThread(cObject);
-        QThread::sleep(5);
+        PowerControlClass *cPowerObj;
+        cPowerObj = fAddControl->getObject("TTi1");
+        emit sendToThread(cPowerObj->getVoltAndCurr());
+        QThread::sleep(10);
     }
 }
 
@@ -32,10 +29,11 @@ void AdditionalThread::getRaspSensors()
 
 void AdditionalThread::getVACKeithley()
 {
-//    while(true){
-//        PowerControlClass::fVACvalues *cObject;
-//        cObject = fAddControl->fKeithleyControl->getVoltAndCurr();
-//        emit sendToThread(cObject);
-//        QThread::sleep(5);
-//    }
+    while(true){
+
+        PowerControlClass *cPowerObj;
+        cPowerObj = fAddControl->getObject("Keithley1");
+        emit sendToThreadKeithley(cPowerObj->getVoltAndCurr());
+        QThread::sleep(5);
+    }
 }

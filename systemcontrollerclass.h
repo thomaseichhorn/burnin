@@ -4,13 +4,14 @@
 
 #include <string>
 
-#include "powercontrolclass.h"
+#include "VoltageControl/powercontrolclass.h"
 #include "daqcontrolclass.h"
 #include "environmentcontrolclass.h"
 #include "databaseinterfaceclass.h"
-#include "controlttipower.h"
+#include "VoltageControl/controlttipower.h"
 #include "connectioninterfaceclass.h"
-#include "controlkeithleypower.h"
+#include "VoltageControl/controlkeithleypower.h"
+#include "External/JulaboFP50.h"
 
 
 using namespace  std;
@@ -22,25 +23,27 @@ public:
     ~SystemControllerClass();
 
     ConnectionInterfaceClass *fConnectRasp;
-    ControlTTiPower *fTTiVolt;
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
     ControlKeithleyPower *fKeithleyVolt;
+    ControlTTiPower *fTTiVolt;
     //struct for the vector which contains commands
     struct fObjParam{
         string cName;
         double cValue;
     };
-
+    PowerControlClass* getObject(string pStr);
+    vector<string> getSourceNameVec();
+    vector<SystemControllerClass::fObjParam> fListOfCommands;
     //check if all devices are connected
     void Initialize();
     vector<QString>* readFile();
-    vector<fObjParam>* doList(vector<string> *);
+    void doList();
     void Wait(int pSec);
     map<string, PowerControlClass* > fMapSources;
+    vector<string> fNamesSources;
     void ParseVSources();
-
 private:
 };
 

@@ -9,11 +9,14 @@ public:
     ControlKeithleyPower();
 
     bool InitPwr();
-    fVACvalues* getVoltAndCurr();
+    PowerControlClass::fVACvalues* getVoltAndCurr();
     void setVolt(double pVoltage, int pId);
     void setCurr(double pCurrent , int pId);
     void onPower(int pId);
     void offPower(int pId);
+
+    void makeVolt(double pVoltage);
+    void checkVAC();
 
     double fVolt;
     double fVoltSet;

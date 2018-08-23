@@ -50,7 +50,7 @@ void ControlTTiPower::offPower(int pId)
     viPrintf(fVi , "OP%d 0 \n" , pId);
 }
 
-PowerControlClass::fVACvalues *ControlTTiPower::getVoltAndCurr()
+PowerControlClass::fVACvalues* ControlTTiPower::getVoltAndCurr()
 {
     fVACvalues *cObject = new fVACvalues();
     char cBuff[256];
@@ -81,21 +81,21 @@ PowerControlClass::fVACvalues *ControlTTiPower::getVoltAndCurr()
         size_t pos2 = cVecTemp[i].find("I");
         if(pos1 < 5 || pos2 < 5){
             cVecTemp[i].erase(0 , 3);
-           // cout << cVecTemp[i] << endl;
         }
         else{
             cVecTemp[i].erase(cVecTemp[i].size()-1 , cVecTemp.size());
-            //cout <<cVecTemp[i] << endl;
         }
     }
+
     cObject->pVSet1 = QString::fromStdString(cVecTemp[0]).toDouble();
     cObject->pISet1 = QString::fromStdString(cVecTemp[1]).toDouble();
     cObject->pVApp1 = QString::fromStdString(cVecTemp[2]).toDouble();
     cObject->pIApp1 = QString::fromStdString(cVecTemp[3]).toDouble();
-//    cObject->pISet1 = QString::fromStdString(cVecTemp[4]).toDouble();
-//    cObject->pISet1 = QString::fromStdString(cVecTemp[5]).toDouble();
-//    cObject->pISet1 = QString::fromStdString(cVecTemp[6]).toDouble();
-//    cObject->pISet1 = QString::fromStdString(cVecTemp[7]).toDouble();
+
+    cObject->pVSet2 = QString::fromStdString(cVecTemp[4]).toDouble();
+    cObject->pISet2 = QString::fromStdString(cVecTemp[5]).toDouble();
+    cObject->pVApp2 = QString::fromStdString(cVecTemp[6]).toDouble();
+    cObject->pIApp2 = QString::fromStdString(cVecTemp[7]).toDouble();
 
     return cObject;
 }

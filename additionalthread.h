@@ -6,10 +6,10 @@
 #include <QObject>
 #include <QString>
 
-#include "controlttipower.h"
+#include "VoltageControl/controlttipower.h"
 #include "systemcontrollerclass.h"
 #include "connectioninterfaceclass.h"
-#include "mainwindow.h"
+
 
 class AdditionalThread : public QObject
 {
@@ -19,6 +19,7 @@ public:
 
 signals:
     void sendToThread(PowerControlClass::fVACvalues *);
+    void sendToThreadKeithley(PowerControlClass::fVACvalues *);
     void sendToThreadString(QString);
 
 public slots:
@@ -30,6 +31,7 @@ private:
     QString fName;
     SystemControllerClass *fRaspControl;
     SystemControllerClass *fAddControl;
+    SystemControllerClass *fkeithley;
 };
 
 #endif // ADDITIONALTHREAD_H
