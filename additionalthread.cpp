@@ -35,7 +35,26 @@ void AdditionalThread::getVACKeithley()
     while(true){
         PowerControlClass *cPowerObj;
         cPowerObj = fAddControl->getObject("Keithley2410");
+        if(fAddControl->fKeithleyArg){
         emit sendToThreadKeithley(cPowerObj->getVoltAndCurr());
-        QThread::sleep(5);
+        QThread::sleep(2);
+        }
     }
 }
+
+void AdditionalThread::onVolt()
+{
+    PowerControlClass *cPowerObj;
+    cPowerObj = fAddControl->getObject("Keithley2410");
+    cPowerObj->onPower(0);
+
+}
+
+void AdditionalThread::offVolt()
+{
+    PowerControlClass *cPowerObj;
+    cPowerObj = fAddControl->getObject("Keithley2410");
+    cPowerObj->offPower(0);
+
+}
+

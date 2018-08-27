@@ -11,6 +11,8 @@
 #include <QThread>
 
 #include "controlkeithleypower.h"
+#include "additionalthread.h"
+#include "systemcontrollerclass.h"
 
 using namespace std;
 
@@ -46,10 +48,11 @@ bool ControlKeithleyPower::InitPwr(){
         fStatus = viSetAttribute(fVi , VI_ATTR_TERMCHAR , 0xD);
         if(fStatus < VI_SUCCESS){
             cout << "Couldn`t connect" << endl;
-            return false;
+            exit(EXIT_FAILURE);
         }
         else{
-            cout << "Connected Keithley!" << endl;
+            cout << "Connected to Keithley!" << endl;
+
             ViUInt32 writeCount;
             char stringinput[512];
 
@@ -64,33 +67,36 @@ bool ControlKeithleyPower::InitPwr(){
             strcpy(stringinput , ":SENS:CURR:RANG:AUTO ON\r");
             fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
 
-
-
             //sprintf(stringinput ,":SENS:CURR:PROT 0.0E-6\r");
             //fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+            setCurr(fCurrCompliance , 0);
             strcpy(stringinput , ":SOUR:VOLT:LEV 0\r");
             fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
 
+            sprintf(stringinput ,":SOUR:VOLT:LEV %G\r" , 0.0);
+            fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
+
             strcpy(stringinput , ":OUTP ON\r");
             fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
-            makeVolt(0);
+
         }
     }
-    setVolt(fVoltSet, 0);
-    setCurr(fCurrCompliance, 0);
 }
 
 
 void ControlKeithleyPower::onPower(int pId)
 {
-    makeVolt(fVolt);
+    ViUInt32 writeCount;
+    char stringinput[512];
+    strcpy(stringinput , ":OUTP ON\r");
+    fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
+    makeVolt(fVoltSet);
     QThread::sleep(1);
 
 }
 
 void ControlKeithleyPower::offPower(int pId)
 {
-
     makeVolt(0);
     QThread::sleep(0.5);
     ViUInt32 writeCount ;
@@ -103,7 +109,7 @@ void ControlKeithleyPower::offPower(int pId)
 void ControlKeithleyPower::setVolt(double pVoltage , int pId)
 {
     fVoltSet = pVoltage;
-    fVolt = pVoltage;
+    //fVolt = pVoltage;
 }
 
 void ControlKeithleyPower::makeVolt(double pVoltage)
@@ -125,7 +131,7 @@ void ControlKeithleyPower::makeVolt(double pVoltage)
             sprintf(stringinput ,":SOUR:VOLT:LEV %G\r" , current_volt);
             fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
             current_volt = current_volt + step;
-            QThread::sleep(1.5);
+            QThread::sleep(1.0);
             checkVAC();
         }
         sprintf(stringinput , ":SOUR:VOLT:LEV %G\r" , pVoltage);

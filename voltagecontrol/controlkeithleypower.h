@@ -1,9 +1,12 @@
 #ifndef CONTROLKEITHLEYPOWER_H
 #define CONTROLKEITHLEYPOWER_H
 
+#include <QObject>
+#include <QThread>
+
 #include "powercontrolclass.h"
 
-class ControlKeithleyPower:public PowerControlClass
+class ControlKeithleyPower:public PowerControlClass, public QThread
 {
 public:
     ControlKeithleyPower(string pConnection , string pSetVolt , string pSetCurr);

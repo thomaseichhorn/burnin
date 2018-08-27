@@ -57,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QHBoxLayout *high_layout = new QHBoxLayout;
     gui_pointers_high_voltage_1 = SetVoltageSource(high_layout, "Keithley 1", "Keithley2410", 1);
     ui->groupBox_2->setLayout(high_layout);
+    gui_pointers_high_voltage_1->onoff_button->setChecked(1);
+
 
     fControl = new SystemControllerClass();
 
@@ -100,10 +102,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(gui_pointers_high_voltage_1->onoff_button, &QCheckBox::toggled, [this](bool pArg)
     {this->on_OnOff_button_stateChanged("Keithley2410" , 0, pArg);});
-//    connect(gui_pointers_high_voltage_1->v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pVolt)
-//    {this->on_V_set_doubleSpinBox_valueChanged("Keithley2410" , 0, pVolt);});
-//    connect(gui_pointers_high_voltage_1->i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pCurr)
-//    {this->on_I_set_doubleSpinBox_valueChanged("Keithley2410", 0, pCurr);});
+    connect(gui_pointers_high_voltage_1->v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pVolt)
+    {this->on_V_set_doubleSpinBox_valueChanged("Keithley2410" , 0, pVolt);});
+    connect(gui_pointers_high_voltage_1->i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pCurr)
+    {this->on_I_set_doubleSpinBox_valueChanged("Keithley2410", 0, pCurr);});
 }
 
 MainWindow::~MainWindow()
@@ -450,15 +452,24 @@ void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int pId, bool 
         }
     }
     if(pSourceName == "Keithley2410"){
+        fControl->fKeithleyArg = pArg;
         if( pArg){
             fControl->getObject(pSourceName)->setVolt(gui_pointers_high_voltage_1->v_set->value(), pId);
             fControl->getObject(pSourceName)->setCurr(gui_pointers_high_voltage_1->i_set->value(), pId);
-            fControl->getObject(pSourceName)->onPower(pId);
-            fControl->Wait(1);
+            AdditionalThread *cThread = new AdditionalThread("keithley", fControl);
+            QThread *cQThread = new QThread();
+            connect(cQThread , SIGNAL(started()), cThread, SLOT(onVolt()));
+            cThread->moveToThread(cQThread);
+            cQThread->start();
+            //fControl->getObject(pSourceName)->onPower(pId);
         }
         else{
-            fControl->getObject(pSourceName)->offPower(pId);
-            fControl->Wait(1);
+            AdditionalThread *cThread = new AdditionalThread("keithleyOff", fControl);
+            QThread *cQThread = new QThread();
+            connect(cQThread , SIGNAL(started()), cThread, SLOT(offVolt()));
+            cThread->moveToThread(cQThread);
+            cQThread->start();
+            //fControl->getObject(pSourceName)->offPower(pId);
         }
     }
 }

@@ -21,12 +21,14 @@ signals:
     void sendToThread(PowerControlClass::fVACvalues *);
     void sendToThreadKeithley(PowerControlClass::fVACvalues *);
     void sendToThreadString(QString);
+    void volt();
 
 public slots:
     void getVAC();
     void getRaspSensors();
     void getVACKeithley();
-
+    void onVolt();
+    void offVolt();
 private:
     QString fName;
     SystemControllerClass *fRaspControl;

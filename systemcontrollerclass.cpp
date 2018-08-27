@@ -16,6 +16,7 @@ using namespace std;
 
 SystemControllerClass::SystemControllerClass()
 {
+    fKeithleyArg = 1;
     fDaqControl = new DAQControlClass();
     fDatabase = new DatabaseInterfaceClass();
 }
@@ -30,7 +31,7 @@ void SystemControllerClass::Initialize()
 
     for(size_t i = 0 ; i != fNamesSources.size() ; i++){
         getObject(fNamesSources[i])->InitPwr();
-        getObject(fNamesSources[i])->offPower(0);
+        //getObject(fNamesSources[i])->offPower(0);
     }
     fConnectRasp->raspInitialize();
 
@@ -64,29 +65,57 @@ void SystemControllerClass::Wait(int pSec)
 //
 void SystemControllerClass::doListOfCommands()
 {
-//    fObjParam cObject;
-//    for(vector<fObjParam>::iterator cIter= fListOfCommands.begin() ; cIter != fListOfCommands.end() ; ++cIter){
-//        string cStr = (*cIter).cName;
-//        double cValue = (*cIter).cValue;
-//        if(cStr == "Set Temperature (°C)"){
+    QThread *cThread = new QThread();
+    for(vector<fObjParam>::iterator cIter= fListOfCommands.begin() ; cIter != fListOfCommands.end() ; ++cIter){
+        string cStr = (*cIter).cName;
+        double cValue = (*cIter).cValue;
+        if(cStr == "Set Temperature (°C)"){
+            moveToThread(cThread);
+            connect(cThread, &QThread::started, [this, cValue]
+            {this->setTemperature(cValue);});
+            cThread->start();
+        }
+        if(cStr == "Wait (Sec)"){
+            connect(cThread, &QThread::started, [this, cValue]
+            {this->setTemperature(cValue);});
+            cThread->start();
+        }
+        for(size_t i = 0 ; i != fNamesSources.size() ; i++){
+            if(cStr == "On  " + fNamesSources[i] + "  power supply"){
+                connect(cThread, &QThread::started, [this, i]
+                {this->onPower(fNamesSources[i]);});
+                cThread->start();
+            }
+            if(cStr == "Off  " + fNamesSources[i] + "  power supply"){
+                connect(cThread, &QThread::started, [this, i]
+                {this->offPower(fNamesSources[i]);});
+                cThread->start();
+            }
 
-//        }
-//        if(cStr == "Wait (Sec)"){
-
-//        }
-//        for(size_t i = 0 ; i != fNamesSources.size() ; i++){
-//            if(cStr == "On  " + fNamesSources[i] + "  power supply"){
-//                getObject(fNamesSources[i])->onPower(0);
-
-//            }
-//            if(cStr == "Off  " + fNamesSources[i] + "  power supply"){
-//                getObject(fNamesSources[i])->offPower(0);
-
-//            }
-
-//        }
-//    }
+        }
+    }
 }
+
+void SystemControllerClass::setTemperature(double pTemp)
+{
+
+}
+
+void SystemControllerClass::wait(double pTime)
+{
+    QThread::sleep(pTime);
+}
+
+void SystemControllerClass::onPower(string pSourceName)
+{
+    getObject(pSourceName)->onPower(0);
+}
+
+void SystemControllerClass::offPower(string pSourceName)
+{
+    getObject(pSourceName)->offPower(0);
+}
+
 
 //reads file and makes map with name and object of power supply
 void SystemControllerClass::ParseVSources()

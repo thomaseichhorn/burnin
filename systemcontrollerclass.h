@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include <QThread>
+
 #include "VoltageControl/powercontrolclass.h"
 #include "daqcontrolclass.h"
 #include "environmentcontrolclass.h"
@@ -17,8 +19,9 @@
 
 using namespace  std;
 
-class SystemControllerClass
+class SystemControllerClass:public QThread
 {
+    Q_OBJECT
 public:
     SystemControllerClass();
     ~SystemControllerClass();
@@ -32,6 +35,8 @@ public:
         string cName;
         double cValue;
     };
+    //check if keithley on to readout information
+    int fKeithleyArg;
     PowerControlClass* getObject(string pStr);
     vector<GenericInstrumentDescription_t> fHWDescription;
     vector<string> getSourceNameVec();
@@ -50,6 +55,12 @@ private:
     void ParseChiller();
     void ParseVSources();
     void ParseRaspberry();
+
+private slots:
+    void setTemperature(double pTemp);
+    void wait(double pTime);
+    void onPower(string pSourceName);
+    void offPower(string pSourceName);
 
 };
 

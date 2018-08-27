@@ -23,8 +23,8 @@ std::vector<GenericInstrumentDescription_t> HWDescriptionParser::ParseXML()
     // opening file
 
     QString cFilter = "*.xml";
-//    QString cFileName = QFileDialog::getOpenFileName( nullptr , "Open a file" , "/home/" , cFilter);
-    QFile *cFile =  new QFile("/home/fedorcht/hardware_description_desy.xml");
+    QString cFileName = QFileDialog::getOpenFileName( nullptr , "Open a file" , "/home/" , cFilter);
+    QFile *cFile =  new QFile(cFileName);
     if(!cFile->open(QFile::ReadOnly))
     {
         std::cout << "Unable to open XML file" << std::endl;
