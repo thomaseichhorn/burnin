@@ -12,6 +12,7 @@
 #include "connectioninterfaceclass.h"
 #include "VoltageControl/controlkeithleypower.h"
 #include "External/JulaboFP50.h"
+#include "hwdescriptionparser.h"
 
 
 using namespace  std;
@@ -26,25 +27,30 @@ public:
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
-    ControlKeithleyPower *fKeithleyVolt;
-    ControlTTiPower *fTTiVolt;
     //struct for the vector which contains commands
     struct fObjParam{
         string cName;
         double cValue;
     };
     PowerControlClass* getObject(string pStr);
+    vector<GenericInstrumentDescription_t> fHWDescription;
     vector<string> getSourceNameVec();
     vector<SystemControllerClass::fObjParam> fListOfCommands;
     //check if all devices are connected
     void Initialize();
     vector<QString>* readFile();
-    void doList();
+    void doListOfCommands();
     void Wait(int pSec);
     map<string, PowerControlClass* > fMapSources;
     vector<string> fNamesSources;
-    void ParseVSources();
+    void ReadXmlFile();
+
 private:
+    string getTypeOfConnection(string pConnection , string pAddress, string pPort);
+    void ParseChiller();
+    void ParseVSources();
+    void ParseRaspberry();
+
 };
 
 #endif // SYSTEMCONTROLLERCLASS_H

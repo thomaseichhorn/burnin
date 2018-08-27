@@ -14,19 +14,16 @@
 
 using namespace std;
 
-ControlKeithleyPower::ControlKeithleyPower()
+ControlKeithleyPower::ControlKeithleyPower(string pConnection , string pSetVolt , string pSetCurr)
 {
-//    fCurrCompliance = 0;
-//    fVoltSet = 0;
-//    fVolt = 0;
-//    fCurr = 0;
-//    //set the number of steps
+    fConnection = pConnection;
+    fVoltSet = QString::fromStdString(pSetVolt).toDouble();
+    fCurrCompliance = QString::fromStdString(pSetCurr).toDouble();
+//    set the number of steps
     fStep = 10;
 }
 
 bool ControlKeithleyPower::InitPwr(){
-    char buf[256];
-    ViChar  buf2[256];
 
     fStatus = viOpenDefaultRM(&fDefaultRm);
     if(fStatus < VI_SUCCESS){
@@ -34,7 +31,14 @@ bool ControlKeithleyPower::InitPwr(){
         exit(EXIT_FAILURE);
     }
     else{
-        fStatus = viOpen( fDefaultRm, "ASRL5::INSTR", VI_NULL, VI_NULL, &fVi);
+        char cStrInput[20];
+        fConnection = fConnection.erase(fConnection.find('T')+2 , fConnection.size());
+
+        for(int i = 0 ; i!= fConnection.size() ; i++){
+            cStrInput[i] = fConnection[i];
+        }
+
+        fStatus = viOpen( fDefaultRm, cStrInput, VI_NULL, VI_NULL, &fVi);
         fStatus = viSetAttribute(fVi , VI_ATTR_TMO_VALUE, 5000);
         fStatus = viSetAttribute(fVi, VI_ATTR_ASRL_BAUD, 9600);
         fStatus = viSetAttribute(fVi, VI_ATTR_ASRL_DATA_BITS, 8);
@@ -71,8 +75,9 @@ bool ControlKeithleyPower::InitPwr(){
             fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
             makeVolt(0);
         }
-
     }
+    setVolt(fVoltSet, 0);
+    setCurr(fCurrCompliance, 0);
 }
 
 
@@ -97,6 +102,7 @@ void ControlKeithleyPower::offPower(int pId)
 
 void ControlKeithleyPower::setVolt(double pVoltage , int pId)
 {
+    fVoltSet = pVoltage;
     fVolt = pVoltage;
 }
 
@@ -153,12 +159,10 @@ PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
     QString fVoltStr = QString::fromStdString(str.substr(0 , cPos));
     str = str.substr(cPos+1, cPos + 13);
     QString fCurrStr = QString::fromStdString(str.substr(0 , 13));
-
     fVolt = fVoltStr.toDouble();
     fCurr = fCurrStr.toDouble();
 
-    cout << fVolt << "   " << fCurr << "   " << fCurrCompliance << endl;
-    cObject->pVSet1 = fVolt;
+    cObject->pVSet1 = fVoltSet;
     cObject->pISet1 = fCurrCompliance;
     cObject->pVApp1 = fVolt;
     cObject->pIApp1 = fCurr;
@@ -180,14 +184,17 @@ void ControlKeithleyPower::checkVAC()
     strcpy(stringinput , ":READ?\r");
     fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
     fStatus = viRead(fVi , buffer , 100 , &retCount);
-//    printf("%s\n" , buffer);
+
     QString *cStr = new QString(reinterpret_cast<const char*>(buffer));
 
     string str = cStr->toStdString();
     size_t cPos = str.find(',');
-//    cout << cPos << endl;
+
+
     QString fVoltStr = QString::fromStdString(str.substr(0 , cPos));
-    QString fCurrStr = QString::fromStdString(str.substr(cPos+1, cPos + 13));
+    str = str.substr(cPos+1, cPos + 13);
+    QString fCurrStr = QString::fromStdString(str.substr(0 , 13));
+
     fVolt = fVoltStr.toDouble();
     fCurr = fCurrStr.toDouble();
 

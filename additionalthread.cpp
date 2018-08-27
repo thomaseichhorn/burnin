@@ -1,23 +1,25 @@
 #include <QThread>
 
 #include "additionalthread.h"
-#include "mainwindow.h"
+#include "GUI/mainwindow.h"
 
 AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pControl) : fName(pName)
 {
     fAddControl = pControl;
 }
 
+//sends info from TTi to thread
 void AdditionalThread::getVAC()
 {
     while (true) {
         PowerControlClass *cPowerObj;
-        cPowerObj = fAddControl->getObject("TTi1");
+        cPowerObj = fAddControl->getObject("TTI1");
         emit sendToThread(cPowerObj->getVoltAndCurr());
         QThread::sleep(10);
     }
 }
 
+//sends info from Raspberry Pi sensors
 void AdditionalThread::getRaspSensors()
 {
     while(true){
@@ -27,12 +29,12 @@ void AdditionalThread::getRaspSensors()
     }
 }
 
+//sends info from Keithley
 void AdditionalThread::getVACKeithley()
 {
     while(true){
-
         PowerControlClass *cPowerObj;
-        cPowerObj = fAddControl->getObject("Keithley1");
+        cPowerObj = fAddControl->getObject("Keithley2410");
         emit sendToThreadKeithley(cPowerObj->getVoltAndCurr());
         QThread::sleep(5);
     }

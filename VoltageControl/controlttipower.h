@@ -13,7 +13,7 @@ using namespace std;
 class ControlTTiPower:public PowerControlClass
 {
 public:
-    ControlTTiPower();
+    ControlTTiPower(string pConnection , vector<string> pId , vector<string> pVolt , vector<string> pCurr);
 
     ViSession fVi;
     ViSession fDefaultRm;
@@ -28,8 +28,13 @@ public:
     void onPower(int pId);
     void offPower(int pId);
 
-    QString deleteSpaces(QString pStr);
-    QString transformQString(QString pStr);
+    string fConnection;
+    int fId1;
+    double fSetVolt1;
+    double fSetCurr1;
+    double fSetVolt2;
+    double fSetCurr2;
+    int fId2;
 private:
 };
 #endif // CONTROLTTIPOWER_H

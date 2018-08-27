@@ -5,17 +5,20 @@
 #include <QTextCodec>
 
 #include "connectioninterfaceclass.h"
-#include "mainwindow.h"
+#include "GUI/mainwindow.h"
 
 using namespace std;
 
-ConnectionInterfaceClass::ConnectionInterfaceClass(QObject *parent) : QObject(parent)
-{}
+ConnectionInterfaceClass::ConnectionInterfaceClass(string pAddress , string pPort)
+{
+    fAddress = pAddress;
+    fPort = QString::fromStdString(pPort).toInt();
+}
 
 bool ConnectionInterfaceClass::raspInitialize()
 {
     fSocket = new QTcpSocket(this);
-    fSocket->connectToHost("fhlthermorasp1.desy.de", 50007);
+    fSocket->connectToHost(QString::fromStdString(fAddress) , fPort);
     if(!fSocket->waitForDisconnected(5000)){
         qDebug() << "Error:" << fSocket->errorString();
         return false;
@@ -29,7 +32,7 @@ bool ConnectionInterfaceClass::raspInitialize()
 QString ConnectionInterfaceClass::getInfoFromSensors()
 {
     fSocket = new QTcpSocket(this);
-    fSocket->connectToHost("fhlthermorasp1.desy.de" , 50007);
+    fSocket->connectToHost(QString::fromStdString(fAddress) , fPort);
     fSocket->waitForReadyRead();
     QByteArray buffer;
     buffer = fSocket->readAll();

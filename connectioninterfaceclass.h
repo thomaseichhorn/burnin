@@ -6,11 +6,12 @@
 #include <QtNetwork/QTcpSocket>
 #include <iostream>
 
+using namespace  std;
 class ConnectionInterfaceClass : public QObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionInterfaceClass(QObject *parent = nullptr);
+    explicit ConnectionInterfaceClass(string pAddress , string pPort);
     bool raspInitialize();
     QString getInfoFromSensors();
 signals:
@@ -18,6 +19,8 @@ signals:
 public slots:
 private:
     QTcpSocket *fSocket;
+    quint16 fPort;
+    string fAddress;
 };
 
 #endif // CONNECTIONINTERFACECLASS_H

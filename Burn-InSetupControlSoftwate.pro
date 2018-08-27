@@ -44,7 +44,8 @@ SOURCES += \
     databaseinterfaceclass.cpp \
     environmentcontrolclass.cpp \
     main.cpp \
-    systemcontrollerclass.cpp
+    systemcontrollerclass.cpp \
+    hwdescriptionparser.cpp
 
 HEADERS += \
     External/FP50ComHandler.h \
@@ -60,7 +61,8 @@ HEADERS += \
     daqcontrolclass.h \
     databaseinterfaceclass.h \
     environmentcontrolclass.h \
-    systemcontrollerclass.h
+    systemcontrollerclass.h \
+    hwdescriptionparser.h
 
 FORMS += \
     GUI/additionalwindow.ui \

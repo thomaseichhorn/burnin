@@ -40,7 +40,6 @@ public:
     int fRowMax;
     SystemControllerClass *fControl;
     AdditionalWindow *fAddWnd;
-    vector<string> fNamesSources;
 
 private slots:
 
@@ -67,6 +66,8 @@ private slots:
     void on_Down_pushButton_clicked();
 
     void initHard();
+
+    void readXmlFile();
 
 
 private:

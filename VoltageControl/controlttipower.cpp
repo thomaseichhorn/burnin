@@ -9,25 +9,47 @@
 
 using namespace std;
 
-ControlTTiPower::ControlTTiPower()
-{}
+ControlTTiPower::ControlTTiPower(string pConnection , vector<string> pId , vector<string> pVolt, vector<string> pCurr)
+{
+    fConnection = pConnection;
+
+    fId1 = QString::fromStdString(pId[0]).toDouble() + 1;
+    fId2 = QString::fromStdString(pId[1]).toDouble() + 1;
+
+    fSetVolt1 = QString::fromStdString(pVolt[0]).toDouble();
+    fSetVolt2 = QString::fromStdString(pVolt[1]).toDouble();
+    fSetCurr1 = QString::fromStdString(pCurr[0]).toDouble();
+    fSetCurr2 = QString::fromStdString(pCurr[1]).toDouble();
+}
 
 bool ControlTTiPower::InitPwr()
 {
     ViUInt32 pTimeout = 5000;
     fStatus = viOpenDefaultRM(&fDefaultRm);
+
     if(fStatus < VI_SUCCESS){
         printf("Could not open a session to the VISA Resource Manager!\n");
         exit(EXIT_FAILURE);
     }
     else{
-        fStatus = viOpen(fDefaultRm , "TCPIP::192.168.1.180::9221::SOCKET" , VI_NULL ,  pTimeout , &fVi);
-        if(fStatus < VI_SUCCESS) return false;
+        char cStrInput[50];
+        //fConnection = fConnection.erase(fConnection.find('E')+2 , fConnection.size());
+        for(int i = 0 ; i != fConnection.size() ; i++){
+            cStrInput[i] = fConnection[i];
+        }
+        fStatus = viOpen(fDefaultRm , cStrInput ,VI_NULL , pTimeout , &fVi);
+        if(fStatus < VI_SUCCESS){
+            cout << "Couldn`t connect to TTI" << endl;
+            exit(EXIT_FAILURE);
+        }
         else{
             cout << "Connected to TTi!" << endl;
-            return true;
         }
     }
+    setVolt(fSetVolt1 , fId1);
+    setVolt(fSetVolt2 , fId2);
+    setCurr(fSetCurr1 , fId1);
+    setCurr(fSetCurr2 , fId2);
 }
 
 void ControlTTiPower::setVolt(double pVoltage , int pId)
@@ -47,12 +69,14 @@ void ControlTTiPower::onPower(int pId)
 
 void ControlTTiPower::offPower(int pId)
 {
-    viPrintf(fVi , "OP%d 0 \n" , pId);
+    if(pId)
+        viPrintf(fVi , "OP%d 0 \n" , pId);
+    else viPrintf(fVi, "OPALL 0\n");
 }
 
 PowerControlClass::fVACvalues* ControlTTiPower::getVoltAndCurr()
 {
-    fVACvalues *cObject = new fVACvalues();
+    fVACvalues *cObject = new fVACvalues;
     char cBuff[256];
     viPrintf(fVi , "V%d? \n" , 1);
     viPrintf(fVi , "I%d? \n" , 1);
@@ -100,30 +124,3 @@ PowerControlClass::fVACvalues* ControlTTiPower::getVoltAndCurr()
     return cObject;
 }
 
-QString ControlTTiPower::deleteSpaces(QString pStr)
-{
-    string str = pStr.toStdString();
-    for (std::string::iterator it = str.begin(); it != str.end(); it++){
-        std::string::iterator begin = it;
-        while (it != str.end() && ::isspace(*it) )it++;
-        if (it - begin > 1)
-            it = str.erase(begin + 1, it) - 1;
-    }
-    return QString::fromStdString(str);
-}
-
-QString ControlTTiPower::transformQString(QString pStr)
-{
-    string cStr;
-    cStr = pStr.toStdString();
-    size_t cPos1 = cStr.find("A");
-    size_t cPos2 = cStr.find("V");
-    if(cPos1)
-        cStr = cStr.substr(0 , cPos1);
-
-    if(cPos2)
-        cStr = cStr.substr(0 , cPos2);
-
-    pStr = QString::fromStdString(cStr);
-    return pStr;
-}

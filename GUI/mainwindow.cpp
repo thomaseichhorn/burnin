@@ -19,8 +19,7 @@
 
 int nOutputs = 2;
 
-//TODO set values sends in on off button clicked
-//when initializes checks the status(On/Off) of power supply and turns it off
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -47,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(initBut, &QPushButton::clicked, [this]
     {this->getVoltAndCurrKeithley();});
 
+    connect(readBut , SIGNAL(clicked(bool)) , this , SLOT(readXmlFile()));
+
+
     QHBoxLayout *low_layout = new QHBoxLayout;
     gui_pointers_low_voltage_1 = SetVoltageSource(low_layout, "TTI 1", "TTI", nOutputs);
     gui_pointers_low_voltage_2 = SetVoltageSource(low_layout, "TTI 2", "TTI", nOutputs);
@@ -57,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->groupBox_2->setLayout(high_layout);
 
     fControl = new SystemControllerClass();
-//    fControl->Initialize();
+
     model = new QStandardItemModel(this);
 
     QStandardItem *cItem1 = new QStandardItem("Added commands:");
@@ -83,25 +85,25 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->AddedComands_tabelView->setAcceptDrops(true);
     ui->AddedComands_tabelView->setDropIndicatorShown(true);
 
-    this->doListOfCommands();
     fSources = fControl->SystemControllerClass::getSourceNameVec();
+
     //connections for low voltage
 
     for(int i = 0 ; i != nOutputs ; i++){
         connect(gui_pointers_low_voltage_1[i].onoff_button, &QCheckBox::toggled, [this,i](bool pArg)
-        {this->on_OnOff_button_stateChanged("TTi1" , i+1, pArg);});
-        connect(gui_pointers_low_voltage_1[i].v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pVolt)
-        {this->on_V_set_doubleSpinBox_valueChanged("TTi1" , i+1, pVolt);});
-        connect(gui_pointers_low_voltage_1[i].i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pCurr)
-        {this->on_I_set_doubleSpinBox_valueChanged("TTi1", i+1, pCurr);});
+        {this->on_OnOff_button_stateChanged("TTI1" , i+1, pArg);});
+//        connect(gui_pointers_low_voltage_1[i].v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pVolt)
+//        {this->on_V_set_doubleSpinBox_valueChanged("TTI1" , i+1, pVolt);});
+//        connect(gui_pointers_low_voltage_1[i].i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pCurr)
+//        {this->on_I_set_doubleSpinBox_valueChanged("TTI1", i+1, pCurr);});
     }
 
     connect(gui_pointers_high_voltage_1->onoff_button, &QCheckBox::toggled, [this](bool pArg)
-    {this->on_OnOff_button_stateChanged("Keithley1" , 0, pArg);});
-    connect(gui_pointers_high_voltage_1->v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pVolt)
-    {this->on_V_set_doubleSpinBox_valueChanged("Keithley1" , 0, pVolt);});
-    connect(gui_pointers_high_voltage_1->i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pCurr)
-    {this->on_I_set_doubleSpinBox_valueChanged("Keithley1", 0, pCurr);});
+    {this->on_OnOff_button_stateChanged("Keithley2410" , 0, pArg);});
+//    connect(gui_pointers_high_voltage_1->v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pVolt)
+//    {this->on_V_set_doubleSpinBox_valueChanged("Keithley2410" , 0, pVolt);});
+//    connect(gui_pointers_high_voltage_1->i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pCurr)
+//    {this->on_I_set_doubleSpinBox_valueChanged("Keithley2410", 0, pCurr);});
 }
 
 MainWindow::~MainWindow()
@@ -111,7 +113,7 @@ MainWindow::~MainWindow()
 
 output_pointer_t MainWindow::SetSourceOutputLayout(std::string pType)
 {
-    // creta pointer list
+    // create pointer list
     output_pointer_t cOutputPointers;
 
     // create layout
@@ -201,28 +203,36 @@ output_pointer_t* MainWindow::SetVoltageSource(QLayout *pMainLayout, std::string
 //creates a List with all commands
 void MainWindow::doListOfCommands()
 {
+    size_t cVecSize = fSources.size();
     QStandardItemModel *cModel = new QStandardItemModel(this);
 
     QStandardItem *cItem1 = new QStandardItem("Set Temperature (°C)");
     cModel->setItem( 0 , cItem1);
     cModel->index( 0 , 0);
 
-    QStandardItem *cItem2 = new QStandardItem("On power supply");
+    QStandardItem *cItem2 = new QStandardItem("Wait (Sec)");
     cModel->setItem( 1 , cItem2);
     cModel->index( 1 , 0);
 
-    QStandardItem *cItem3 = new QStandardItem("Off power supply");
-    cModel->setItem( 2 , cItem3);
-    cModel->index( 2 , 0);
+    for(int i = 2 ; i != fSources.size()+2 ; i++){
+        QString cStr = QString::fromStdString(fSources[i-2]);
+        QStandardItem *cItem3 = new QStandardItem("On  " + cStr + "  power supply");
+        cModel->setItem(i, cItem3);
+        cModel->index(i , 0);
 
-    QStandardItem *cItem4 = new QStandardItem("Wait (Sec)");
-    cModel->setItem( 3 , cItem4);
-    cModel->index( 3 , 0);
+    }
+    for(int i = 2*cVecSize ; i != fSources.size()+2*cVecSize ; i++){
+        QString cStr = QString::fromStdString(fSources[i-2*cVecSize]);
+        QStandardItem *cItem4 = new QStandardItem("Off  " + cStr + "  power supply");
+        cModel->setItem(i, cItem4);
+        cModel->index(i , 0);
+    }
 
     ui->listOfCommands->setModel(cModel);
     ui->listOfCommands->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
+//creates a new thread to take info from TTi
 void MainWindow::getVoltAndCurr()
 {
     AdditionalThread *cThread  = new AdditionalThread("A", fControl);
@@ -263,7 +273,7 @@ void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
     SystemControllerClass::fObjParam cObj;
     QString cValue;
     QString cStr = pIndex.data().toString();
-
+    //another window to set the value
     fAddWnd = new AdditionalWindow(this);
     if(cStr == "Set Temperature (°C)" || cStr == "Wait (Sec)"){
         fAddWnd->show();
@@ -274,12 +284,13 @@ void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
         fControl->fListOfCommands.push_back(cObj);
         cStr = cStr + " =" + cValue;
     }
+    //
     else{
         cObj.cName = cStr.toStdString();
         cObj.cValue = 0;
         fControl->fListOfCommands.push_back(cObj);
     }
-
+    //addes object to the added commands
     QStandardItem *cItem = new QStandardItem(cStr);
     model->setItem(fRowMax , 0, cItem);
     model->index(fRowMax, 0);
@@ -324,11 +335,10 @@ void MainWindow::on_readConfig_push_button_clicked()
     }
 }
 
+//starts making list of commands
 void MainWindow::on_Start_pushButton_clicked()
 {
-    for(vector<SystemControllerClass::fObjParam>::iterator iter = fControl->fListOfCommands.begin() ; iter != fControl->fListOfCommands.end(); ++iter){
-        cout << (*iter).cName << "   " << (*iter).cValue << endl;
-    }
+    fControl->doListOfCommands();
 }
 
 //reads sensor on rasp and sets info to Raspberry sensors
@@ -337,6 +347,7 @@ void MainWindow::RaspWidget(QString pStr)
     ui->raspberrySensors_textBrowser->setText(pStr);
 }
 
+//deletes highlighted item from the table(double-click on item)
 void MainWindow::on_AddedComands_tabelView_doubleClicked(const QModelIndex &pIndex)
 {
     int cRow = pIndex.row();
@@ -347,9 +358,10 @@ void MainWindow::on_AddedComands_tabelView_doubleClicked(const QModelIndex &pInd
     cMsgBox.setDefaultButton(QMessageBox::Ok);
     int res = cMsgBox.exec();
     if (res == QMessageBox::Ok)
-            removeRow(cRow);
+        removeRow(cRow);
 }
 
+//removes row from the table with added commands
 void MainWindow::removeRow(int pRow)
 {
     ui->AddedComands_tabelView->model()->removeRow(pRow);
@@ -363,6 +375,7 @@ void MainWindow::on_AddedComands_tabelView_clicked(const QModelIndex &pIndex)
     fIndex = pIndex;
 }
 
+//moves command up when up push button clicked
 void MainWindow::on_Up_pushButton_clicked()
 {
     int cRowIndex = fIndex.row();
@@ -392,6 +405,7 @@ void MainWindow::on_Up_pushButton_clicked()
     }
 }
 
+//moves the command down when down push button clicked
 void MainWindow::on_Down_pushButton_clicked()
 {
     int cRowIndex = fIndex.row();
@@ -423,14 +437,29 @@ void MainWindow::on_Down_pushButton_clicked()
 
 void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int pId, bool pArg)
 {
-
-    if( pArg){
-        fControl->getObject(pSourceName)->onPower(pId);
-        fControl->Wait(1);
+    if(pSourceName == "TTI1"){
+        if( pArg){
+            fControl->getObject(pSourceName)->setVolt(gui_pointers_low_voltage_1->v_set->value(), pId);
+            fControl->getObject(pSourceName)->setCurr(gui_pointers_low_voltage_1->i_set->value(), pId);
+            fControl->getObject(pSourceName)->onPower(pId);
+            fControl->Wait(1);
+        }
+        else{
+            fControl->getObject(pSourceName)->offPower(pId);
+            fControl->Wait(1);
+        }
     }
-    else{
-        fControl->getObject(pSourceName)->offPower(pId);
-        fControl->Wait(1);
+    if(pSourceName == "Keithley2410"){
+        if( pArg){
+            fControl->getObject(pSourceName)->setVolt(gui_pointers_high_voltage_1->v_set->value(), pId);
+            fControl->getObject(pSourceName)->setCurr(gui_pointers_high_voltage_1->i_set->value(), pId);
+            fControl->getObject(pSourceName)->onPower(pId);
+            fControl->Wait(1);
+        }
+        else{
+            fControl->getObject(pSourceName)->offPower(pId);
+            fControl->Wait(1);
+        }
     }
 }
 
@@ -464,8 +493,6 @@ void MainWindow::updateGetVAC(PowerControlClass::fVACvalues* pObject)
 void MainWindow::updateGetVACKeithley(PowerControlClass::fVACvalues* pObject)
 {
     gui_pointers_high_voltage_1->i_set->setValue(pObject->pISet1);
-    cout << pObject->pISet1 << endl;
-    cout << pObject->pVSet1 << endl;
     gui_pointers_high_voltage_1->v_set->setValue(pObject->pVSet1);
     gui_pointers_high_voltage_1->i_applied->display(pObject->pIApp1);
     gui_pointers_high_voltage_1->v_applied->display(pObject->pVApp1);
@@ -474,6 +501,13 @@ void MainWindow::updateGetVACKeithley(PowerControlClass::fVACvalues* pObject)
 void MainWindow::initHard()
 {
     fControl->Initialize();
+}
+
+void MainWindow::readXmlFile()
+{
+    fControl->ReadXmlFile();
+    fSources = fControl->getSourceNameVec();
+    this->doListOfCommands();
 }
 
 

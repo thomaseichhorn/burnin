@@ -6,7 +6,7 @@
 class ControlKeithleyPower:public PowerControlClass
 {
 public:
-    ControlKeithleyPower();
+    ControlKeithleyPower(string pConnection , string pSetVolt , string pSetCurr);
 
     bool InitPwr();
     PowerControlClass::fVACvalues* getVoltAndCurr();
@@ -23,6 +23,7 @@ public:
     double fCurr;
     double fStep;
     double fCurrCompliance;
+    string fConnection;
 
     ViSession fDefaultRm;
     ViSession fVi;
