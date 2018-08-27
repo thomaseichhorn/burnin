@@ -30,43 +30,43 @@ LIBS += -L/usr/local/lib64/ -lvisa
 INCLUDEPATH += /usr/local/include
 
 SOURCES += \
-    External/FP50ComHandler.cpp \
-    External/JulaboFP50.cpp \
-    External/VJulaboFP50.cpp \
-    GUI/additionalwindow.cpp \
-    GUI/mainwindow.cpp \
-    VoltageControl/controlkeithleypower.cpp \
-    VoltageControl/controlttipower.cpp \
-    VoltageControl/powercontrolclass.cpp \
+    external/cmstkmodlab/devices/Julabo/FP50ComHandler.cpp \
+    external/cmstkmodlab/devices/Julabo/JulaboFP50.cpp \
+    external/cmstkmodlab/devices/Julabo/VJulaboFP50.cpp \
+    gui/additionalwindow.cpp \
+    gui/mainwindow.cpp \
+    voltagecontrol/controlkeithleypower.cpp \
+    voltagecontrol/controlttipower.cpp \
+    voltagecontrol/powercontrolclass.cpp \
     additionalthread.cpp \
     connectioninterfaceclass.cpp \
     daqcontrolclass.cpp \
     databaseinterfaceclass.cpp \
     environmentcontrolclass.cpp \
+    hwdescriptionparser.cpp \
     main.cpp \
-    systemcontrollerclass.cpp \
-    hwdescriptionparser.cpp
+    systemcontrollerclass.cpp
 
 HEADERS += \
-    External/FP50ComHandler.h \
-    External/JulaboFP50.h \
-    External/VJulaboFP50.h \
-    GUI/additionalwindow.h \
-    GUI/mainwindow.h \
-    VoltageControl/controlkeithleypower.h \
-    VoltageControl/controlttipower.h \
-    VoltageControl/powercontrolclass.h \
+    external/cmstkmodlab/devices/Julabo/FP50ComHandler.h \
+    external/cmstkmodlab/devices/Julabo/JulaboFP50.h \
+    external/cmstkmodlab/devices/Julabo/VJulaboFP50.h \
+    gui/additionalwindow.h \
+    gui/mainwindow.h \
+    voltagecontrol/controlkeithleypower.h \
+    voltagecontrol/controlttipower.h \
+    voltagecontrol/powercontrolclass.h \
     additionalthread.h \
     connectioninterfaceclass.h \
     daqcontrolclass.h \
     databaseinterfaceclass.h \
     environmentcontrolclass.h \
-    systemcontrollerclass.h \
-    hwdescriptionparser.h
+    hwdescriptionparser.h \
+    systemcontrollerclass.h
 
 FORMS += \
-    GUI/additionalwindow.ui \
-    GUI/mainwindow.ui
+    gui/additionalwindow.ui \
+    gui/mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
