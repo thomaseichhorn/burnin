@@ -5,7 +5,6 @@
 #include "QFile"
 #include "QXmlStreamReader"
 #include "QXmlStreamAttributes"
-#include "QFileDialog"
 
 // C++ includes
 #include "iostream"
@@ -14,17 +13,13 @@
 HWDescriptionParser::HWDescriptionParser()
 {}
 
-std::vector<GenericInstrumentDescription_t> HWDescriptionParser::ParseXML()
+std::vector<GenericInstrumentDescription_t> HWDescriptionParser::ParseXML(std::string pFileName)
 {
     // creating the vector to return
     std::vector<GenericInstrumentDescription_t> cInstruments;
 
-
-    // opening file
-
-    QString cFilter = "*.xml";
-    QString cFileName = QFileDialog::getOpenFileName( nullptr , "Open a file" , "/home/" , cFilter);
-    QFile *cFile =  new QFile(cFileName);
+    // opening file    
+    QFile *cFile =  new QFile(pFileName.c_str());
     if(!cFile->open(QFile::ReadOnly))
     {
         std::cout << "Unable to open XML file" << std::endl;
@@ -134,22 +129,6 @@ void HWDescriptionParser::ParseChiller(QXmlStreamReader *pXmlFile, std::vector<G
         else cInstrument.interface_settings[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
     }
 
-    while (!(pXmlFile->tokenType() == QXmlStreamReader::EndElement && pXmlFile->name() == "ChillerControl"))
-    {
-        pXmlFile->readNext();
-        if (pXmlFile->tokenType() == QXmlStreamReader::StartElement)
-        {
-            if(pXmlFile->name() == "Output") {
-                std::map<std::string, std::string> cMap;
-                QXmlStreamAttributes attributes = pXmlFile->attributes();
-                for(int i = 0; i < attributes.length(); i++) {
-                    cMap[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
-                }
-                cInstrument.operational_settings.push_back(cMap);
-            }
-        }
-    }
-
     // push back now
     pInstruments.push_back(cInstrument);
 }
@@ -176,6 +155,22 @@ void HWDescriptionParser::ParseRaspberry(QXmlStreamReader *pXmlFile, std::vector
         else if (attributes.at(i).name() == "type") cInstrument.type = attributes.at(i).value().toString().toStdString();
         else if (attributes.at(i).name() == "description") cInstrument.description = attributes.at(i).value().toString().toStdString();
         else cInstrument.interface_settings[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
+    }
+
+    while (!(pXmlFile->tokenType() == QXmlStreamReader::EndElement && pXmlFile->name() == "RaspberryControl"))
+    {
+        pXmlFile->readNext();
+        if (pXmlFile->tokenType() == QXmlStreamReader::StartElement)
+        {
+            if(pXmlFile->name() == "Sensor") {
+                std::map<std::string, std::string> cMap;
+                QXmlStreamAttributes attributes = pXmlFile->attributes();
+                for(int i = 0; i < attributes.length(); i++) {
+                    cMap[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
+                }
+                cInstrument.operational_settings.push_back(cMap);
+            }
+        }
     }
     pInstruments.push_back(cInstrument);
 }

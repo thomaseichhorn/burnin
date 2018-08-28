@@ -5,7 +5,7 @@
 #include <QTextCodec>
 
 #include "connectioninterfaceclass.h"
-#include "GUI/mainwindow.h"
+#include "gui/mainwindow.h"
 
 using namespace std;
 
@@ -37,6 +37,7 @@ QString ConnectionInterfaceClass::getInfoFromSensors()
     QByteArray buffer;
     buffer = fSocket->readAll();
     fSocket->close();
+    delete fSocket;
     QString cData = QTextCodec::codecForMib(106)->toUnicode(buffer);
 
     return cData;

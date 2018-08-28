@@ -6,15 +6,16 @@
 
 #include <QThread>
 
-#include "VoltageControl/powercontrolclass.h"
+#include "voltagecontrol/powercontrolclass.h"
 #include "daqcontrolclass.h"
 #include "environmentcontrolclass.h"
 #include "databaseinterfaceclass.h"
-#include "VoltageControl/controlttipower.h"
+#include "voltagecontrol/controlttipower.h"
 #include "connectioninterfaceclass.h"
-#include "VoltageControl/controlkeithleypower.h"
-#include "External/JulaboFP50.h"
+#include "voltagecontrol/controlkeithleypower.h"
+#include "external/cmstkmodlab/devices/Julabo/JulaboFP50.h"
 #include "hwdescriptionparser.h"
+#include "genericinstrumentclass.h"
 
 
 using namespace  std;
@@ -41,6 +42,7 @@ public:
     vector<GenericInstrumentDescription_t> fHWDescription;
     vector<string> getSourceNameVec();
     vector<SystemControllerClass::fObjParam> fListOfCommands;
+    vector<string> fRaspberrySensorsNames;
     //check if all devices are connected
     void Initialize();
     vector<QString>* readFile();
@@ -48,7 +50,7 @@ public:
     void Wait(int pSec);
     map<string, PowerControlClass* > fMapSources;
     vector<string> fNamesSources;
-    void ReadXmlFile();
+    void ReadXmlFile(std::string pFileName);
 
 private:
     string getTypeOfConnection(string pConnection , string pAddress, string pPort);

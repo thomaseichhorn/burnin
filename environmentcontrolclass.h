@@ -5,9 +5,10 @@
 #include "visa.h"
 #include "visatype.h"
 
-#include "connectioninterfaceclass.h" 
+#include "connectioninterfaceclass.h"
+#include "genericinstrumentclass.h"
 
-class EnvironmentControlClass
+class EnvironmentControlClass:public GenericInstrumentClass
 {
 public:
     EnvironmentControlClass();

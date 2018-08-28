@@ -18,7 +18,7 @@ public:
     void onPower(int pId);
     void offPower(int pId);
 
-    void makeVolt(double pVoltage);
+    void sweepVolt(double pVoltage);
     void checkVAC();
 
     double fVolt;

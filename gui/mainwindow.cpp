@@ -30,25 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    QWidget * widget = new QWidget();
-    QPushButton  * initBut = new QPushButton("Initialize");
-    QPushButton  * readBut = new QPushButton("Read config file");
-    QGridLayout * layout = new QGridLayout(widget);
-    layout->addWidget(initBut,0,0,1,1,Qt::AlignVCenter | Qt::AlignLeft);
-    layout->addWidget(readBut,0,1,1,1,Qt::AlignVCenter | Qt::AlignLeft);
-    ui->statusBar->addWidget(widget,1);
-
-    connect(initBut , SIGNAL(clicked(bool)) , this , SLOT(initHard()));
-    connect(initBut, &QPushButton::clicked, [this]
-    {this->getMeasurments();});
-    connect(initBut, &QPushButton::clicked, [this]
-    {this->getVoltAndCurr();});
-    connect(initBut, &QPushButton::clicked, [this]
-    {this->getVoltAndCurrKeithley();});
-
-    connect(readBut , SIGNAL(clicked(bool)) , this , SLOT(readXmlFile()));
-
-
     QHBoxLayout *low_layout = new QHBoxLayout;
     gui_pointers_low_voltage_1 = SetVoltageSource(low_layout, "TTI 1", "TTI", nOutputs);
     gui_pointers_low_voltage_2 = SetVoltageSource(low_layout, "TTI 2", "TTI", nOutputs);
@@ -57,8 +38,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QHBoxLayout *high_layout = new QHBoxLayout;
     gui_pointers_high_voltage_1 = SetVoltageSource(high_layout, "Keithley 1", "Keithley2410", 1);
     ui->groupBox_2->setLayout(high_layout);
-    gui_pointers_high_voltage_1->onoff_button->setChecked(1);
-
 
     fControl = new SystemControllerClass();
 
@@ -106,6 +85,10 @@ MainWindow::MainWindow(QWidget *parent) :
     {this->on_V_set_doubleSpinBox_valueChanged("Keithley2410" , 0, pVolt);});
     connect(gui_pointers_high_voltage_1->i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pCurr)
     {this->on_I_set_doubleSpinBox_valueChanged("Keithley2410", 0, pCurr);});
+
+    // default disabled everything
+    ui->tabWidget->setEnabled(false);
+    ui->init_button->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -223,8 +206,8 @@ void MainWindow::doListOfCommands()
         cModel->index(i , 0);
 
     }
-    for(int i = 2*cVecSize ; i != fSources.size()+2*cVecSize ; i++){
-        QString cStr = QString::fromStdString(fSources[i-2*cVecSize]);
+    for(int i = fSources.size() + 2 ; i != 2*fSources.size() + 2 ; i++){
+        QString cStr = QString::fromStdString(fSources[i-fSources.size() - 2]);
         QStandardItem *cItem4 = new QStandardItem("Off  " + cStr + "  power supply");
         cModel->setItem(i, cItem4);
         cModel->index(i , 0);
@@ -511,14 +494,49 @@ void MainWindow::updateGetVACKeithley(PowerControlClass::fVACvalues* pObject)
 
 void MainWindow::initHard()
 {
+    // init hard
     fControl->Initialize();
+
+    // start threads
+    this->getMeasurments();
+    this->getVoltAndCurr();
+    this->getVoltAndCurrKeithley();
 }
 
-void MainWindow::readXmlFile()
+bool MainWindow::readXmlFile()
 {
-    fControl->ReadXmlFile();
-    fSources = fControl->getSourceNameVec();
-    this->doListOfCommands();
+    QString cFilter  = "*.xml";
+    QString cFileName = QFileDialog::getOpenFileName(this, "Open hardware description file", "", cFilter);
+
+    if (cFileName.isEmpty()) return false;
+    else {
+        fControl->ReadXmlFile(cFileName.toStdString());
+        fSources = fControl->getSourceNameVec();
+        this->doListOfCommands();
+        return true;
+    }
 }
 
 
+
+void MainWindow::on_read_conf_button_clicked()
+{
+    // read the xml file
+    bool cSuccess = this->readXmlFile();
+
+    // enable gui
+    if (cSuccess) {
+        // enable back
+        ui->init_button->setEnabled(true);
+        ui->tabWidget->setEnabled(true);
+    }
+}
+
+void MainWindow::on_init_button_clicked()
+{
+    // init hard
+    this->initHard();
+
+    // disable init
+    ui->init_button->setEnabled(false);
+}

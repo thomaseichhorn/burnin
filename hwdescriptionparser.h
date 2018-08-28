@@ -17,7 +17,7 @@ class HWDescriptionParser
 {
 public:
     HWDescriptionParser();
-    std::vector<GenericInstrumentDescription_t> ParseXML();
+    std::vector<GenericInstrumentDescription_t> ParseXML(std::string pFileName);
 private:
     void ParsePower(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
     void ParseVoltageSource(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);

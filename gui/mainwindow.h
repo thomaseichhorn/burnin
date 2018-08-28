@@ -12,7 +12,7 @@
 
 #include "systemcontrollerclass.h"
 #include "environmentcontrolclass.h"
-#include "VoltageControl/powercontrolclass.h"
+#include "voltagecontrol/powercontrolclass.h"
 #include "additionalwindow.h"
 #include "additionalthread.h"
 
@@ -29,6 +29,7 @@ struct output_pointer_t {
     QLCDNumber *v_applied;
     QCheckBox *onoff_button;
 };
+
 
 class MainWindow : public QMainWindow
 {
@@ -67,8 +68,12 @@ private slots:
 
     void initHard();
 
-    void readXmlFile();
+    bool readXmlFile();
 
+
+    void on_read_conf_button_clicked();
+
+    void on_init_button_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -85,34 +85,22 @@ bool ControlKeithleyPower::InitPwr(){
 
 
 void ControlKeithleyPower::onPower(int pId)
-{
-    ViUInt32 writeCount;
-    char stringinput[512];
-    strcpy(stringinput , ":OUTP ON\r");
-    fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
-    makeVolt(fVoltSet);
+{ 
+    sweepVolt(fVoltSet);
     QThread::sleep(1);
-
 }
 
 void ControlKeithleyPower::offPower(int pId)
 {
-    makeVolt(0);
-    QThread::sleep(0.5);
-    ViUInt32 writeCount ;
-    char stringinput[512];
-
-    strcpy(stringinput , ":OUTP OFF\r");
-    fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
+    sweepVolt(0);
 }
 
 void ControlKeithleyPower::setVolt(double pVoltage , int pId)
 {
     fVoltSet = pVoltage;
-    //fVolt = pVoltage;
 }
 
-void ControlKeithleyPower::makeVolt(double pVoltage)
+void ControlKeithleyPower::sweepVolt(double pVoltage)
 {
     checkVAC();
     ViUInt32 writeCount;
@@ -134,8 +122,6 @@ void ControlKeithleyPower::makeVolt(double pVoltage)
             QThread::sleep(1.0);
             checkVAC();
         }
-        sprintf(stringinput , ":SOUR:VOLT:LEV %G\r" , pVoltage);
-        fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
     }
 }
 
@@ -151,22 +137,9 @@ void ControlKeithleyPower::setCurr(double pCurrent, int pId)
 
 PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
 {
-    ViUInt32 writeCount , retCount;
-    char stringinput[512];
-    unsigned char buffer[512];
     PowerControlClass::fVACvalues *cObject = new PowerControlClass::fVACvalues();
 
-    strcpy(stringinput , ":READ?\r");
-    fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-    fStatus = viRead(fVi , buffer , 100 , &retCount);
-    QString *cStr = new QString(reinterpret_cast<const char*>(buffer));
-    string str = cStr->toStdString();
-    size_t cPos = str.find(',');
-    QString fVoltStr = QString::fromStdString(str.substr(0 , cPos));
-    str = str.substr(cPos+1, cPos + 13);
-    QString fCurrStr = QString::fromStdString(str.substr(0 , 13));
-    fVolt = fVoltStr.toDouble();
-    fCurr = fCurrStr.toDouble();
+    checkVAC();
 
     cObject->pVSet1 = fVoltSet;
     cObject->pISet1 = fCurrCompliance;
@@ -202,6 +175,7 @@ void ControlKeithleyPower::checkVAC()
     QString fCurrStr = QString::fromStdString(str.substr(0 , 13));
 
     fVolt = fVoltStr.toDouble();
+
     fCurr = fCurrStr.toDouble();
 
 }

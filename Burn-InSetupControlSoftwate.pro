@@ -45,7 +45,8 @@ SOURCES += \
     environmentcontrolclass.cpp \
     hwdescriptionparser.cpp \
     main.cpp \
-    systemcontrollerclass.cpp
+    systemcontrollerclass.cpp \
+    genericinstrumentclass.cpp
 
 HEADERS += \
     external/cmstkmodlab/devices/Julabo/FP50ComHandler.h \
@@ -62,7 +63,8 @@ HEADERS += \
     databaseinterfaceclass.h \
     environmentcontrolclass.h \
     hwdescriptionparser.h \
-    systemcontrollerclass.h
+    systemcontrollerclass.h \
+    genericinstrumentclass.h
 
 FORMS += \
     gui/additionalwindow.ui \

@@ -7,6 +7,8 @@
 #include "visa.h"
 #include "visatype.h"
 
+#include "genericinstrumentclass.h"
+
 using namespace std;
 
 class PowerControlClass

@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QString>
 
-#include "VoltageControl/controlttipower.h"
+#include "voltagecontrol/controlttipower.h"
 #include "systemcontrollerclass.h"
 #include "connectioninterfaceclass.h"
 

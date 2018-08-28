@@ -33,6 +33,7 @@ void SystemControllerClass::Initialize()
         getObject(fNamesSources[i])->InitPwr();
         //getObject(fNamesSources[i])->offPower(0);
     }
+    //fKeithleyArg = 0;
     fConnectRasp->raspInitialize();
 
 }
@@ -120,16 +121,7 @@ void SystemControllerClass::offPower(string pSourceName)
 //reads file and makes map with name and object of power supply
 void SystemControllerClass::ParseVSources()
 {
-
-//    PowerControlClass *fPowerKeithley = new ControlKeithleyPower();
-//    PowerControlClass *fPowerTTi = new ControlTTiPower();
-
-//    fMapSources.insert( pair<string , PowerControlClass*>("TTi1" , fPowerTTi));
-//    fNamesSources.push_back("TTi1");
-//    fMapSources.insert( pair<string , PowerControlClass*>("Keithley1" , fPowerKeithley));
-//    fNamesSources.push_back("Keithley1");
-
-    string cConnection , cSetVolt , cSetCurr , cAddress , cPort;
+    string cConnection , cSetVolt , cSetCurr , cAddress , cPort, cnOutputs;
     //vectors for id , voltage and current
     vector<string> cId;
     vector<string> cVolt;
@@ -183,35 +175,43 @@ void SystemControllerClass::ParseRaspberry()
     for(int i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].type == "Raspberry"){
+
             cConnection = fHWDescription[i].interface_settings["connection"];
             cAddress = fHWDescription[i].interface_settings["address"];
             cPort = fHWDescription[i].interface_settings["port"];
+
             fConnectRasp = new ConnectionInterfaceClass(cAddress , cPort);
+
+            for(int j = 0 ; j != fHWDescription[i].operational_settings.size() ; j++){
+                fRaspberrySensorsNames.push_back(fHWDescription[i].operational_settings[j]["sensor"]);
+            }
         }
     }
 }
 
 void SystemControllerClass::ParseChiller()
 {
-//    string cAddress;
-//    for(int i = 0 ; i != fHWDescription.size() ; i++){
+    string cAddress, cConnection, cPort;
+    for(int i = 0 ; i != fHWDescription.size() ; i++){
 
-//        if(fHWDescription[i].type == "Chiller"){
-//            cAddress = fHWDescription[i].interface_settings["address"];
+        if(fHWDescription[i].type == "Chiller"){
+            cAddress = fHWDescription[i].interface_settings["address"];
+            cConnection = fHWDescription[i].interface_settings["connection"];
+            //cAddress = getTypeOfConnection(cConnection, cAddress, "");
+            //EnvironmentControlClass *fChiller = new JulaboFP50(cAddress.c_str());
 
-//            EnvironmentControlClass *fChiller = new JulaboFP50(cAddress);
-
-//        }
-//    }
+        }
+    }
 }
 
-void SystemControllerClass::ReadXmlFile()
+void SystemControllerClass::ReadXmlFile(std::string pFileName)
 {
-
     HWDescriptionParser cParser;
-    fHWDescription = cParser.ParseXML();
-    ParseVSources();
-    ParseRaspberry();
+    fHWDescription = cParser.ParseXML(pFileName);
+
+    this->ParseVSources();
+    this->ParseRaspberry();
+    this->ParseChiller();
 
 }
 

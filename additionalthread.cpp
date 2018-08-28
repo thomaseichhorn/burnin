@@ -1,7 +1,7 @@
 #include <QThread>
 
 #include "additionalthread.h"
-#include "GUI/mainwindow.h"
+#include "gui/mainwindow.h"
 
 AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pControl) : fName(pName)
 {
@@ -35,10 +35,9 @@ void AdditionalThread::getVACKeithley()
     while(true){
         PowerControlClass *cPowerObj;
         cPowerObj = fAddControl->getObject("Keithley2410");
-        if(fAddControl->fKeithleyArg){
+
         emit sendToThreadKeithley(cPowerObj->getVoltAndCurr());
-        QThread::sleep(2);
-        }
+        QThread::sleep(3);
     }
 }
 

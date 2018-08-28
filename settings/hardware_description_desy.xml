@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HardwareDescription>
+	<!-- section with power control -->
+	<Power>
+		<!-- Low Voltage Section -->
+		<LowVoltage>
+			<VoltageSource name="TTI1" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.180" description="used for something">			
+				<Output output_id="0" Voltage="5" CurrentLimit="0.250"/>
+				<Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
+			</VoltageSource>
+		</LowVoltage>
+		<!-- High Voltage Section -->
+		<HighVoltage>
+			<VoltageSource name="Keithley2410" class="Keithley" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyS5/" description="used for bias">
+				<Output id="0" Voltage="-40" CurrentLimit="1.0"/>		
+			</VoltageSource>
+		</HighVoltage>
+	</Power>
+
+	<!-- environment section -->
+	<Environment>		
+		<!-- Chiller Section -->
+		<ChillerControl name="JulaboFP50" class="" type="Chiller" connection="rs232" address="/dev/ttyS0/" description="used to cool done the cooling block" />			
+		<!-- Peltier Section -->
+		<PeltierControl>
+			<!-- to be defined -->
+		</PeltierControl>
+		<!--Raspberry  Section -->
+		<RaspberryControl name="fhlthermorasp1" class="" type="Raspberry" connection="ethernet" address="fhlthermorasp3.desy.de" port="50007" description="used for display temperature humidity pressure" >
+			<Sensor sensor="W1_10-00080319664e_temp(Temperature)"/>
+			<Sensor sensor="DHT11_PIN4_temp DHT11_PIN4_hum(Humidity)"/>
+			<Sensor sensor="SHT75_temp SHT75_hum(Humidity)"/>
+		</RaspberryControl>
+	</Environment>
+</HardwareDescription>
+
+ 
