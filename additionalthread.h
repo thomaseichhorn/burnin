@@ -22,6 +22,7 @@ signals:
     void sendToThreadKeithley(PowerControlClass::fVACvalues *);
     void sendToThreadString(QString);
     void volt();
+    void sendFromChiller();
 
 public slots:
     void getVAC();
@@ -29,6 +30,7 @@ public slots:
     void getVACKeithley();
     void onVolt();
     void offVolt();
+    void getChillerStatus();
 private:
     QString fName;
     SystemControllerClass *fRaspControl;

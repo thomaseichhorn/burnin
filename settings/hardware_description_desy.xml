@@ -7,7 +7,7 @@
 			<VoltageSource name="TTI1" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.180" description="used for something">			
 				<Output output_id="0" Voltage="5" CurrentLimit="0.250"/>
 				<Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
-			</VoltageSource>
+			</VoltageSource>			
 		</LowVoltage>
 		<!-- High Voltage Section -->
 		<HighVoltage>
@@ -26,10 +26,9 @@
 			<!-- to be defined -->
 		</PeltierControl>
 		<!--Raspberry  Section -->
-		<RaspberryControl name="fhlthermorasp1" class="" type="Raspberry" connection="ethernet" address="fhlthermorasp3.desy.de" port="50007" description="used for display temperature humidity pressure" >
-			<Sensor sensor="W1_10-00080319664e_temp(Temperature)"/>
-			<Sensor sensor="DHT11_PIN4_temp DHT11_PIN4_hum(Humidity)"/>
-			<Sensor sensor="SHT75_temp SHT75_hum(Humidity)"/>
+		<RaspberryControl name="fhlthermorasp1" class="" type="Raspberry" connection="ethernet" address="fhlthermorasp2.desy.de" port="50007" description="used for display temperature humidity pressure" >
+			<Sensor sensor="DustSensor_1_smalldust"/>
+			<Sensor sensor="DustSensor_1_largedust"/>
 		</RaspberryControl>
 	</Environment>
 </HardwareDescription>

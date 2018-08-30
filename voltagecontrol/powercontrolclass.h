@@ -11,7 +11,7 @@
 
 using namespace std;
 
-class PowerControlClass
+class PowerControlClass: public GenericInstrumentClass
 {
 public:
     PowerControlClass();
@@ -33,6 +33,9 @@ public:
     virtual void setCurr(double pCurrent , int pId) = 0;
     virtual void onPower(int pId) = 0;
     virtual void offPower(int pId) = 0;
+    virtual void closeConnection() = 0;
+
+    virtual string getName() = 0;
     
     int fNOutputs;
 };

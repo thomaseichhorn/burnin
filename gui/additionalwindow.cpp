@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QMessageBox>
 
 #include "additionalwindow.h"
 #include "ui_additionalwindow.h"
@@ -24,9 +25,11 @@ void AdditionalWindow::on_pushButton_clicked()
 //Ok pushbutton
 void AdditionalWindow::on_pushButton_2_clicked()
 {
-   QString cStr = ui->lineEdit->text();
-   setValue(cStr);
-   this->close();
+    QString cStr = ui->lineEdit->text();
+    if(!cStr.isEmpty()){
+        setValue(cStr);
+        this->close();
+    }
 }
 
 QString AdditionalWindow::getValue()

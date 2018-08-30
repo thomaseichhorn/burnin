@@ -179,3 +179,11 @@ void ControlKeithleyPower::checkVAC()
     fCurr = fCurrStr.toDouble();
 
 }
+
+void ControlKeithleyPower::closeConnection()
+{
+    if(fVi)
+        viClose(fVi);
+    if(fDefaultRm)
+        viClose(fDefaultRm);
+}

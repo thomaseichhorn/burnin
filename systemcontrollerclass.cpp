@@ -16,7 +16,6 @@ using namespace std;
 
 SystemControllerClass::SystemControllerClass()
 {
-    fKeithleyArg = 1;
     fDaqControl = new DAQControlClass();
     fDatabase = new DatabaseInterfaceClass();
 }
@@ -24,7 +23,7 @@ SystemControllerClass::SystemControllerClass()
 SystemControllerClass::~SystemControllerClass()
 {}
 
-void SystemControllerClass::Initialize()
+bool SystemControllerClass::Initialize()
 {
     fDaqControl->InitDAQ();
     fDatabase->InitDatabase();
@@ -33,7 +32,6 @@ void SystemControllerClass::Initialize()
         getObject(fNamesSources[i])->InitPwr();
         //getObject(fNamesSources[i])->offPower(0);
     }
-    //fKeithleyArg = 0;
     fConnectRasp->raspInitialize();
 
 }
@@ -64,11 +62,12 @@ void SystemControllerClass::Wait(int pSec)
 }
 
 //
-void SystemControllerClass::doListOfCommands()
+void SystemControllerClass::startDoingList()
 {
     QThread *cThread = new QThread();
-    for(vector<fObjParam>::iterator cIter= fListOfCommands.begin() ; cIter != fListOfCommands.end() ; ++cIter){
+    for(vector<fParameters>::iterator cIter= fListOfCommands.begin() ; cIter != fListOfCommands.end() ; ++cIter){
         string cStr = (*cIter).cName;
+
         double cValue = (*cIter).cValue;
         if(cStr == "Set Temperature (°C)"){
             moveToThread(cThread);
@@ -78,7 +77,7 @@ void SystemControllerClass::doListOfCommands()
         }
         if(cStr == "Wait (Sec)"){
             connect(cThread, &QThread::started, [this, cValue]
-            {this->setTemperature(cValue);});
+            {this->Wait(cValue);});
             cThread->start();
         }
         for(size_t i = 0 ; i != fNamesSources.size() ; i++){
@@ -86,20 +85,23 @@ void SystemControllerClass::doListOfCommands()
                 connect(cThread, &QThread::started, [this, i]
                 {this->onPower(fNamesSources[i]);});
                 cThread->start();
+                getObject(fNamesSources[i])->onPower(1);
+                emit sendOnOff(fNamesSources[i] , true);
             }
             if(cStr == "Off  " + fNamesSources[i] + "  power supply"){
                 connect(cThread, &QThread::started, [this, i]
                 {this->offPower(fNamesSources[i]);});
                 cThread->start();
+                getObject(fNamesSources[i])->offPower(1);
+                emit sendOnOff(fNamesSources[i] , false);
             }
-
         }
     }
 }
 
 void SystemControllerClass::setTemperature(double pTemp)
 {
-
+//    getGenericInstrObj("JulaboFP50")->SetWorkingTemperature(pTemp);
 }
 
 void SystemControllerClass::wait(double pTime)
@@ -145,6 +147,7 @@ void SystemControllerClass::ParseVSources()
                 string cConnectStr = getTypeOfConnection(cConnection , cAddress , cPort);
                 PowerControlClass *fPowerLow = new ControlTTiPower(cConnectStr , cId , cVolt, cCurr);
                 fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerLow));
+                fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerLow));
                 fNamesSources.push_back(fHWDescription[i].name);
             }
         }
@@ -159,13 +162,11 @@ void SystemControllerClass::ParseVSources()
                 string cConnectStr = getTypeOfConnection(cConnection , cAddress , cPort);
                 PowerControlClass *fPowerHigh = new ControlKeithleyPower(cConnectStr, cSetVolt, cSetCurr);
                 fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerHigh));
+                fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerHigh));
                 fNamesSources.push_back(fHWDescription[i].name);
             }
-
         }
-
     }
-
 }
 
 void SystemControllerClass::ParseRaspberry()
@@ -175,12 +176,12 @@ void SystemControllerClass::ParseRaspberry()
     for(int i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].type == "Raspberry"){
-
             cConnection = fHWDescription[i].interface_settings["connection"];
             cAddress = fHWDescription[i].interface_settings["address"];
             cPort = fHWDescription[i].interface_settings["port"];
 
             fConnectRasp = new ConnectionInterfaceClass(cAddress , cPort);
+            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fConnectRasp));
 
             for(int j = 0 ; j != fHWDescription[i].operational_settings.size() ; j++){
                 fRaspberrySensorsNames.push_back(fHWDescription[i].operational_settings[j]["sensor"]);
@@ -191,17 +192,24 @@ void SystemControllerClass::ParseRaspberry()
 
 void SystemControllerClass::ParseChiller()
 {
-    string cAddress, cConnection, cPort;
+    string cAddress, cConnection;
     for(int i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].type == "Chiller"){
             cAddress = fHWDescription[i].interface_settings["address"];
             cConnection = fHWDescription[i].interface_settings["connection"];
-            //cAddress = getTypeOfConnection(cConnection, cAddress, "");
-            //EnvironmentControlClass *fChiller = new JulaboFP50(cAddress.c_str());
+            cAddress = getTypeOfConnection(cConnection, cAddress, "");
+//            EnvironmentControlClass *fChiller = new JulaboFP50(cAddress.c_str());
+
+//x            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fChiller));
 
         }
     }
+}
+
+GenericInstrumentClass* SystemControllerClass::getGenericInstrObj(string pStr)
+{
+    return fGenericInstrumentMap[pStr];
 }
 
 void SystemControllerClass::ReadXmlFile(std::string pFileName)
@@ -240,5 +248,13 @@ string SystemControllerClass::getTypeOfConnection(string pConnection, string pAd
         cStr = "ASRL" + pAddress + "::INSTR";
         }
     return cStr;
+}
+
+void SystemControllerClass::closeConneections()
+{
+    for(size_t i = 0 ; i != fNamesSources.size() ; i++){
+        getObject(fNamesSources[i])->closeConnection();
+    }
+    fConnectRasp->closeConnection();
 }
 

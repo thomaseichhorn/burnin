@@ -26,19 +26,27 @@ bool ConnectionInterfaceClass::raspInitialize()
     else{
         return true;
     }
-    fSocket->close();
+//    fSocket->close();
 }
 
 QString ConnectionInterfaceClass::getInfoFromSensors()
 {
-    fSocket = new QTcpSocket(this);
-    fSocket->connectToHost(QString::fromStdString(fAddress) , fPort);
+//    fSocket = new QTcpSocket(this);
+//    fSocket->connectToHost(QString::fromStdString(fAddress) , fPort);
     fSocket->waitForReadyRead();
     QByteArray buffer;
     buffer = fSocket->readAll();
-    fSocket->close();
-    delete fSocket;
+//    fSocket->close();
+//    delete fSocket;
     QString cData = QTextCodec::codecForMib(106)->toUnicode(buffer);
 
     return cData;
+}
+
+void ConnectionInterfaceClass::closeConnection()
+{
+    if(fSocket->isOpen()){
+        fSocket->close();
+        delete fSocket;
+    }
 }

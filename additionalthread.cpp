@@ -2,6 +2,7 @@
 
 #include "additionalthread.h"
 #include "gui/mainwindow.h"
+#include "environmentcontrolclass.h"
 
 AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pControl) : fName(pName)
 {
@@ -15,7 +16,7 @@ void AdditionalThread::getVAC()
         PowerControlClass *cPowerObj;
         cPowerObj = fAddControl->getObject("TTI1");
         emit sendToThread(cPowerObj->getVoltAndCurr());
-        QThread::sleep(10);
+        QThread::sleep(2);
     }
 }
 
@@ -35,7 +36,6 @@ void AdditionalThread::getVACKeithley()
     while(true){
         PowerControlClass *cPowerObj;
         cPowerObj = fAddControl->getObject("Keithley2410");
-
         emit sendToThreadKeithley(cPowerObj->getVoltAndCurr());
         QThread::sleep(3);
     }
@@ -54,6 +54,16 @@ void AdditionalThread::offVolt()
     PowerControlClass *cPowerObj;
     cPowerObj = fAddControl->getObject("Keithley2410");
     cPowerObj->offPower(0);
+
+}
+
+void AdditionalThread::getChillerStatus()
+{
+    EnvironmentControlClass *cEnv;
+    cEnv = dynamic_cast<EnvironmentControlClass*>(fAddControl->getGenericInstrObj("JulaboFP50"));
+    while(true){
+
+    }
 
 }
 

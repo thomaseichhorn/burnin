@@ -6,14 +6,22 @@
 #include <QtNetwork/QTcpSocket>
 #include <iostream>
 
+#include "genericinstrumentclass.h"
+
 using namespace  std;
-class ConnectionInterfaceClass : public QObject
+class ConnectionInterfaceClass : public QObject,public GenericInstrumentClass
 {
     Q_OBJECT
 public:
     explicit ConnectionInterfaceClass(string pAddress , string pPort);
     bool raspInitialize();
     QString getInfoFromSensors();
+
+    string getName(){
+        return "ConnectionInterfaceClass";
+    }
+    void closeConnection();
+
 signals:
 
 public slots:

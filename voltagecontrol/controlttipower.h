@@ -27,6 +27,12 @@ public:
     void setCurr(double pCurrent , int pId);
     void onPower(int pId);
     void offPower(int pId);
+    void closeConnection();
+
+    string getName(){
+        string cStr = "ControlTTIClass";
+        return cStr;
+    }
 
     string fConnection;
     int fId1;

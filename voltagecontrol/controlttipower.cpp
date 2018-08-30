@@ -64,7 +64,9 @@ void ControlTTiPower::setCurr(double pCurrent , int pId)
 
 void ControlTTiPower::onPower(int pId)
 {
-    viPrintf(fVi , "OP%d 1 \n" , pId);
+    if(pId)
+        viPrintf(fVi , "OP%d 1 \n" , pId);
+    else viPrintf(fVi, "OPALL 1\n");
 }
 
 void ControlTTiPower::offPower(int pId)
@@ -124,3 +126,10 @@ PowerControlClass::fVACvalues* ControlTTiPower::getVoltAndCurr()
     return cObject;
 }
 
+void ControlTTiPower::closeConnection()
+{
+    if(fVi)
+        viClose(fVi);
+    if(fDefaultRm)
+        viClose(fDefaultRm);
+}

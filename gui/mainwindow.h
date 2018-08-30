@@ -9,6 +9,7 @@
 #include "QCheckBox"
 #include <QListWidgetItem>
 #include <QStandardItemModel>
+#include <QLabel>
 
 #include "systemcontrollerclass.h"
 #include "environmentcontrolclass.h"
@@ -28,6 +29,22 @@ struct output_pointer_t {
     QLCDNumber *i_applied;
     QLCDNumber *v_applied;
     QCheckBox *onoff_button;
+};
+
+struct output_Raspberry {
+    QLayout *layout;
+    QLabel *label;
+    QLCDNumber *value;
+};
+
+struct output_Chiller{
+     QDoubleSpinBox *setTemperature;
+     QLCDNumber *bathTemperature;
+     QLCDNumber *sensorTemperature;
+     QLCDNumber *pressure;
+     QLCDNumber *workingTemperature;
+     QCheckBox *onoff_button;
+     QLayout *layout;
 };
 
 
@@ -50,11 +67,11 @@ private slots:
 
     void on_Start_pushButton_clicked();
 
-    void RaspWidget(QString pStr);
+    void updateRaspWidget(QString pStr);
 
-    void updateGetVAC(PowerControlClass::fVACvalues *pObject);
+    void updateTTiIWidget(PowerControlClass::fVACvalues *pObject);
 
-    void updateGetVACKeithley(PowerControlClass::fVACvalues *pObject);
+    void updateKeithleyWidget(PowerControlClass::fVACvalues *pObject);
 
     void on_AddedComands_tabelView_doubleClicked(const QModelIndex &pIndex);
 
@@ -81,9 +98,9 @@ private:
     QStandardItemModel *model;
     QModelIndex fIndex;
     vector<string> fSources;
-    output_pointer_t* gui_pointers_low_voltage_1;
-    output_pointer_t* gui_pointers_low_voltage_2;
-    output_pointer_t* gui_pointers_high_voltage_1;
+    vector<output_pointer_t*> gui_pointers_low_voltage;
+
+    vector<output_pointer_t*> gui_pointers_high_voltage;
 
     void doListOfCommands();
     void getVoltAndCurr();
@@ -94,12 +111,26 @@ private:
     output_pointer_t SetSourceOutputLayout(std::string pType);
     output_pointer_t *SetVoltageSource(QLayout *pMainLayout, std::string pName, std::string pType,
                                        int pNoutputs);
+    output_Raspberry* gui_raspberry;
+
+    output_Raspberry setRaspberryLayout(string pName);
+
+    output_Raspberry *SetRaspberryOutput(QLayout *pMainLayout , vector<string> pNames, string pNameGroupBox);
+
+    output_Chiller *gui_chiller;
+
+    output_Chiller setChilerLayout(string pType);
+
+    output_Chiller* SetChillerOutput(QLayout *pMainLayout, std::string pName, std::string pType);
 
     void on_V_set_doubleSpinBox_valueChanged(string pSourceName , int pId , double pVolt);
 
     void on_OnOff_button_stateChanged(string pSourceName , int pId , bool pArg);
 
     void on_I_set_doubleSpinBox_valueChanged(string pSourceName , int pId, double pCurr);
+
+private slots:
+    void receiveOnOff(string pSourceName, bool pArg);
 };
 
 #endif // MAINWINDOW_H

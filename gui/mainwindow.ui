@@ -36,7 +36,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -52,7 +52,7 @@
       </property>
       <widget class="QWidget" name="Main">
        <attribute name="title">
-        <string>Main test</string>
+        <string>Main</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
@@ -194,9 +194,9 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="Power">
+      <widget class="QWidget" name="VoltageControl">
        <attribute name="title">
-        <string>Pwr</string>
+        <string>VoltageControl</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -215,7 +215,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="Env">
+      <widget class="QWidget" name="EnvironmenControl">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -226,30 +226,28 @@
         </size>
        </property>
        <attribute name="title">
-        <string>Env</string>
+        <string>EnvironmentControl</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>10</y>
-          <width>941</width>
-          <height>93</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
-         <item>
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>Raspberry sensors:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTextBrowser" name="raspberrySensors_textBrowser"/>
-         </item>
-        </layout>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_8" stretch="0">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QGroupBox" name="groupBox_3">
+            <property name="title">
+             <string>Raspberry sensors</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_Chiller">
+            <property name="title">
+             <string>Chiller Control</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

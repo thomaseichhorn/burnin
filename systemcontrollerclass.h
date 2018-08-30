@@ -31,26 +31,27 @@ public:
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
+    vector<string> fRaspberrySensorsNames;
+    vector<GenericInstrumentDescription_t> fHWDescription;
+    map<string, PowerControlClass* > fMapSources;
+    map<string , GenericInstrumentClass*> fGenericInstrumentMap;
+    vector<string> fNamesSources;
     //struct for the vector which contains commands
-    struct fObjParam{
+    struct fParameters{
         string cName;
         double cValue;
     };
-    //check if keithley on to readout information
-    int fKeithleyArg;
-    PowerControlClass* getObject(string pStr);
-    vector<GenericInstrumentDescription_t> fHWDescription;
-    vector<string> getSourceNameVec();
-    vector<SystemControllerClass::fObjParam> fListOfCommands;
-    vector<string> fRaspberrySensorsNames;
+    vector<SystemControllerClass::fParameters> fListOfCommands;
     //check if all devices are connected
-    void Initialize();
-    vector<QString>* readFile();
-    void doListOfCommands();
-    void Wait(int pSec);
-    map<string, PowerControlClass* > fMapSources;
-    vector<string> fNamesSources;
+    bool Initialize();
     void ReadXmlFile(std::string pFileName);
+    void startDoingList();
+    void Wait(int pSec);
+    void closeConneections();
+    PowerControlClass* getObject(string pStr);
+    GenericInstrumentClass* getGenericInstrObj(string pStr);
+    vector<string> getSourceNameVec();
+    vector<QString>* readFile();
 
 private:
     string getTypeOfConnection(string pConnection , string pAddress, string pPort);
@@ -63,6 +64,9 @@ private slots:
     void wait(double pTime);
     void onPower(string pSourceName);
     void offPower(string pSourceName);
+
+signals:
+    void sendOnOff(string pSourceName , bool pArg);
 
 };
 

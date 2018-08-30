@@ -17,9 +17,15 @@ public:
     void setCurr(double pCurrent , int pId);
     void onPower(int pId);
     void offPower(int pId);
+    void closeConnection();
 
     void sweepVolt(double pVoltage);
     void checkVAC();
+
+    string getName(){
+        string cStr = "ControlKeithleyClass";
+        return cStr;
+    }
 
     double fVolt;
     double fVoltSet;
