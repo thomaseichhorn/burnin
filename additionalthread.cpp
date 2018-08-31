@@ -25,8 +25,13 @@ void AdditionalThread::getRaspSensors()
 {
     while(true){
         QString cStr = fAddControl->fConnectRasp->getInfoFromSensors();
-        emit sendToThreadString(cStr);
-        QThread::sleep(10);
+        if (!cStr.isEmpty()) {
+            string cTemp = cStr.toStdString();
+            size_t cPos = cTemp.find(':');
+            cTemp = cTemp.substr(cPos , cTemp.size());
+            emit sendToThreadString(QString::fromStdString(cTemp));
+        }
+        QThread::sleep(10);        
     }
 }
 

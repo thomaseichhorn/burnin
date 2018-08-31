@@ -26,9 +26,11 @@
 			<!-- to be defined -->
 		</PeltierControl>
 		<!--Raspberry  Section -->
-		<RaspberryControl name="fhlthermorasp1" class="" type="Raspberry" connection="ethernet" address="fhlthermorasp2.desy.de" port="50007" description="used for display temperature humidity pressure" >
-			<Sensor sensor="DustSensor_1_smalldust"/>
-			<Sensor sensor="DustSensor_1_largedust"/>
+		<RaspberryControl name="fhlthermorasp4" class="" type="Raspberry" connection="ethernet" address="fhlthermorasp4.desy.de" port="50007" description="used for display temperature humidity pressure" >
+			<Sensor sensor="BME680_i2c-0_0x77_temp"/>
+			<Sensor sensor="BME680_i2c-0_0x77_hum"/>
+			<Sensor sensor="BME680_i2c-0_0x77_pres"/>
+			
 		</RaspberryControl>
 	</Environment>
 </HardwareDescription>

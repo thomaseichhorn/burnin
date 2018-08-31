@@ -296,6 +296,7 @@ output_Raspberry* MainWindow::SetRaspberryOutput(QLayout *pMainLayout , vector<s
     for(size_t i = 0 ; i < pNames.size() ; i++){
         cOutputPointers[i] = setRaspberryLayout(pNames[i]);
         cLayout_raspberry->addItem(cOutputPointers[i].layout);
+        cLayout_raspberry->addSpacing(15);
     }
     //cLayout_raspberry->addStretch();
     QSpacerItem *item = new QSpacerItem(0 , 100 ,QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -310,6 +311,37 @@ output_Raspberry* MainWindow::SetRaspberryOutput(QLayout *pMainLayout , vector<s
     return cOutputPointers;
 }
 
+void MainWindow::voltageControlWidget()
+{
+    QStandardItemModel *model = new QStandardItemModel(this);
+
+    QStandardItem *cItem1 = new QStandardItem("Source name");
+    model->setItem( 0 , 0 , cItem1);
+    model->index(0 , 0);
+    QStandardItem *cItem2 = new QStandardItem("V_set");
+    model->setItem( 0 , 1 , cItem2);
+    model->index(0 , 1);
+    QStandardItem *cItem3 = new QStandardItem("I_set");
+    model->setItem( 0 , 2 , cItem3);
+    model->index(0 , 2);
+    QStandardItem *cItem4 = new QStandardItem("V_app");
+    model->setItem( 0 , 3 , cItem4);
+    model->index(0 , 3);
+    QStandardItem *cItem5 = new QStandardItem("I_app");
+    model->setItem( 0 , 4 , cItem5);
+    model->index(0 , 4);
+
+    int j = 1;
+    for(auto const &i: fControl->fMapSources){
+        QStandardItem *cIt = new QStandardItem(QString::fromStdString(i.first));
+        model->setItem(j , 0 , cIt);
+        model->index(j , 0);
+        j++;
+    }
+
+    ui->voltageTableView->setModel(model);
+
+}
 //creates a List with all commands
 void MainWindow::doListOfCommands()
 {
@@ -456,20 +488,22 @@ void MainWindow::on_Start_pushButton_clicked()
 //reads sensor on rasp and sets info to Raspberry sensors
 void MainWindow::updateRaspWidget(QString pStr)
 {
-//    vector<string> cVec= fControl->fRaspberrySensorsNames;
-//    string cStr = pStr.toStdString();
+    vector<string> cVec;
+    string cStr = pStr.toStdString();
 //    size_t cPos = cStr.find(":");
-//    cStr = cStr.substr(cPos + 14 , cStr.size());
-//    cout <<"a" << cStr << endl;
-//    for(size_t i = 0 ; i != cVec.size() ; i++){
-//        cPos = cStr.find(' ');
-//        cout << cPos << endl;
-//        cStr = cStr.substr(0 , cPos - 1);
-//        cout << "c"<< cStr << endl;
-//        gui_raspberry[i].value->display(QString::fromStdString(cStr).toDouble());
-//        cStr = cStr.erase(0, cPos + 1);
-
-//    }
+//    cout << "1" << endl;
+//    cStr = cStr.substr(cPos+1 , cStr.size());
+//    cout << cStr << endl;
+    std::istringstream ist(cStr);
+    std::string tmp;
+    while ( ist >> tmp )
+       cVec.push_back(tmp);
+    cout << cVec[0] << endl;
+    cout << cVec[1] << endl;
+    for(int i = 1 ; i != cVec.size() ; i++){
+        cout << cVec[i] << endl;
+        gui_raspberry[i-1].value->display(QString::fromStdString(cVec[i]).toDouble());
+    }
 }
 
 //deletes highlighted item from the table(double-click on item)
@@ -672,6 +706,8 @@ void MainWindow::initHard()
     this->getVoltAndCurrKeithley();
 
     connect(fControl, SIGNAL(sendOnOff(string,bool)) , this , SLOT(receiveOnOff(string,bool)));
+
+    this->voltageControlWidget();
 }
 
 bool MainWindow::readXmlFile()

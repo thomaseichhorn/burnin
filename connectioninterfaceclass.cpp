@@ -18,7 +18,7 @@ ConnectionInterfaceClass::ConnectionInterfaceClass(string pAddress , string pPor
 bool ConnectionInterfaceClass::raspInitialize()
 {
     fSocket = new QTcpSocket(this);
-    fSocket->connectToHost(QString::fromStdString(fAddress) , fPort);
+     fSocket->connectToHost(QString::fromStdString(fAddress) , fPort);
     if(!fSocket->waitForDisconnected(5000)){
         qDebug() << "Error:" << fSocket->errorString();
         return false;

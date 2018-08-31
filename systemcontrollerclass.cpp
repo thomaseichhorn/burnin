@@ -199,9 +199,9 @@ void SystemControllerClass::ParseChiller()
             cAddress = fHWDescription[i].interface_settings["address"];
             cConnection = fHWDescription[i].interface_settings["connection"];
             cAddress = getTypeOfConnection(cConnection, cAddress, "");
-//            EnvironmentControlClass *fChiller = new JulaboFP50(cAddress.c_str());
+            EnvironmentControlClass *fChiller = new JulaboFP50(cAddress.c_str());
 
-//x            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fChiller));
+            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fChiller));
 
         }
     }
