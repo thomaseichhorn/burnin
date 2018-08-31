@@ -73,6 +73,8 @@ private slots:
 
     void updateKeithleyWidget(PowerControlClass::fVACvalues *pObject);
 
+    void updateChillerWidget(string pStr);
+
     void on_AddedComands_tabelView_doubleClicked(const QModelIndex &pIndex);
 
     void removeRow(int pRow);
@@ -106,6 +108,7 @@ private:
     void voltageControlWidget();
     void getVoltAndCurr();
     void getVoltAndCurrKeithley();
+    void getChillerStatus();
     void getMeasurments();
     QString transformQString(QString pStr);
     QString deleteSpaces(QString pStr);

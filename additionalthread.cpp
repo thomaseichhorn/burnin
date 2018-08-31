@@ -65,9 +65,17 @@ void AdditionalThread::offVolt()
 void AdditionalThread::getChillerStatus()
 {
     EnvironmentControlClass *cEnv;
+    double cBathTemp, cPressure, cSensorTemp, cWorkingTemp;
+    string cMeas;
     cEnv = dynamic_cast<EnvironmentControlClass*>(fAddControl->getGenericInstrObj("JulaboFP50"));
     while(true){
-
+        cBathTemp = cEnv->GetBathTemperature();
+        cPressure = cEnv->GetPumpPressure();
+        cSensorTemp = cEnv->GetSafetySensorTemperature();
+        cWorkingTemp = cEnv->GetWorkingTemperature();
+        cMeas = std::to_string(cBathTemp) + " " + to_string(cPressure) + " " + to_string(cSensorTemp)
+                + " " +to_string(cWorkingTemp);
+        emit  sendFromChiller(cMeas);
     }
 
 }

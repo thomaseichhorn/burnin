@@ -409,6 +409,17 @@ void MainWindow::getVoltAndCurrKeithley()
     cQThread->start();
 }
 
+void MainWindow::getChillerStatus()
+{
+    AdditionalThread *cThread  = new AdditionalThread("C", fControl);
+    QThread *cQThread = new QThread();
+    connect(cQThread , SIGNAL(started()), cThread, SLOT(getChillerStatus()));
+    connect(cThread, SIGNAL(sendFromChiller(string)),this,
+            SLOT(updateChillerWidget(string)));
+    cThread->moveToThread(cQThread);
+    cQThread->start();
+}
+
 //func which adds command to the list and vector from listOfCommands to AddedWidget
 void MainWindow::on_listOfCommands_doubleClicked(const QModelIndex &pIndex)
 {
@@ -490,20 +501,30 @@ void MainWindow::updateRaspWidget(QString pStr)
 {
     vector<string> cVec;
     string cStr = pStr.toStdString();
-//    size_t cPos = cStr.find(":");
-//    cout << "1" << endl;
-//    cStr = cStr.substr(cPos+1 , cStr.size());
-//    cout << cStr << endl;
+
     std::istringstream ist(cStr);
     std::string tmp;
     while ( ist >> tmp )
        cVec.push_back(tmp);
-    cout << cVec[0] << endl;
-    cout << cVec[1] << endl;
+
     for(int i = 1 ; i != cVec.size() ; i++){
-        cout << cVec[i] << endl;
         gui_raspberry[i-1].value->display(QString::fromStdString(cVec[i]).toDouble());
     }
+}
+
+void MainWindow::updateChillerWidget(string pStr)
+{
+    vector<string> cVec;
+
+    std::istringstream ist(pStr);
+    std::string tmp;
+    while ( ist >> tmp )
+       cVec.push_back(tmp);
+
+   gui_chiller->bathTemperature->display(QString::fromStdString(cVec[0]).toDouble());
+   gui_chiller->pressure->display(stod(cVec[1]));
+   gui_chiller->sensorTemperature->display(stod(cVec[2]));
+   gui_chiller->workingTemperature->display(stod(cVec[3]));
 }
 
 //deletes highlighted item from the table(double-click on item)
