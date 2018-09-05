@@ -22,7 +22,7 @@ ControlTTiPower::ControlTTiPower(string pConnection , vector<string> pId , vecto
     fSetCurr2 = QString::fromStdString(pCurr[1]).toDouble();
 }
 
-bool ControlTTiPower::InitPwr()
+bool ControlTTiPower::initialize()
 {
     ViUInt32 pTimeout = 5000;
     fStatus = viOpenDefaultRM(&fDefaultRm);

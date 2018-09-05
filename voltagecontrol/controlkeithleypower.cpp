@@ -25,7 +25,7 @@ ControlKeithleyPower::ControlKeithleyPower(string pConnection , string pSetVolt 
     fStep = 10;
 }
 
-bool ControlKeithleyPower::InitPwr(){
+bool ControlKeithleyPower::initialize(){
 
     fStatus = viOpenDefaultRM(&fDefaultRm);
     if(fStatus < VI_SUCCESS){

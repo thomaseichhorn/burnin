@@ -63,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->init_button->setEnabled(false);
     ui->Down_pushButton->setEnabled(false);
     ui->Up_pushButton->setEnabled(false);
+    ui->Start_pushButton->setEnabled(false);
 
 }
 
@@ -313,33 +314,33 @@ output_Raspberry* MainWindow::SetRaspberryOutput(QLayout *pMainLayout , vector<s
 
 void MainWindow::voltageControlWidget()
 {
-    QStandardItemModel *model = new QStandardItemModel(this);
+//    QStandardItemModel *model = new QStandardItemModel(this);
 
-    QStandardItem *cItem1 = new QStandardItem("Source name");
-    model->setItem( 0 , 0 , cItem1);
-    model->index(0 , 0);
-    QStandardItem *cItem2 = new QStandardItem("V_set");
-    model->setItem( 0 , 1 , cItem2);
-    model->index(0 , 1);
-    QStandardItem *cItem3 = new QStandardItem("I_set");
-    model->setItem( 0 , 2 , cItem3);
-    model->index(0 , 2);
-    QStandardItem *cItem4 = new QStandardItem("V_app");
-    model->setItem( 0 , 3 , cItem4);
-    model->index(0 , 3);
-    QStandardItem *cItem5 = new QStandardItem("I_app");
-    model->setItem( 0 , 4 , cItem5);
-    model->index(0 , 4);
+//    QStandardItem *cItem1 = new QStandardItem("Source name");
+//    model->setItem( 0 , 0 , cItem1);
+//    model->index(0 , 0);
+//    QStandardItem *cItem2 = new QStandardItem("V_set");
+//    model->setItem( 0 , 1 , cItem2);
+//    model->index(0 , 1);
+//    QStandardItem *cItem3 = new QStandardItem("I_set");
+//    model->setItem( 0 , 2 , cItem3);
+//    model->index(0 , 2);
+//    QStandardItem *cItem4 = new QStandardItem("V_app");
+//    model->setItem( 0 , 3 , cItem4);
+//    model->index(0 , 3);
+//    QStandardItem *cItem5 = new QStandardItem("I_app");
+//    model->setItem( 0 , 4 , cItem5);
+//    model->index(0 , 4);
 
-    int j = 1;
-    for(auto const &i: fControl->fMapSources){
-        QStandardItem *cIt = new QStandardItem(QString::fromStdString(i.first));
-        model->setItem(j , 0 , cIt);
-        model->index(j , 0);
-        j++;
-    }
+//    int j = 1;
+//    for(auto const &i: fControl->fMapSources){
+//        QStandardItem *cIt = new QStandardItem(QString::fromStdString(i.first));
+//        model->setItem(j , 0 , cIt);
+//        model->index(j , 0);
+//        j++;
+//    }
 
-    ui->voltageTableView->setModel(model);
+//    ui->voltageTableView->setModel(model);
 
 }
 //creates a List with all commands
@@ -414,8 +415,8 @@ void MainWindow::getChillerStatus()
     AdditionalThread *cThread  = new AdditionalThread("C", fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getChillerStatus()));
-    connect(cThread, SIGNAL(sendFromChiller(string)),this,
-            SLOT(updateChillerWidget(string)));
+    connect(cThread, SIGNAL(sendFromChiller(QString)),this,
+            SLOT(updateChillerWidget(QString)));
     cThread->moveToThread(cQThread);
     cQThread->start();
 }
@@ -512,19 +513,20 @@ void MainWindow::updateRaspWidget(QString pStr)
     }
 }
 
-void MainWindow::updateChillerWidget(string pStr)
+void MainWindow::updateChillerWidget(QString pStr)
 {
-    vector<string> cVec;
+    vector<QString> cVec;
 
-    std::istringstream ist(pStr);
+    std::istringstream ist(pStr.toStdString());
     std::string tmp;
-    while ( ist >> tmp )
-       cVec.push_back(tmp);
 
-   gui_chiller->bathTemperature->display(QString::fromStdString(cVec[0]).toDouble());
-   gui_chiller->pressure->display(stod(cVec[1]));
-   gui_chiller->sensorTemperature->display(stod(cVec[2]));
-   gui_chiller->workingTemperature->display(stod(cVec[3]));
+    while ( ist >> tmp )
+        cVec.push_back(QString::fromStdString(tmp));
+
+    gui_chiller->bathTemperature->display(cVec[0].toDouble());
+    gui_chiller->pressure->display(cVec[1].toDouble());
+    gui_chiller->sensorTemperature->display(cVec[2].toDouble());
+    gui_chiller->workingTemperature->display(cVec[3].toDouble());
 }
 
 //deletes highlighted item from the table(double-click on item)
@@ -677,7 +679,7 @@ void MainWindow::receiveOnOff(string pSourceName, bool pArg)
         gui_pointers_high_voltage[0]->onoff_button->setChecked(pArg);
     if(pSourceName == "TTI1"){
         gui_pointers_low_voltage[0]->onoff_button->setChecked(pArg);
-        //gui_pointers_low_voltage[1]->onoff_button->setChecked(pArg);
+        gui_pointers_low_voltage[1]->onoff_button->setChecked(pArg);
     }
 }
 
@@ -725,6 +727,7 @@ void MainWindow::initHard()
     this->getMeasurments();
     this->getVoltAndCurr();
     this->getVoltAndCurrKeithley();
+    this->getChillerStatus();
 
     connect(fControl, SIGNAL(sendOnOff(string,bool)) , this , SLOT(receiveOnOff(string,bool)));
 
@@ -735,15 +738,13 @@ bool MainWindow::readXmlFile()
 {
     fControl = new SystemControllerClass();
     QString cFilter  = "*.xml";
-
-    QString cFileName = QFileDialog::getOpenFileName(this, "Open hardware description file", "", cFilter);
-
-
-    fControl->ReadXmlFile(cFileName.toStdString());
-    fSources = fControl->getSourceNameVec();
+    QString cFileName = QFileDialog::getOpenFileName(this, "Open hardware description file", "./settings", cFilter);
 
     if (cFileName.isEmpty()) return false;
     else {
+        fControl->ReadXmlFile(cFileName.toStdString());
+        fSources = fControl->getSourceNameVec();
+
         QHBoxLayout *low_layout = new QHBoxLayout;
         QHBoxLayout *high_layout = new QHBoxLayout;
         QHBoxLayout *rasp_layout = new QHBoxLayout;
@@ -819,4 +820,5 @@ void MainWindow::on_init_button_clicked()
 
     // disable init
     ui->init_button->setEnabled(false);
+    ui->Start_pushButton->setEnabled(true);
 }

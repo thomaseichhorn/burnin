@@ -73,7 +73,7 @@ private slots:
 
     void updateKeithleyWidget(PowerControlClass::fVACvalues *pObject);
 
-    void updateChillerWidget(string pStr);
+    void updateChillerWidget(QString pStr);
 
     void on_AddedComands_tabelView_doubleClicked(const QModelIndex &pIndex);
 
@@ -88,7 +88,6 @@ private slots:
     void initHard();
 
     bool readXmlFile();
-
 
     void on_read_conf_button_clicked();
 

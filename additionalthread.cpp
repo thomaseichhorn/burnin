@@ -15,7 +15,9 @@ void AdditionalThread::getVAC()
     while (true) {
         PowerControlClass *cPowerObj;
         cPowerObj = fAddControl->getObject("TTI1");
-        emit sendToThread(cPowerObj->getVoltAndCurr());
+        if (cPowerObj != NULL) {
+            emit sendToThread(cPowerObj->getVoltAndCurr());
+        }
         QThread::sleep(2);
     }
 }
@@ -24,7 +26,9 @@ void AdditionalThread::getVAC()
 void AdditionalThread::getRaspSensors()
 {
     while(true){
-        QString cStr = fAddControl->fConnectRasp->getInfoFromSensors();
+        QString cStr;
+        if(fAddControl->fConnectRasp != NULL)
+            cStr = fAddControl->fConnectRasp->getInfoFromSensors();
         if (!cStr.isEmpty()) {
             string cTemp = cStr.toStdString();
             size_t cPos = cTemp.find(':');
@@ -65,7 +69,7 @@ void AdditionalThread::offVolt()
 void AdditionalThread::getChillerStatus()
 {
     EnvironmentControlClass *cEnv;
-    double cBathTemp, cPressure, cSensorTemp, cWorkingTemp;
+    float cBathTemp, cPressure, cSensorTemp, cWorkingTemp;
     string cMeas;
     cEnv = dynamic_cast<EnvironmentControlClass*>(fAddControl->getGenericInstrObj("JulaboFP50"));
     while(true){
@@ -75,7 +79,8 @@ void AdditionalThread::getChillerStatus()
         cWorkingTemp = cEnv->GetWorkingTemperature();
         cMeas = std::to_string(cBathTemp) + " " + to_string(cPressure) + " " + to_string(cSensorTemp)
                 + " " +to_string(cWorkingTemp);
-        emit  sendFromChiller(cMeas);
+        emit  sendFromChiller(QString::fromStdString(cMeas));
+        QThread::sleep(6);
     }
 
 }

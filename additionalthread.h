@@ -22,7 +22,7 @@ signals:
     void sendToThreadKeithley(PowerControlClass::fVACvalues *);
     void sendToThreadString(QString);
     void volt();
-    void sendFromChiller(string);
+    void sendFromChiller(QString);
 
 public slots:
     void getVAC();

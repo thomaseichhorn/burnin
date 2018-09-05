@@ -24,10 +24,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 #unix:
-LIBS += -L/usr/local/lib64/ -lvisa
+LIBS += -L/usr/lib/x86_64-linux-gnu/ -lvisa
 
 #unix:
-INCLUDEPATH += /usr/local/include
+INCLUDEPATH += /usr/include/ni-visa
 
 SOURCES += \
     external/cmstkmodlab/devices/Julabo/FP50ComHandler.cpp \
@@ -74,3 +74,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    settings/hardware_description_desy.xml

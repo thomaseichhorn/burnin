@@ -18,6 +18,7 @@ SystemControllerClass::SystemControllerClass()
 {
     fDaqControl = new DAQControlClass();
     fDatabase = new DatabaseInterfaceClass();
+    fConnectRasp = NULL;
 }
 
 SystemControllerClass::~SystemControllerClass()
@@ -29,10 +30,11 @@ bool SystemControllerClass::Initialize()
     fDatabase->InitDatabase();
 
     for(size_t i = 0 ; i != fNamesSources.size() ; i++){
-        getObject(fNamesSources[i])->InitPwr();
+        getObject(fNamesSources[i])->initialize();
         //getObject(fNamesSources[i])->offPower(0);
     }
-    fConnectRasp->raspInitialize();
+    //if(fConnectRasp != NULL);
+        //fConnectRasp->raspInitialize();
 
 }
 vector<QString>* SystemControllerClass::readFile()
@@ -153,7 +155,7 @@ void SystemControllerClass::ParseVSources()
         }
         if(fHWDescription[i].type == "HighVoltageSource"){
 
-            if(fHWDescription[i].typeOfClass == "Keithley"){
+            if(fHWDescription[i].typeOfClass == "Keithley2410"){
                 cConnection = fHWDescription[i].interface_settings["connection"];
                 cAddress = fHWDescription[i].interface_settings["address"];
                 cPort = fHWDescription[i].interface_settings["port"];
@@ -180,8 +182,8 @@ void SystemControllerClass::ParseRaspberry()
             cAddress = fHWDescription[i].interface_settings["address"];
             cPort = fHWDescription[i].interface_settings["port"];
 
-            fConnectRasp = new ConnectionInterfaceClass(cAddress , cPort);
-            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fConnectRasp));
+            //fConnectRasp = new ConnectionInterfaceClass(cAddress , cPort);
+            //fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fConnectRasp));
 
             for(int j = 0 ; j != fHWDescription[i].operational_settings.size() ; j++){
                 fRaspberrySensorsNames.push_back(fHWDescription[i].operational_settings[j]["sensor"]);
@@ -198,7 +200,7 @@ void SystemControllerClass::ParseChiller()
         if(fHWDescription[i].type == "Chiller"){
             cAddress = fHWDescription[i].interface_settings["address"];
             cConnection = fHWDescription[i].interface_settings["connection"];
-            cAddress = getTypeOfConnection(cConnection, cAddress, "");
+            //cAddress = getTypeOfConnection(cConnection, cAddress, "");
             EnvironmentControlClass *fChiller = new JulaboFP50(cAddress.c_str());
 
             fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fChiller));
@@ -245,6 +247,8 @@ string SystemControllerClass::getTypeOfConnection(string pConnection, string pAd
     if(pConnection == "rs232"){
         size_t cPos = pAddress.find('S');
         pAddress = pAddress[cPos+1];
+        int cNum = stoi(pAddress);
+        pAddress = to_string(cNum + 1);
         cStr = "ASRL" + pAddress + "::INSTR";
         }
     return cStr;

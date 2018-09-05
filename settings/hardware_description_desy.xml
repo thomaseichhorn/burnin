@@ -3,15 +3,15 @@
 	<!-- section with power control -->
 	<Power>
 		<!-- Low Voltage Section -->
-		<LowVoltage>
+                <LowVoltage>
 			<VoltageSource name="TTI1" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.180" description="used for something">			
 				<Output output_id="0" Voltage="5" CurrentLimit="0.250"/>
-				<Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
+                                <Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
 			</VoltageSource>			
-		</LowVoltage>
+                </LowVoltage>
 		<!-- High Voltage Section -->
 		<HighVoltage>
-			<VoltageSource name="Keithley2410" class="Keithley" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyS5/" description="used for bias">
+                        <VoltageSource name="Keithley2410" class="Keithley2410" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyS5" description="used for bias">
 				<Output id="0" Voltage="-40" CurrentLimit="1.0"/>		
 			</VoltageSource>
 		</HighVoltage>
@@ -20,7 +20,7 @@
 	<!-- environment section -->
 	<Environment>		
 		<!-- Chiller Section -->
-		<ChillerControl name="JulaboFP50" class="" type="Chiller" connection="rs232" address="/dev/ttyS0/" description="used to cool done the cooling block" />			
+                <ChillerControl name="JulaboFP50" class="" type="Chiller" connection="rs232" address="/dev/ttyUSB1" description="used to cool done the cooling block" />
 		<!-- Peltier Section -->
 		<PeltierControl>
 			<!-- to be defined -->

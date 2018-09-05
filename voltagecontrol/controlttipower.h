@@ -20,7 +20,7 @@ public:
     ViStatus fStatus;
     int fId;
 
-    bool InitPwr();
+    bool initialize();
     PowerControlClass::fVACvalues* getVoltAndCurr();
 
     void setVolt(double pVoltage , int pId);

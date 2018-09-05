@@ -11,7 +11,7 @@ class ControlKeithleyPower:public PowerControlClass, public QThread
 public:
     ControlKeithleyPower(string pConnection , string pSetVolt , string pSetCurr);
 
-    bool InitPwr();
+    bool initialize();
     PowerControlClass::fVACvalues* getVoltAndCurr();
     void setVolt(double pVoltage, int pId);
     void setCurr(double pCurrent , int pId);

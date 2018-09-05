@@ -12,6 +12,7 @@ public:
 
     virtual string getName() = 0;
 
+
     //funcs for JulaboFP50
 //    virtual unsigned int GetPumpPressure( void ) const = 0;
 //    virtual float GetBathTemperature( void ) const = 0;

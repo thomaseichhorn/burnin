@@ -15,7 +15,7 @@ ConnectionInterfaceClass::ConnectionInterfaceClass(string pAddress , string pPor
     fPort = QString::fromStdString(pPort).toInt();
 }
 
-bool ConnectionInterfaceClass::raspInitialize()
+bool ConnectionInterfaceClass::initialize()
 {
     fSocket = new QTcpSocket(this);
      fSocket->connectToHost(QString::fromStdString(fAddress) , fPort);
