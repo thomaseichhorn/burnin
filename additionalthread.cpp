@@ -3,6 +3,7 @@
 #include "additionalthread.h"
 #include "gui/mainwindow.h"
 #include "environmentcontrolclass.h"
+#include "genericinstrumentclass.h"
 
 AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pControl) : fName(pName)
 {
@@ -14,7 +15,7 @@ void AdditionalThread::getVAC()
 {
     while (true) {
         PowerControlClass *cPowerObj;
-        cPowerObj = fAddControl->getObject("TTI1");
+        cPowerObj = dynamic_cast<PowerControlClass*>(fAddControl->getGenericInstrObj("TTI1"));
         if (cPowerObj != NULL) {
             emit sendToThread(cPowerObj->getVoltAndCurr());
         }
@@ -44,7 +45,9 @@ void AdditionalThread::getVACKeithley()
 {
     while(true){
         PowerControlClass *cPowerObj;
-        cPowerObj = fAddControl->getObject("Keithley2410");
+        //cPowerObj = fAddControl->getObject("Keithley2410");
+        cPowerObj = dynamic_cast<PowerControlClass*>(fAddControl->getGenericInstrObj("Keithley2410"));
+
         emit sendToThreadKeithley(cPowerObj->getVoltAndCurr());
         QThread::sleep(3);
     }

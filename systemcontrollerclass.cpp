@@ -130,7 +130,7 @@ void SystemControllerClass::ParseVSources()
     vector<string> cId;
     vector<string> cVolt;
     vector<string> cCurr;
-    for(int i = 0 ; i != fHWDescription.size() ; i++){
+    for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].type == "LowVoltageSource"){
 
@@ -175,7 +175,7 @@ void SystemControllerClass::ParseRaspberry()
 {
     string cConnection , cAddress , cPort;
 
-    for(int i = 0 ; i != fHWDescription.size() ; i++){
+    for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].type == "Raspberry"){
             cConnection = fHWDescription[i].interface_settings["connection"];
@@ -187,6 +187,7 @@ void SystemControllerClass::ParseRaspberry()
 
             for(int j = 0 ; j != fHWDescription[i].operational_settings.size() ; j++){
                 fRaspberrySensorsNames.push_back(fHWDescription[i].operational_settings[j]["sensor"]);
+
             }
         }
     }
@@ -195,7 +196,7 @@ void SystemControllerClass::ParseRaspberry()
 void SystemControllerClass::ParseChiller()
 {
     string cAddress, cConnection;
-    for(int i = 0 ; i != fHWDescription.size() ; i++){
+    for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].type == "Chiller"){
             cAddress = fHWDescription[i].interface_settings["address"];

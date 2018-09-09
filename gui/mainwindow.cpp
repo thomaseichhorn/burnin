@@ -534,7 +534,7 @@ void MainWindow::on_AddedComands_tabelView_doubleClicked(const QModelIndex &pInd
 {
     int cRow = pIndex.row();
     QMessageBox cMsgBox;
-    cMsgBox.setText("Are you sure?");
+    cMsgBox.setText("Are you sure you want to delete this command?");
     cMsgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     cMsgBox.setIcon(QMessageBox::Warning);
     cMsgBox.setDefaultButton(QMessageBox::Ok);
