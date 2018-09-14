@@ -1,18 +1,23 @@
 
-
-#include <iostream>
-#include <string.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <sstream>
 #include <locale>
+
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <cstdlib>
+#include <utility>
+#include <fstream>
 
 #include <QDebug>
 #include <QThread>
 
 #include "controlkeithleypower.h"
-#include "additionalthread.h"
-#include "systemcontrollerclass.h"
+#include "additional/additionalthread.h"
+#include "general/systemcontrollerclass.h"
+
+#include "external/cmstkmodlab/devices/Julabo/FP50ComHandler.h"
 
 using namespace std;
 
@@ -27,65 +32,14 @@ ControlKeithleyPower::ControlKeithleyPower(string pConnection , string pSetVolt 
 
 bool ControlKeithleyPower::initialize(){
 
-    fStatus = viOpenDefaultRM(&fDefaultRm);
-    if(fStatus < VI_SUCCESS){
-        printf("Could not open a session to the VISA Resource Manager!\n");
-        exit(EXIT_FAILURE);
-    }
-    else{
-        char cStrInput[20];
-        fConnection = fConnection.erase(fConnection.find('T')+2 , fConnection.size());
+    const ioport_t ioPort = fConnection.c_str();
+    comHandler_ = new FP50ComHandler( ioPort );
 
-        for(int i = 0 ; i!= fConnection.size() ; i++){
-            cStrInput[i] = fConnection[i];
-        }
-
-        fStatus = viOpen( fDefaultRm, cStrInput, VI_NULL, VI_NULL, &fVi);
-        fStatus = viSetAttribute(fVi , VI_ATTR_TMO_VALUE, 5000);
-        fStatus = viSetAttribute(fVi, VI_ATTR_ASRL_BAUD, 9600);
-        fStatus = viSetAttribute(fVi, VI_ATTR_ASRL_DATA_BITS, 8);
-        fStatus = viSetAttribute(fVi , VI_ATTR_TERMCHAR_EN , VI_TRUE);
-        fStatus = viSetAttribute(fVi , VI_ATTR_TERMCHAR , 0xD);
-        if(fStatus < VI_SUCCESS){
-            cout << "Couldn`t connect" << endl;
-            exit(EXIT_FAILURE);
-        }
-        else{
-            cout << "Connected to Keithley!" << endl;
-
-            ViUInt32 writeCount;
-            char stringinput[512];
-
-            strcpy(stringinput , "*RST\r");
-            fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-            strcpy(stringinput , ":SOUR:FUNC VOLT\r");
-            fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-            strcpy(stringinput , ":SOUR:VOLT:RANG:AUTO ON\r");
-            fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-            strcpy(stringinput , ":SENS:FUNC \"CURR\"\r");
-            fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-            strcpy(stringinput , ":SENS:CURR:RANG:AUTO ON\r");
-            fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-
-            //sprintf(stringinput ,":SENS:CURR:PROT 0.0E-6\r");
-            //fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-            setCurr(fCurrCompliance , 0);
-            strcpy(stringinput , ":SOUR:VOLT:LEV 0\r");
-            fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-
-            sprintf(stringinput ,":SOUR:VOLT:LEV %G\r" , 0.0);
-            fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
-
-            strcpy(stringinput , ":OUTP ON\r");
-            fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
-
-        }
-    }
 }
 
 
 void ControlKeithleyPower::onPower(int pId)
-{ 
+{
     sweepVolt(fVoltSet);
     QThread::sleep(1);
 }
@@ -103,7 +57,7 @@ void ControlKeithleyPower::setVolt(double pVoltage , int pId)
 void ControlKeithleyPower::sweepVolt(double pVoltage)
 {
     checkVAC();
-    ViUInt32 writeCount;
+
     char stringinput[512];
     double step = fStep;
     double sign = 1;
@@ -117,7 +71,7 @@ void ControlKeithleyPower::sweepVolt(double pVoltage)
         while((sign*(pVoltage - current_volt))>=0){
 
             sprintf(stringinput ,":SOUR:VOLT:LEV %G\r" , current_volt);
-            fStatus = viWrite(fVi , (ViBuf)stringinput , (ViUInt32)strlen(stringinput) , &writeCount);
+            comHandler_->SendCommand(stringinput);
             current_volt = current_volt + step;
             QThread::sleep(1.0);
             checkVAC();
@@ -127,12 +81,10 @@ void ControlKeithleyPower::sweepVolt(double pVoltage)
 
 void ControlKeithleyPower::setCurr(double pCurrent, int pId)
 {
-    ViUInt32 writeCount;
     char stringinput[512];
 
     sprintf(stringinput ,":SENS:CURR:PROT %lGE-6\r" , pCurrent);
-    fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-
+    comHandler_->SendCommand(stringinput);
 }
 
 PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
@@ -156,13 +108,14 @@ PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
 
 void ControlKeithleyPower::checkVAC()
 {
-    ViUInt32 writeCount , retCount;
     char stringinput[512];
-    unsigned char buffer[512];
+    char buffer[512];
 
     strcpy(stringinput , ":READ?\r");
-    fStatus = viWrite (fVi, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
-    fStatus = viRead(fVi , buffer , 100 , &retCount);
+    comHandler_->SendCommand(stringinput);
+    usleep(1000);
+
+    comHandler_->ReceiveString(buffer);
 
     QString *cStr = new QString(reinterpret_cast<const char*>(buffer));
 
@@ -182,8 +135,5 @@ void ControlKeithleyPower::checkVAC()
 
 void ControlKeithleyPower::closeConnection()
 {
-    if(fVi)
-        viClose(fVi);
-    if(fDefaultRm)
-        viClose(fDefaultRm);
+
 }

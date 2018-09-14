@@ -24,47 +24,33 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 #unix:
-LIBS += -L/usr/lib/x86_64-linux-gnu/ -lvisa
+LIBS += -L/usr/local/lib/ -lliblxi
 
 #unix:
-INCLUDEPATH += /usr/include/ni-visa
+#INCLUDEPATH += /usr/include/ni-visa
+INCLUDEPATH += /usr/local/lib/
 
 SOURCES += \
+    additional/additionalthread.cpp \
+    additional/hwdescriptionparser.cpp \
     external/cmstkmodlab/devices/Julabo/FP50ComHandler.cpp \
     external/cmstkmodlab/devices/Julabo/JulaboFP50.cpp \
     external/cmstkmodlab/devices/Julabo/VJulaboFP50.cpp \
+    general/connectioninterfaceclass.cpp \
+    general/daqcontrolclass.cpp \
+    general/databaseinterfaceclass.cpp \
+    general/environmentcontrolclass.cpp \
+    general/genericinstrumentclass.cpp \
+    general/main.cpp \
+    general/systemcontrollerclass.cpp \
     gui/additionalwindow.cpp \
     gui/mainwindow.cpp \
     voltagecontrol/controlkeithleypower.cpp \
     voltagecontrol/controlttipower.cpp \
-    voltagecontrol/powercontrolclass.cpp \
-    additionalthread.cpp \
-    connectioninterfaceclass.cpp \
-    daqcontrolclass.cpp \
-    databaseinterfaceclass.cpp \
-    environmentcontrolclass.cpp \
-    hwdescriptionparser.cpp \
-    main.cpp \
-    systemcontrollerclass.cpp \
-    genericinstrumentclass.cpp
+    voltagecontrol/powercontrolclass.cpp
 
-HEADERS += \
-    external/cmstkmodlab/devices/Julabo/FP50ComHandler.h \
-    external/cmstkmodlab/devices/Julabo/JulaboFP50.h \
-    external/cmstkmodlab/devices/Julabo/VJulaboFP50.h \
-    gui/additionalwindow.h \
-    gui/mainwindow.h \
-    voltagecontrol/controlkeithleypower.h \
-    voltagecontrol/controlttipower.h \
-    voltagecontrol/powercontrolclass.h \
-    additionalthread.h \
-    connectioninterfaceclass.h \
-    daqcontrolclass.h \
-    databaseinterfaceclass.h \
-    environmentcontrolclass.h \
-    hwdescriptionparser.h \
-    systemcontrollerclass.h \
-    genericinstrumentclass.h
+
+
 
 FORMS += \
     gui/additionalwindow.ui \
@@ -77,3 +63,34 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     settings/hardware_description_desy.xml
+
+HEADERS += \
+    additional/additionalthread.h \
+    additional/hwdescriptionparser.h \
+    general/connectioninterfaceclass.h \
+    general/daqcontrolclass.h \
+    general/databaseinterfaceclass.h \
+    general/environmentcontrolclass.h \
+    general/genericinstrumentclass.h \
+    general/systemcontrollerclass.h \
+    gui/additionalwindow.h \
+    gui/mainwindow.h \
+    voltagecontrol/controlkeithleypower.h \
+    voltagecontrol/controlttipower.h \
+    voltagecontrol/powercontrolclass.h \
+    additional/additionalthread.h \
+    additional/hwdescriptionparser.h \
+    external/cmstkmodlab/devices/Julabo/FP50ComHandler.h \
+    external/cmstkmodlab/devices/Julabo/JulaboFP50.h \
+    external/cmstkmodlab/devices/Julabo/VJulaboFP50.h \
+    general/connectioninterfaceclass.h \
+    general/daqcontrolclass.h \
+    general/databaseinterfaceclass.h \
+    general/environmentcontrolclass.h \
+    general/genericinstrumentclass.h \
+    general/systemcontrollerclass.h \
+    gui/additionalwindow.h \
+    gui/mainwindow.h \
+    voltagecontrol/controlkeithleypower.h \
+    voltagecontrol/controlttipower.h \
+    voltagecontrol/powercontrolclass.h

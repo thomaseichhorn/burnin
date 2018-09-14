@@ -14,7 +14,7 @@
 #include "connectioninterfaceclass.h"
 #include "voltagecontrol/controlkeithleypower.h"
 #include "external/cmstkmodlab/devices/Julabo/JulaboFP50.h"
-#include "hwdescriptionparser.h"
+#include "additional/hwdescriptionparser.h"
 #include "genericinstrumentclass.h"
 
 
@@ -55,7 +55,7 @@ public:
 
 private:
     string getTypeOfConnection(string pConnection , string pAddress, string pPort);
-    void ParseChiller();
+    string ParseChiller();
     void ParseVSources();
     void ParseRaspberry();
 

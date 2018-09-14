@@ -4,10 +4,9 @@
 
 #include <QString>
 
-#include "visa.h"
-#include "visatype.h"
+#include "lxi.h"
 
-#include "genericinstrumentclass.h"
+#include "general/genericinstrumentclass.h"
 
 using namespace std;
 
@@ -38,6 +37,8 @@ public:
     virtual string getName() = 0;
     
     int fNOutputs;
+   
+    
 };
 
 #endif // POWERCONTROLCLASS_H

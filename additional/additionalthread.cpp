@@ -2,8 +2,8 @@
 
 #include "additionalthread.h"
 #include "gui/mainwindow.h"
-#include "environmentcontrolclass.h"
-#include "genericinstrumentclass.h"
+#include "general/environmentcontrolclass.h"
+#include "general/genericinstrumentclass.h"
 
 AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pControl) : fName(pName)
 {

@@ -11,11 +11,11 @@
 #include <QStandardItemModel>
 #include <QLabel>
 
-#include "systemcontrollerclass.h"
-#include "environmentcontrolclass.h"
+#include "general/systemcontrollerclass.h"
+#include "general/environmentcontrolclass.h"
 #include "voltagecontrol/powercontrolclass.h"
 #include "additionalwindow.h"
-#include "additionalthread.h"
+#include "additional/additionalthread.h"
 
 namespace Ui {
 class MainWindow;

@@ -9,8 +9,8 @@
 #include <QString>
 #include <QTime>
 
-#include "systemcontrollerclass.h"
-#include "hwdescriptionparser.h"
+#include "general/systemcontrollerclass.h"
+#include "additional/hwdescriptionparser.h"
 
 using namespace std;
 
@@ -72,7 +72,7 @@ void SystemControllerClass::startDoingList()
 
         double cValue = (*cIter).cValue;
         if(cStr == "Set Temperature (°C)"){
-            moveToThread(cThread);
+           // moveToThread(cThread);
             connect(cThread, &QThread::started, [this, cValue]
             {this->setTemperature(cValue);});
             cThread->start();
@@ -132,9 +132,9 @@ void SystemControllerClass::ParseVSources()
     vector<string> cCurr;
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
-        if(fHWDescription[i].type == "LowVoltageSource"){
+        if(fHWDescription[i].typeOfClass == "LowVoltageSource"){
 
-            if(fHWDescription[i].typeOfClass == "TTI"){
+            if(fHWDescription[i].classOfInstr == "TTI"){
                 cConnection = fHWDescription[i].interface_settings["connection"];
                 cAddress = fHWDescription[i].interface_settings["address"];
                 cPort = fHWDescription[i].interface_settings["port"];
@@ -153,9 +153,9 @@ void SystemControllerClass::ParseVSources()
                 fNamesSources.push_back(fHWDescription[i].name);
             }
         }
-        if(fHWDescription[i].type == "HighVoltageSource"){
+        if(fHWDescription[i].typeOfClass == "HighVoltageSource"){
 
-            if(fHWDescription[i].typeOfClass == "Keithley2410"){
+            if(fHWDescription[i].classOfInstr == "Keithley2410"){
                 cConnection = fHWDescription[i].interface_settings["connection"];
                 cAddress = fHWDescription[i].interface_settings["address"];
                 cPort = fHWDescription[i].interface_settings["port"];
@@ -177,7 +177,7 @@ void SystemControllerClass::ParseRaspberry()
 
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
-        if(fHWDescription[i].type == "Raspberry"){
+        if(fHWDescription[i].classOfInstr == "Raspberry"){
             cConnection = fHWDescription[i].interface_settings["connection"];
             cAddress = fHWDescription[i].interface_settings["address"];
             cPort = fHWDescription[i].interface_settings["port"];
@@ -193,17 +193,16 @@ void SystemControllerClass::ParseRaspberry()
     }
 }
 
-void SystemControllerClass::ParseChiller()
+string SystemControllerClass::ParseChiller()
 {
     string cAddress, cConnection;
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
-        if(fHWDescription[i].type == "Chiller"){
+        if(fHWDescription[i].classOfInstr == "Chiller"){
             cAddress = fHWDescription[i].interface_settings["address"];
             cConnection = fHWDescription[i].interface_settings["connection"];
             //cAddress = getTypeOfConnection(cConnection, cAddress, "");
             EnvironmentControlClass *fChiller = new JulaboFP50(cAddress.c_str());
-
             fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fChiller));
 
         }

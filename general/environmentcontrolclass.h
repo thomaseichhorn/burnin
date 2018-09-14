@@ -2,8 +2,6 @@
 #ifndef ENVIRONMENTCONTROLCLASS_H
 #define ENVIRONMENTCONTROLCLASS_H
 
-#include "visa.h"
-#include "visatype.h"
 
 #include "connectioninterfaceclass.h"
 #include "genericinstrumentclass.h"

@@ -4,7 +4,7 @@
 #include <QString>
 #include <QTextCodec>
 
-#include "connectioninterfaceclass.h"
+#include "general/connectioninterfaceclass.h"
 #include "gui/mainwindow.h"
 
 using namespace std;

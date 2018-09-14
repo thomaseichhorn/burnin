@@ -7,8 +7,8 @@
 #include <QString>
 
 #include "voltagecontrol/controlttipower.h"
-#include "systemcontrollerclass.h"
-#include "connectioninterfaceclass.h"
+#include "general/systemcontrollerclass.h"
+#include "general/connectioninterfaceclass.h"
 
 
 class AdditionalThread : public QObject

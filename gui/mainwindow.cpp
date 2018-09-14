@@ -16,7 +16,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "additionalthread.h"
+#include "additional/additionalthread.h"
 
 int nOutputs = 2;
 

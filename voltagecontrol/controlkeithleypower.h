@@ -5,6 +5,7 @@
 #include <QThread>
 
 #include "powercontrolclass.h"
+#include "external/cmstkmodlab/devices/Julabo/FP50ComHandler.h"
 
 class ControlKeithleyPower:public PowerControlClass, public QThread
 {
@@ -34,9 +35,8 @@ public:
     double fCurrCompliance;
     string fConnection;
 
-    ViSession fDefaultRm;
-    ViSession fVi;
-    ViStatus fStatus;
+    FP50ComHandler* comHandler_;
+    //bool isCommmunication_;
 };
 
 #endif // CONTROLKEITHLEYPOWER_H
