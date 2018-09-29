@@ -1,4 +1,4 @@
-//main control class which supervises all the other classes
+﻿//main control class which supervises all the other classes
 #ifndef SYSTEMCONTROLLERCLASS_H
 #define SYSTEMCONTROLLERCLASS_H
 
@@ -32,10 +32,12 @@ public:
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
     vector<string> fRaspberrySensorsNames;
+
     vector<GenericInstrumentDescription_t> fHWDescription;
     map<string, PowerControlClass* > fMapSources;
     map<string , GenericInstrumentClass*> fGenericInstrumentMap;
-    vector<string> fNamesSources;
+    vector<string> fNamesVoltageSources;
+    vector<string> fNamesInstruments;
     //struct for the vector which contains commands
     struct fParameters{
         string cName;
@@ -48,6 +50,11 @@ public:
     void startDoingList();
     void Wait(int pSec);
     void closeConneections();
+
+    void ParseChiller();
+    void ParseVSources();
+    void ParseRaspberry();
+
     PowerControlClass* getObject(string pStr);
     GenericInstrumentClass* getGenericInstrObj(string pStr);
     vector<string> getSourceNameVec();
@@ -55,9 +62,6 @@ public:
 
 private:
     string getTypeOfConnection(string pConnection , string pAddress, string pPort);
-    string ParseChiller();
-    void ParseVSources();
-    void ParseRaspberry();
 
 private slots:
     void setTemperature(double pTemp);

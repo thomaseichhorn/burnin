@@ -11,6 +11,7 @@
 
 #include "general/systemcontrollerclass.h"
 #include "additional/hwdescriptionparser.h"
+#include "julabowrapper.h"
 
 using namespace std;
 
@@ -26,15 +27,17 @@ SystemControllerClass::~SystemControllerClass()
 
 bool SystemControllerClass::Initialize()
 {
-    fDaqControl->InitDAQ();
-    fDatabase->InitDatabase();
 
-    for(size_t i = 0 ; i != fNamesSources.size() ; i++){
-        getObject(fNamesSources[i])->initialize();
-        //getObject(fNamesSources[i])->offPower(0);
-    }
+//    for(size_t i = 0 ; i != fNamesVoltageSources.size() ; i++){
+//        getObject(fNamesVoltageSources[i])->initialize();
+//        getObject(fNamesSources[i])->offPower(0);
+//    }
     //if(fConnectRasp != NULL);
         //fConnectRasp->raspInitialize();
+
+    for(auto &i: fGenericInstrumentMap){
+        i.second->initialize();
+    }
 
 }
 vector<QString>* SystemControllerClass::readFile()
@@ -82,20 +85,20 @@ void SystemControllerClass::startDoingList()
             {this->Wait(cValue);});
             cThread->start();
         }
-        for(size_t i = 0 ; i != fNamesSources.size() ; i++){
-            if(cStr == "On  " + fNamesSources[i] + "  power supply"){
+        for(size_t i = 0 ; i != fNamesVoltageSources.size() ; i++){
+            if(cStr == "On  " + fNamesVoltageSources[i] + "  power supply"){
                 connect(cThread, &QThread::started, [this, i]
-                {this->onPower(fNamesSources[i]);});
+                {this->onPower(fNamesVoltageSources[i]);});
                 cThread->start();
-                getObject(fNamesSources[i])->onPower(1);
-                emit sendOnOff(fNamesSources[i] , true);
+                getObject(fNamesVoltageSources[i])->onPower(1);
+                emit sendOnOff(fNamesVoltageSources[i] , true);
             }
-            if(cStr == "Off  " + fNamesSources[i] + "  power supply"){
+            if(cStr == "Off  " + fNamesVoltageSources[i] + "  power supply"){
                 connect(cThread, &QThread::started, [this, i]
-                {this->offPower(fNamesSources[i]);});
+                {this->offPower(fNamesVoltageSources[i]);});
                 cThread->start();
-                getObject(fNamesSources[i])->offPower(1);
-                emit sendOnOff(fNamesSources[i] , false);
+                getObject(fNamesVoltageSources[i])->offPower(1);
+                emit sendOnOff(fNamesVoltageSources[i] , false);
             }
         }
     }
@@ -104,6 +107,7 @@ void SystemControllerClass::startDoingList()
 void SystemControllerClass::setTemperature(double pTemp)
 {
 //    getGenericInstrObj("JulaboFP50")->SetWorkingTemperature(pTemp);
+
 }
 
 void SystemControllerClass::wait(double pTime)
@@ -130,6 +134,7 @@ void SystemControllerClass::ParseVSources()
     vector<string> cId;
     vector<string> cVolt;
     vector<string> cCurr;
+
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].typeOfClass == "LowVoltageSource"){
@@ -150,9 +155,11 @@ void SystemControllerClass::ParseVSources()
                 PowerControlClass *fPowerLow = new ControlTTiPower(cConnectStr , cId , cVolt, cCurr);
                 fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerLow));
                 fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerLow));
-                fNamesSources.push_back(fHWDescription[i].name);
+                fNamesVoltageSources.push_back(fHWDescription[i].name);
+                fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
             }
         }
+
         if(fHWDescription[i].typeOfClass == "HighVoltageSource"){
 
             if(fHWDescription[i].classOfInstr == "Keithley2410"){
@@ -165,7 +172,9 @@ void SystemControllerClass::ParseVSources()
                 PowerControlClass *fPowerHigh = new ControlKeithleyPower(cConnectStr, cSetVolt, cSetCurr);
                 fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerHigh));
                 fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerHigh));
-                fNamesSources.push_back(fHWDescription[i].name);
+                fNamesVoltageSources.push_back(fHWDescription[i].name);
+                fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
+
             }
         }
     }
@@ -182,10 +191,11 @@ void SystemControllerClass::ParseRaspberry()
             cAddress = fHWDescription[i].interface_settings["address"];
             cPort = fHWDescription[i].interface_settings["port"];
 
-            //fConnectRasp = new ConnectionInterfaceClass(cAddress , cPort);
-            //fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fConnectRasp));
+            fConnectRasp = new ConnectionInterfaceClass(cAddress , cPort);
+            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fConnectRasp));
+            fNamesInstruments.push_back(fHWDescription[i].name);
 
-            for(int j = 0 ; j != fHWDescription[i].operational_settings.size() ; j++){
+            for(size_t j = 0 ; j != fHWDescription[i].operational_settings.size() ; j++){
                 fRaspberrySensorsNames.push_back(fHWDescription[i].operational_settings[j]["sensor"]);
 
             }
@@ -193,7 +203,7 @@ void SystemControllerClass::ParseRaspberry()
     }
 }
 
-string SystemControllerClass::ParseChiller()
+void SystemControllerClass::ParseChiller()
 {
     string cAddress, cConnection;
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
@@ -201,9 +211,10 @@ string SystemControllerClass::ParseChiller()
         if(fHWDescription[i].classOfInstr == "Chiller"){
             cAddress = fHWDescription[i].interface_settings["address"];
             cConnection = fHWDescription[i].interface_settings["connection"];
-            //cAddress = getTypeOfConnection(cConnection, cAddress, "");
-            EnvironmentControlClass *fChiller = new JulaboFP50(cAddress.c_str());
-            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fChiller));
+
+            GenericInstrumentClass* fJulaboWrapper = new JulaboWrapper(cAddress);
+            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fJulaboWrapper));
+            fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
 
         }
     }
@@ -233,7 +244,7 @@ PowerControlClass* SystemControllerClass::getObject(string pStr)
 
 vector<string> SystemControllerClass::getSourceNameVec()
 {
-    return fNamesSources;
+    return fNamesVoltageSources;
 }
 
 //returns a string for connection to power supply
@@ -256,8 +267,8 @@ string SystemControllerClass::getTypeOfConnection(string pConnection, string pAd
 
 void SystemControllerClass::closeConneections()
 {
-    for(size_t i = 0 ; i != fNamesSources.size() ; i++){
-        getObject(fNamesSources[i])->closeConnection();
+    for(size_t i = 0 ; i != fNamesVoltageSources.size() ; i++){
+        getObject(fNamesVoltageSources[i])->closeConnection();
     }
     fConnectRasp->closeConnection();
 }

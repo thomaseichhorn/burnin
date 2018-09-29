@@ -23,11 +23,6 @@ public:
     void sweepVolt(double pVoltage);
     void checkVAC();
 
-    string getName(){
-        string cStr = "ControlKeithleyClass";
-        return cStr;
-    }
-
     double fVolt;
     double fVoltSet;
     double fCurr;
@@ -36,7 +31,7 @@ public:
     string fConnection;
 
     FP50ComHandler* comHandler_;
-    //bool isCommmunication_;
+    
 };
 
 #endif // CONTROLKEITHLEYPOWER_H

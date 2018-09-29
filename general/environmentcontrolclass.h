@@ -33,9 +33,6 @@ public:
     virtual bool LoadControlParametersAndApply( const std::string& ) const = 0;
     virtual void StripBuffer( char* ) const = 0;
 
-    string getName(){
-        return "EnviromentalControlClass";
-    }
 
 private:
     bool isCommunication_;

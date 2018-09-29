@@ -124,7 +124,7 @@ private:
 
     output_Chiller setChilerLayout(string pType);
 
-    output_Chiller* SetChillerOutput(QLayout *pMainLayout, std::string pName, std::string pType);
+    output_Chiller* SetChillerOutput(QLayout *pMainLayout, std::string pName);
 
     void on_V_set_doubleSpinBox_valueChanged(string pSourceName , int pId , double pVolt);
 

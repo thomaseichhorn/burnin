@@ -26,17 +26,12 @@ public:
     void offPower(int pId);
     void closeConnection();
 
-    string getName(){
-        string cStr = "ControlTTIClass";
-        return cStr;
-    }
-
     string fConnection;
 
     int fId1;
     int fId2;
 
-
+    int fDevice;
     
     vector<double> fVoltSet;
     vector<double> fCurrSet;

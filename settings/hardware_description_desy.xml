@@ -7,11 +7,11 @@
 			<VoltageSource name="TTI1" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.180" description="used for something">			
 				<Output output_id="0" Voltage="5" CurrentLimit="0.250"/>
                                 <Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
-			</VoltageSource>			
+                        </VoltageSource>
                 </LowVoltage>
 		<!-- High Voltage Section -->
 		<HighVoltage>
-                        <VoltageSource name="Keithley2410" class="Keithley2410" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyS5" description="used for bias">
+                        <VoltageSource name="Keithley1" class="Keithley2410" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyS5" description="used for bias">
 				<Output id="0" Voltage="-40" CurrentLimit="1.0"/>		
 			</VoltageSource>
 		</HighVoltage>
@@ -20,13 +20,13 @@
 	<!-- environment section -->
 	<Environment>		
 		<!-- Chiller Section -->
-                <ChillerControl name="JulaboFP50" class="" type="Chiller" connection="rs232" address="/dev/ttyUSB1" description="used to cool done the cooling block" />
+                <ChillerControl name="JulaboFP50" class="Chiller" type="" connection="rs232" address="/dev/ttyUSB1" description="used to cool done the cooling block" />
 		<!-- Peltier Section -->
 		<PeltierControl>
 			<!-- to be defined -->
 		</PeltierControl>
 		<!--Raspberry  Section -->
-		<RaspberryControl name="fhlthermorasp4" class="" type="Raspberry" connection="ethernet" address="fhlthermorasp4.desy.de" port="50007" description="used for display temperature humidity pressure" >
+                <RaspberryControl name="fhlthermorasp4" class="Raspberry" type="" connection="ethernet" address="fhlthermorasp4.desy.de" port="50007" description="used for display temperature humidity pressure" >
 			<Sensor sensor="BME680_i2c-0_0x77_temp"/>
 			<Sensor sensor="BME680_i2c-0_0x77_hum"/>
 			<Sensor sensor="BME680_i2c-0_0x77_pres"/>

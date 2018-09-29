@@ -24,11 +24,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 #unix:
-LIBS += -L/usr/local/lib/ -lliblxi
+LIBS += -L/usr/local/lib/ -llxi
 
 #unix:
 #INCLUDEPATH += /usr/include/ni-visa
-INCLUDEPATH += /usr/local/lib/
+INCLUDEPATH += /home/fedorcht/software/liblxi-1.13/src/include/
 
 SOURCES += \
     additional/additionalthread.cpp \
@@ -47,7 +47,8 @@ SOURCES += \
     gui/mainwindow.cpp \
     voltagecontrol/controlkeithleypower.cpp \
     voltagecontrol/controlttipower.cpp \
-    voltagecontrol/powercontrolclass.cpp
+    voltagecontrol/powercontrolclass.cpp \
+    general/julabowrapper.cpp
 
 
 
@@ -93,4 +94,5 @@ HEADERS += \
     gui/mainwindow.h \
     voltagecontrol/controlkeithleypower.h \
     voltagecontrol/controlttipower.h \
-    voltagecontrol/powercontrolclass.h
+    voltagecontrol/powercontrolclass.h \
+    general/julabowrapper.h

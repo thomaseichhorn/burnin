@@ -16,7 +16,7 @@ void AdditionalThread::getVAC()
     while (true) {
         PowerControlClass *cPowerObj;
         cPowerObj = dynamic_cast<PowerControlClass*>(fAddControl->getGenericInstrObj("TTI1"));
-        if (cPowerObj != NULL) {
+        if (cPowerObj != nullptr) {
             emit sendToThread(cPowerObj->getVoltAndCurr());
         }
         QThread::sleep(2);
@@ -28,8 +28,11 @@ void AdditionalThread::getRaspSensors()
 {
     while(true){
         QString cStr;
-        if(fAddControl->fConnectRasp != NULL)
+        ConnectionInterfaceClass *cConnectRasp;
+        cConnectRasp = dynamic_cast<ConnectionInterfaceClass*>(fAddControl->getGenericInstrObj("fhlthermorasp4"));
+        if(fAddControl->fConnectRasp != nullptr)
             cStr = fAddControl->fConnectRasp->getInfoFromSensors();
+//            cStr = cConnectRasp->getInfoFromSensors();
         if (!cStr.isEmpty()) {
             string cTemp = cStr.toStdString();
             size_t cPos = cTemp.find(':');

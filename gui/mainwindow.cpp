@@ -17,6 +17,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "additional/additionalthread.h"
+#include "general/julabowrapper.h"
 
 int nOutputs = 2;
 
@@ -137,10 +138,6 @@ output_Chiller MainWindow::setChilerLayout(string pType)
 
     cOutputPointers.layout = new QVBoxLayout;
 
-    // type of the power source
-    QLabel *type = new QLabel(pType.c_str());
-    type->setMaximumHeight(20);
-    cOutputPointers.layout->addWidget(type);
 
     cOutputPointers.setTemperature = new QDoubleSpinBox();
     cOutputPointers.setTemperature->setMaximumHeight(20);
@@ -181,7 +178,7 @@ output_Chiller MainWindow::setChilerLayout(string pType)
     return cOutputPointers;
 }
 
-output_Chiller* MainWindow::SetChillerOutput(QLayout *pMainLayout, string pName, string pType)
+output_Chiller* MainWindow::SetChillerOutput(QLayout *pMainLayout, string pName)
 {
     // output pointers
     output_Chiller *cOutputPointers = new output_Chiller[1];
@@ -196,9 +193,7 @@ output_Chiller* MainWindow::SetChillerOutput(QLayout *pMainLayout, string pName,
     QVBoxLayout *label_layout = new QVBoxLayout;
     label_layout->setMargin(10);
 
-    QLabel *label_type = new QLabel("Type:");
-    label_type->setMinimumSize(size);
-    label_layout->addWidget(label_type);
+
     QLabel *label_t_set = new QLabel("T(set), °C:");
     label_t_set->setMinimumSize(size);
     label_layout->addWidget(label_t_set);
@@ -223,7 +218,7 @@ output_Chiller* MainWindow::SetChillerOutput(QLayout *pMainLayout, string pName,
     // now set
     group_box_layout->addItem(label_layout);
 
-    cOutputPointers[0] = setChilerLayout(pType);
+    cOutputPointers[0] = setChilerLayout(pName);
     group_box_layout->addItem(cOutputPointers[0].layout);
 
     group_box->setLayout(group_box_layout);
@@ -740,7 +735,8 @@ bool MainWindow::readXmlFile()
     QString cFilter  = "*.xml";
     QString cFileName = QFileDialog::getOpenFileName(this, "Open hardware description file", "./settings", cFilter);
 
-    if (cFileName.isEmpty()) return false;
+    if (cFileName.isEmpty())
+        return false;
     else {
         fControl->ReadXmlFile(cFileName.toStdString());
         fSources = fControl->getSourceNameVec();
@@ -749,11 +745,32 @@ bool MainWindow::readXmlFile()
         QHBoxLayout *high_layout = new QHBoxLayout;
         QHBoxLayout *rasp_layout = new QHBoxLayout;
         QHBoxLayout *chiller_layout = new QHBoxLayout;
+
+        for( auto const &i: fControl->fGenericInstrumentMap){
+            cout << i.first << endl;
+            cout << i.second << endl;
+        }
+        for(auto &i: fControl->fGenericInstrumentMap){
+
+            if( dynamic_cast<ControlTTiPower*>(i.second) ){
+                cout << "Power supply ttI" << endl;
+            }
+            if( dynamic_cast<ControlKeithleyPower*>(i.second) ){
+                cout << "Keithley" << endl;
+            }
+            if( dynamic_cast<JulaboFP50*>(i.second)){
+                cout << "Julabo" << endl;
+            }
+            if( dynamic_cast<ConnectionInterfaceClass*>(i.second)){
+                cout << " Raspberry " << endl;
+            }
+        }
+
         for(auto const& i: fControl->fGenericInstrumentMap){
 
-            if(i.second->getName() == "ControlTTIClass"){
+            if( dynamic_cast<ControlTTiPower*>(i.second) ){
 
-                gui_pointers_low_voltage.push_back(SetVoltageSource(low_layout, "TTI1", "TTI", nOutputs));
+                gui_pointers_low_voltage.push_back(SetVoltageSource(low_layout, i.first, "TTI", nOutputs));
 
                 for(int i = 0 ; i != nOutputs ; i++){
                     connect(gui_pointers_low_voltage[0][i].onoff_button, &QCheckBox::toggled, [this,i](bool pArg)
@@ -765,9 +782,10 @@ bool MainWindow::readXmlFile()
                  }
 
             }
-            if(i.second->getName() == "ControlKeithleyClass"){
 
-                gui_pointers_high_voltage.push_back(SetVoltageSource(high_layout, "Keithley 1", "Keithley2410", 1));
+            if( dynamic_cast<ControlKeithleyPower*>(i.second) ){
+
+                gui_pointers_high_voltage.push_back(SetVoltageSource(high_layout, i.first, "Keithley2410", 1));
                 ui->groupBox_2->setLayout(high_layout);
 
                  connect(gui_pointers_high_voltage[0]->onoff_button, &QCheckBox::toggled, [this](bool pArg)
@@ -777,24 +795,26 @@ bool MainWindow::readXmlFile()
                  connect(gui_pointers_high_voltage[0]->i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pCurr)
                  {this->on_I_set_doubleSpinBox_valueChanged("Keithley2410", 0, pCurr);});
             }
-            if(i.second->getName() == "ConnectionInterfaceClass"){
-                gui_raspberry = SetRaspberryOutput(rasp_layout , fControl->fRaspberrySensorsNames , "Raspberry 1");
 
+            if( dynamic_cast<ConnectionInterfaceClass*>(i.second) ){
+                gui_raspberry = SetRaspberryOutput(rasp_layout , fControl->fRaspberrySensorsNames , i.first);
             }
-            if(i.second->getName() == "JulaboFP50"){
-                gui_chiller = SetChillerOutput(chiller_layout , "JulaboFP50" ,"JulaboFP50");
+
+            if( dynamic_cast<JulaboWrapper*>(i.second) ){
+                gui_chiller = SetChillerOutput(chiller_layout , i.first);
 
                 connect(gui_chiller->onoff_button, &QCheckBox::toggled, [this](bool pArg)
                 {this->on_OnOff_button_stateChanged("JulaboFP50" , 0, pArg);});
             }
         }
+
         //set layout to group box
         ui->groupBox->setLayout(low_layout);
         ui->groupBox_2->setLayout(high_layout);
         ui->groupBox_3->setLayout(rasp_layout);
         ui->groupBox_Chiller->setLayout(chiller_layout);
 
-        //make a list with all commands
+        //make a list with commands( depends on the devices we have read )
         this->doListOfCommands();
         return true;
     }
