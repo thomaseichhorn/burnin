@@ -402,6 +402,11 @@ void MainWindow::getMeasurments()
 
 void MainWindow::getVoltAndCurrKeithley()
 {
+    ControlKeithleyPower* keihleydev = dynamic_cast<ControlKeithleyPower*>(fControl->getGenericInstrObj("Keithley2410"));
+    PowerControlClass::fVACvalues* vals = keihleydev->getVoltAndCurr();
+    gui_pointers_high_voltage[0]->i_set->setValue(vals->pISet1);
+    //gui_pointers_high_voltage[0]->v_set->setValue(vals->pVSet1);
+    
     AdditionalThread *cThread  = new AdditionalThread("C", fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getVACKeithley()));
@@ -645,6 +650,9 @@ void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int pId, bool 
     if(pSourceName == "Keithley2410"){
 
         if(pArg){
+            gui_pointers_high_voltage[0]->v_set->setEnabled(false);
+            gui_pointers_high_voltage[0]->i_set->setEnabled(false);
+            
             fControl->getObject(pSourceName)->setVolt(gui_pointers_high_voltage[0]->v_set->value(), pId);
             fControl->getObject(pSourceName)->setCurr(gui_pointers_high_voltage[0]->i_set->value(), pId);
             AdditionalThread *cThread = new AdditionalThread("keithley", fControl);
@@ -655,6 +663,9 @@ void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int pId, bool 
             //fControl->getObject(pSourceName)->onPower(pId);
         }
         else{
+            gui_pointers_high_voltage[0]->v_set->setEnabled(true);
+            gui_pointers_high_voltage[0]->i_set->setEnabled(true);
+            
             AdditionalThread *cThread = new AdditionalThread("keithleyOff", fControl);
             QThread *cQThread = new QThread();
             connect(cQThread , SIGNAL(started()), cThread, SLOT(offVolt()));
@@ -714,8 +725,8 @@ void MainWindow::updateTTiIWidget(PowerControlClass::fVACvalues* pObject)
 
 void MainWindow::updateKeithleyWidget(PowerControlClass::fVACvalues* pObject)
 {
-    gui_pointers_high_voltage[0]->i_set->setValue(pObject->pISet1);
-    gui_pointers_high_voltage[0]->v_set->setValue(pObject->pVSet1);
+    //gui_pointers_high_voltage[0]->i_set->setValue(pObject->pISet1);
+    //gui_pointers_high_voltage[0]->v_set->setValue(pObject->pVSet1);
     gui_pointers_high_voltage[0]->i_applied->display(pObject->pIApp1);
     gui_pointers_high_voltage[0]->v_applied->display(pObject->pVApp1);
 }

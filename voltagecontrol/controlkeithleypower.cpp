@@ -59,22 +59,24 @@ void ControlKeithleyPower::sweepVolt(double pVoltage)
 
     char stringinput[512];
     double step = fStep;
-    double sign = 1;
-    double current_volt = fVolt;
-    if ( current_volt != pVoltage){
-        if(pVoltage < current_volt ){
-            step = step*(-1);
-            sign = -1;
-        }
-        current_volt = current_volt + step;
-        while((sign*(pVoltage - current_volt))>=0){
-
-            sprintf(stringinput ,":SOUR:VOLT:LEV %G\r" , current_volt);
+    double start_volt = fVolt;
+    if (start_volt != pVoltage){
+        if(pVoltage < start_volt)
+            step = -step;
+        
+        //current_volt = current_volt + step;
+        for (int i = 0; i < (pVoltage - start_volt) / step; ++i) {
+            sprintf(stringinput ,":SOUR:VOLT:LEV %G\r", start_volt + step * i);
             comHandler_->SendCommand(stringinput);
-            current_volt = current_volt + step;
             QThread::sleep(1.0);
             checkVAC();
         }
+        
+        // Send final set to take care of differences smaller than step
+        sprintf(stringinput ,":SOUR:VOLT:LEV %G\r", pVoltage);
+        comHandler_->SendCommand(stringinput);
+        QThread::sleep(1.0);
+        checkVAC();
     }
 }
 
@@ -115,12 +117,9 @@ void ControlKeithleyPower::checkVAC()
     usleep(1000);
 
     comHandler_->ReceiveString(buffer);
-
-    QString *cStr = new QString(reinterpret_cast<const char*>(buffer));
-
-    string str = cStr->toStdString();
+    
+    string str(buffer);
     size_t cPos = str.find(',');
-
 
     QString fVoltStr = QString::fromStdString(str.substr(0 , cPos));
     str = str.substr(cPos+1, cPos + 13);
