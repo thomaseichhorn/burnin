@@ -122,7 +122,7 @@ private:
 
     output_Chiller *gui_chiller;
 
-    output_Chiller setChilerLayout(string pType);
+    output_Chiller setChilerLayout();
 
     output_Chiller* SetChillerOutput(QLayout *pMainLayout, std::string pName);
 
