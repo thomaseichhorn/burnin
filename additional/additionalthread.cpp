@@ -4,6 +4,7 @@
 #include "gui/mainwindow.h"
 #include "general/environmentcontrolclass.h"
 #include "general/genericinstrumentclass.h"
+#include "general/julabowrapper.h"
 
 AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pControl) : fName(pName)
 {
@@ -29,7 +30,7 @@ void AdditionalThread::getRaspSensors()
     while(true){
         QString cStr;
         ConnectionInterfaceClass *cConnectRasp;
-        cConnectRasp = dynamic_cast<ConnectionInterfaceClass*>(fAddControl->getGenericInstrObj("fhlthermorasp4"));
+        cConnectRasp = dynamic_cast<ConnectionInterfaceClass*>(fAddControl->getGenericInstrObj("fhlthermorasp"));
         if(fAddControl->fConnectRasp != nullptr)
             cStr = fAddControl->fConnectRasp->getInfoFromSensors();
 //            cStr = cConnectRasp->getInfoFromSensors();
@@ -74,10 +75,10 @@ void AdditionalThread::offVolt()
 
 void AdditionalThread::getChillerStatus()
 {
-    EnvironmentControlClass *cEnv;
     float cBathTemp, cPressure, cSensorTemp, cWorkingTemp;
     string cMeas;
-    cEnv = dynamic_cast<EnvironmentControlClass*>(fAddControl->getGenericInstrObj("JulaboFP50"));
+    JulaboWrapper* wrapper = dynamic_cast<JulaboWrapper*>(fAddControl->getGenericInstrObj("JulaboFP50"));
+    JulaboFP50* cEnv = wrapper->fJulabo;
     while(true){
         cBathTemp = cEnv->GetBathTemperature();
         cPressure = cEnv->GetPumpPressure();
