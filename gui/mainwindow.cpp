@@ -19,9 +19,6 @@
 #include "additional/additionalthread.h"
 #include "general/julabowrapper.h"
 
-int nOutputs = 2;
-
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -89,10 +86,12 @@ output_pointer_t MainWindow::SetSourceOutputLayout(std::string pType)
     // i/v set
     cOutputPointers.i_set = new QDoubleSpinBox();
     cOutputPointers.i_set->setMaximumHeight(20);
+    cOutputPointers.i_set->setDecimals(3);
     cOutputPointers.layout->addWidget(cOutputPointers.i_set);
     cOutputPointers.v_set = new QDoubleSpinBox();
     cOutputPointers.v_set->setMaximumHeight(20);
     cOutputPointers.v_set->setMinimum(-100000);
+    cOutputPointers.v_set->setDecimals(3);
     cOutputPointers.layout->addWidget(cOutputPointers.v_set);
 
     // applied
@@ -369,9 +368,16 @@ void MainWindow::doListOfCommands()
     ui->listOfCommands->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-//creates a new thread to take info from TTi
+//reads out TTi once and creates a new thread to take info from TTi
 void MainWindow::getVoltAndCurr()
 {
+    ControlTTiPower* ttidev = dynamic_cast<ControlTTiPower*>(fControl->getGenericInstrObj("TTI1"));
+    PowerControlClass::fVACvalues* vals = ttidev->getVoltAndCurr();
+    gui_pointers_low_voltage[0][1].i_set->setValue(vals->pISet1);
+    gui_pointers_low_voltage[0][1].v_set->setValue(vals->pVSet1);
+    gui_pointers_low_voltage[0][0].i_set->setValue(vals->pISet2);
+    gui_pointers_low_voltage[0][0].v_set->setValue(vals->pVSet2);
+    
     AdditionalThread *cThread  = new AdditionalThread("A", fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getVAC()));
@@ -379,7 +385,6 @@ void MainWindow::getVoltAndCurr()
             SLOT(updateTTiIWidget(PowerControlClass::fVACvalues*)));
     cThread->moveToThread(cQThread);
     cQThread->start();
-
 }
 
 
@@ -627,8 +632,8 @@ void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int pId, bool 
     if(pSourceName == "TTI1"){
         if(pArg){
 
-            fControl->getObject(pSourceName)->setVolt(gui_pointers_low_voltage[0]->v_set->value(), pId);
-            fControl->getObject(pSourceName)->setCurr(gui_pointers_low_voltage[0]->i_set->value(), pId);
+            fControl->getObject(pSourceName)->setVolt(gui_pointers_low_voltage[0][2 - pId].v_set->value(), pId);
+            fControl->getObject(pSourceName)->setCurr(gui_pointers_low_voltage[0][2 - pId].i_set->value(), pId);
             fControl->getObject(pSourceName)->onPower(pId);
         }
         else{
@@ -672,8 +677,8 @@ void MainWindow::receiveOnOff(string pSourceName, bool pArg)
     if(pSourceName == "Keithley2410")
         gui_pointers_high_voltage[0]->onoff_button->setChecked(pArg);
     if(pSourceName == "TTI1"){
-        gui_pointers_low_voltage[0]->onoff_button->setChecked(pArg);
-        gui_pointers_low_voltage[1]->onoff_button->setChecked(pArg);
+        gui_pointers_low_voltage[0][0].onoff_button->setChecked(pArg);
+        gui_pointers_low_voltage[0][1].onoff_button->setChecked(pArg);
     }
 }
 
@@ -694,15 +699,15 @@ void MainWindow::on_I_set_doubleSpinBox_valueChanged(string pSourceName , int pI
 
 void MainWindow::updateTTiIWidget(PowerControlClass::fVACvalues* pObject)
 {
-    //gui_pointers_low_voltage[0][0].i_set->setValue(pObject->pISet1);
-    //gui_pointers_low_voltage[0][0].v_set->setValue(pObject->pVSet1);
-    gui_pointers_low_voltage[0][0].i_applied->display(pObject->pIApp1);
-    gui_pointers_low_voltage[0][0].v_applied->display(pObject->pVApp1);
+    //gui_pointers_low_voltage[0][1].i_set->setValue(pObject->pISet1);
+    //gui_pointers_low_voltage[0][1].v_set->setValue(pObject->pVSet1);
+    gui_pointers_low_voltage[0][1].i_applied->display(pObject->pIApp1);
+    gui_pointers_low_voltage[0][1].v_applied->display(pObject->pVApp1);
 
-    //gui_pointers_low_voltage[0][1].i_set->setValue(pObject->pISet2);
-    //gui_pointers_low_voltage[0][1].v_set->setValue(pObject->pVSet2);
-    gui_pointers_low_voltage[0][1].i_applied->display(pObject->pIApp2);
-    gui_pointers_low_voltage[0][1].v_applied->display(pObject->pVApp2);
+    //gui_pointers_low_voltage[0][0].i_set->setValue(pObject->pISet2);
+    //gui_pointers_low_voltage[0][0].v_set->setValue(pObject->pVSet2);
+    gui_pointers_low_voltage[0][0].i_applied->display(pObject->pIApp2);
+    gui_pointers_low_voltage[0][0].v_applied->display(pObject->pVApp2);
 }
 
 void MainWindow::updateKeithleyWidget(PowerControlClass::fVACvalues* pObject)
@@ -770,15 +775,15 @@ bool MainWindow::readXmlFile()
 
             if( dynamic_cast<ControlTTiPower*>(i.second) ){
 
-                gui_pointers_low_voltage.push_back(SetVoltageSource(low_layout, i.first, "TTI", nOutputs));
+                gui_pointers_low_voltage.push_back(SetVoltageSource(low_layout, i.first, "TTI", 2));
 
-                for(int i = 0; i != nOutputs; i++){
-                    connect(gui_pointers_low_voltage[0][i].onoff_button, &QCheckBox::toggled, [this,i](bool pArg)
-                        {this->on_OnOff_button_stateChanged("TTI1" , i+1, pArg);});
-                    connect(gui_pointers_low_voltage[0][i].v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pVolt)
-                        {this->on_V_set_doubleSpinBox_valueChanged("TTI1" , i+1, pVolt);});
-                    connect(gui_pointers_low_voltage[0][i].i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pCurr)
-                        {this->on_I_set_doubleSpinBox_valueChanged("TTI1", i+1, pCurr);});
+                for(int i = 0; i < 2; i++){
+                    connect(gui_pointers_low_voltage[0][i].onoff_button, &QCheckBox::toggled, [this, i](bool pArg)
+                        {this->on_OnOff_button_stateChanged("TTI1", 2 - i, pArg);});
+                    connect(gui_pointers_low_voltage[0][i].v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, i](double pVolt)
+                        {this->on_V_set_doubleSpinBox_valueChanged("TTI1", 2 - i, pVolt);});
+                    connect(gui_pointers_low_voltage[0][i].i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, i](double pCurr)
+                        {this->on_I_set_doubleSpinBox_valueChanged("TTI1", 2 - i, pCurr);});
                  }
 
             }
