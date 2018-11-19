@@ -13,7 +13,7 @@
 #include "voltagecontrol/controlttipower.h"
 #include "connectioninterfaceclass.h"
 #include "voltagecontrol/controlkeithleypower.h"
-#include "external/cmstkmodlab/devices/Julabo/JulaboFP50.h"
+#include "JulaboFP50.h"
 #include "additional/hwdescriptionparser.h"
 #include "genericinstrumentclass.h"
 

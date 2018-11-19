@@ -5,7 +5,7 @@
 #include <QThread>
 
 #include "powercontrolclass.h"
-#include "external/cmstkmodlab/devices/Julabo/FP50ComHandler.h"
+#include "general/FP50ComHandler.h"
 
 class ControlKeithleyPower:public PowerControlClass, public QThread
 {

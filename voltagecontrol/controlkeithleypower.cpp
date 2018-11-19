@@ -17,8 +17,6 @@
 #include "additional/additionalthread.h"
 #include "general/systemcontrollerclass.h"
 
-#include "external/cmstkmodlab/devices/Julabo/FP50ComHandler.h"
-
 using namespace std;
 
 ControlKeithleyPower::ControlKeithleyPower(string pConnection , string pSetVolt , string pSetCurr)

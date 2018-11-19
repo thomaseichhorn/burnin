@@ -2,8 +2,8 @@
 #define JULABOWRAPPER_H
 
 
-#include "external/cmstkmodlab/devices/Julabo/JulaboFP50.h"
-#include "general/genericinstrumentclass.h"
+#include "JulaboFP50.h"
+#include "genericinstrumentclass.h"
 
 class JulaboWrapper:public GenericInstrumentClass
 {

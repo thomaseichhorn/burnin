@@ -33,9 +33,8 @@ INCLUDEPATH += /home/fedorcht/software/liblxi-1.13/src/include/
 SOURCES += \
     additional/additionalthread.cpp \
     additional/hwdescriptionparser.cpp \
-    external/cmstkmodlab/devices/Julabo/FP50ComHandler.cpp \
-    external/cmstkmodlab/devices/Julabo/JulaboFP50.cpp \
-    external/cmstkmodlab/devices/Julabo/VJulaboFP50.cpp \
+    general/FP50ComHandler.cpp \
+    general/JulaboFP50.cpp \
     general/connectioninterfaceclass.cpp \
     general/daqcontrolclass.cpp \
     general/databaseinterfaceclass.cpp \
@@ -81,9 +80,8 @@ HEADERS += \
     voltagecontrol/powercontrolclass.h \
     additional/additionalthread.h \
     additional/hwdescriptionparser.h \
-    external/cmstkmodlab/devices/Julabo/FP50ComHandler.h \
-    external/cmstkmodlab/devices/Julabo/JulaboFP50.h \
-    external/cmstkmodlab/devices/Julabo/VJulaboFP50.h \
+    general/FP50ComHandler.h \
+    general/JulaboFP50.h \
     general/connectioninterfaceclass.h \
     general/daqcontrolclass.h \
     general/databaseinterfaceclass.h \
