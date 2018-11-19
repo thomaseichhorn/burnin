@@ -506,17 +506,21 @@ void MainWindow::on_Start_pushButton_clicked()
 //reads sensor on rasp and sets info to Raspberry sensors
 void MainWindow::updateRaspWidget(QString pStr)
 {
-    vector<string> cVec;
-    string cStr = pStr.toStdString();
-
-    std::istringstream ist(cStr);
-    std::string tmp;
-    while ( ist >> tmp )
-       cVec.push_back(tmp);
-
-    for(std::vector<string>::size_type i = 1 ; i != cVec.size() ; i++){
-        gui_raspberry[i-1].value->display(QString::fromStdString(cVec[i]).toDouble());
+    int numSensors = fControl->fRaspberrySensorsNames.size();
+    QString pattern("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d+");
+    for (int i = 0; i < numSensors; ++i)
+        pattern += " (\\d+\\.?\\d*?)?";
+    pattern += "$";
+    QRegularExpression re(pattern);
+    QRegularExpressionMatch match = re.match(pStr);
+    
+    if (not match.hasMatch()) {
+        cerr << "Raspberry line has invalid format: " << pStr.toStdString() << endl;
+        return;
     }
+    
+    for (int i = 0; i < numSensors; ++i)
+        gui_raspberry[i].value->display(match.captured(i));
 }
 
 void MainWindow::updateChillerWidget(QString pStr)

@@ -29,18 +29,17 @@ void AdditionalThread::getRaspSensors()
 {
     while(true){
         QString cStr;
-        ConnectionInterfaceClass *cConnectRasp;
-        cConnectRasp = dynamic_cast<ConnectionInterfaceClass*>(fAddControl->getGenericInstrObj("fhlthermorasp"));
         if(fAddControl->fConnectRasp != nullptr)
             cStr = fAddControl->fConnectRasp->getInfoFromSensors();
-//            cStr = cConnectRasp->getInfoFromSensors();
         if (!cStr.isEmpty()) {
             string cTemp = cStr.toStdString();
-            size_t cPos = cTemp.find(':');
-            cTemp = cTemp.substr(cPos , cTemp.size());
-            emit sendToThreadString(QString::fromStdString(cTemp));
+            size_t cPos = cTemp.find('\n');
+            if (cPos != string::npos) {
+                cTemp = cTemp.substr(cPos + 1, cTemp.size());
+                emit sendToThreadString(QString::fromStdString(cTemp));
+            }
         }
-        QThread::sleep(10);        
+        QThread::sleep(10);
     }
 }
 
