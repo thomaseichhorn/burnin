@@ -12,12 +12,12 @@ class ControlKeithleyPower:public PowerControlClass, public QThread
 public:
     ControlKeithleyPower(string pConnection , string pSetVolt , string pSetCurr);
 
-    bool initialize();
+    void initialize();
     PowerControlClass::fVACvalues* getVoltAndCurr();
-    void setVolt(double pVoltage, int pId);
-    void setCurr(double pCurrent , int pId);
-    void onPower(int pId);
-    void offPower(int pId);
+    void setVolt(double pVoltage, int);
+    void setCurr(double pCurrent , int);
+    void onPower(int);
+    void offPower(int);
     void closeConnection();
 
     void sweepVolt(double pVoltage);

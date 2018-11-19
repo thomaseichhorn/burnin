@@ -13,7 +13,7 @@ public:
     string fIoport_t;
     JulaboFP50 *fJulabo;
 
-    bool initialize();
+    void initialize();
 };
 
 #endif // JULABOWRAPPER_H

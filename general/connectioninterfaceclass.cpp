@@ -15,17 +15,12 @@ ConnectionInterfaceClass::ConnectionInterfaceClass(string pAddress , string pPor
     fPort = QString::fromStdString(pPort).toInt();
 }
 
-bool ConnectionInterfaceClass::initialize()
+void ConnectionInterfaceClass::initialize()
 {
     fSocket = new QTcpSocket(this);
      fSocket->connectToHost(QString::fromStdString(fAddress) , fPort);
-    if(!fSocket->waitForDisconnected(5000)){
+    if(!fSocket->waitForDisconnected(5000))
         qDebug() << "Error:" << fSocket->errorString();
-        return false;
-    }
-    else{
-        return true;
-    }
 //    fSocket->close();
 }
 

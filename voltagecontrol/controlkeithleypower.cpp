@@ -30,26 +30,27 @@ ControlKeithleyPower::ControlKeithleyPower(string pConnection , string pSetVolt 
     fStep = 10;
 }
 
-bool ControlKeithleyPower::initialize(){
+void ControlKeithleyPower::initialize(){
 
     const ioport_t ioPort = fConnection.c_str();
     comHandler_ = new FP50ComHandler( ioPort );
 
+	std::cout << "Created FP50ComHandler on port " << ioPort << " at " << comHandler_ << std::endl;
 }
 
 
-void ControlKeithleyPower::onPower(int pId)
+void ControlKeithleyPower::onPower(int)
 {
     sweepVolt(fVoltSet);
     QThread::sleep(1);
 }
 
-void ControlKeithleyPower::offPower(int pId)
+void ControlKeithleyPower::offPower(int)
 {
     sweepVolt(0);
 }
 
-void ControlKeithleyPower::setVolt(double pVoltage , int pId)
+void ControlKeithleyPower::setVolt(double pVoltage , int)
 {
     fVoltSet = pVoltage;
 }
@@ -79,11 +80,11 @@ void ControlKeithleyPower::sweepVolt(double pVoltage)
     }
 }
 
-void ControlKeithleyPower::setCurr(double pCurrent, int pId)
+void ControlKeithleyPower::setCurr(double pCurrent, int)
 {
     char stringinput[512];
 
-    sprintf(stringinput ,":SENS:CURR:PROT %lGE-6\r" , pCurrent);
+    sprintf(stringinput ,":SENS:CURR:PROT %lGE-6\r\n" , pCurrent);
     comHandler_->SendCommand(stringinput);
 }
 
@@ -111,7 +112,7 @@ void ControlKeithleyPower::checkVAC()
     char stringinput[512];
     char buffer[512];
 
-    strcpy(stringinput , ":READ?\r");
+    strcpy(stringinput , ":READ?\r\n");
     comHandler_->SendCommand(stringinput);
     usleep(1000);
 

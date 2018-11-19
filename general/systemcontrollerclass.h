@@ -45,7 +45,7 @@ public:
     };
     vector<SystemControllerClass::fParameters> fListOfCommands;
     //check if all devices are connected
-    bool Initialize();
+    void Initialize();
     void ReadXmlFile(std::string pFileName);
     void startDoingList();
     void Wait(int pSec);

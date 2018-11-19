@@ -19,7 +19,7 @@ public:
 
     int fId;
 
-    bool initialize();
+    void initialize();
     PowerControlClass::fVACvalues* getVoltAndCurr();
 
     void setVolt(double pVoltage , int pId);

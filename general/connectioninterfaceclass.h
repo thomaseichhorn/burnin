@@ -14,7 +14,7 @@ class ConnectionInterfaceClass : public QObject,public GenericInstrumentClass
     Q_OBJECT
 public:
     explicit ConnectionInterfaceClass(string pAddress , string pPort);
-    bool initialize();
+    void initialize();
     QString getInfoFromSensors();
 
     string getName(){

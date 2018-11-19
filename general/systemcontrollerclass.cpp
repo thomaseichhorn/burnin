@@ -25,7 +25,7 @@ SystemControllerClass::SystemControllerClass()
 SystemControllerClass::~SystemControllerClass()
 {}
 
-bool SystemControllerClass::Initialize()
+void SystemControllerClass::Initialize()
 {
 
 //    for(size_t i = 0 ; i != fNamesVoltageSources.size() ; i++){

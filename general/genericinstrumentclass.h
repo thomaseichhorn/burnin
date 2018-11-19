@@ -10,7 +10,7 @@ class GenericInstrumentClass
 public:
     GenericInstrumentClass();
 
-    virtual bool initialize() = 0;
+    virtual void initialize() = 0;
 
 
 };

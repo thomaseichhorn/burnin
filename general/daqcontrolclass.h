@@ -6,7 +6,7 @@ class DAQControlClass
 {
 public:
     DAQControlClass();
-    bool InitDAQ();
+    void InitDAQ();
 };
 
 #endif // DAQCONTROLCLASS_H

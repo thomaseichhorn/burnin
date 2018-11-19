@@ -132,7 +132,7 @@ output_Raspberry MainWindow::setRaspberryLayout(string pName)
     return cOutputRaspberry;
 }
 
-output_Chiller MainWindow::setChilerLayout(string pType)
+output_Chiller MainWindow::setChilerLayout()
 {
     output_Chiller cOutputPointers;
 
@@ -218,7 +218,7 @@ output_Chiller* MainWindow::SetChillerOutput(QLayout *pMainLayout, string pName)
     // now set
     group_box_layout->addItem(label_layout);
 
-    cOutputPointers[0] = setChilerLayout(pName);
+    cOutputPointers[0] = setChilerLayout();
     group_box_layout->addItem(cOutputPointers[0].layout);
 
     group_box->setLayout(group_box_layout);
@@ -341,7 +341,6 @@ void MainWindow::voltageControlWidget()
 //creates a List with all commands
 void MainWindow::doListOfCommands()
 {
-    size_t cVecSize = fSources.size();
     QStandardItemModel *cModel = new QStandardItemModel(this);
 
     QStandardItem *cItem1 = new QStandardItem("Set Temperature (°C)");
@@ -352,14 +351,14 @@ void MainWindow::doListOfCommands()
     cModel->setItem( 1 , cItem2);
     cModel->index( 1 , 0);
 
-    for(int i = 2 ; i != fSources.size()+2 ; i++){
+    for(std::vector<string>::size_type i = 2 ; i != fSources.size()+2 ; i++){
         QString cStr = QString::fromStdString(fSources[i-2]);
         QStandardItem *cItem3 = new QStandardItem("On  " + cStr + "  power supply");
         cModel->setItem(i, cItem3);
         cModel->index(i , 0);
 
     }
-    for(int i = fSources.size() + 2 ; i != 2*fSources.size() + 2 ; i++){
+    for(std::vector<string>::size_type i = fSources.size() + 2 ; i != 2*fSources.size() + 2 ; i++){
         QString cStr = QString::fromStdString(fSources[i-fSources.size() - 2]);
         QStandardItem *cItem4 = new QStandardItem("Off  " + cStr + "  power supply");
         cModel->setItem(i, cItem4);
@@ -503,7 +502,7 @@ void MainWindow::updateRaspWidget(QString pStr)
     while ( ist >> tmp )
        cVec.push_back(tmp);
 
-    for(int i = 1 ; i != cVec.size() ; i++){
+    for(std::vector<string>::size_type i = 1 ; i != cVec.size() ; i++){
         gui_raspberry[i-1].value->display(QString::fromStdString(cVec[i]).toDouble());
     }
 }

@@ -28,7 +28,7 @@ ControlTTiPower::ControlTTiPower(string pConnection , vector<string> pId , vecto
     }
 }
 
-bool ControlTTiPower::initialize()
+void ControlTTiPower::initialize()
 {
     int pPort = 9221;
 
@@ -38,20 +38,17 @@ bool ControlTTiPower::initialize()
     // Make a non-const copy as a workaround
     char* pConn = new char[fConnection.length() + 1];
     strcpy(pConn, fConnection.c_str());
-    fDevice = lxi_connect(pConn, pPort, "TTi", cTimeOut, RAW);
+    fDevice = lxi_connect(pConn, pPort, NULL, cTimeOut, RAW);
     delete[] pConn;
     
     if (fDevice == -1) {
         std::cerr << "Could not open ControlTTiPower on " << fConnection << " and port " << pPort << std::endl;
-        return false;
     }
 
     for(size_t i = 0; i!= fVoltSet.size(); i++){
         setVolt(fVoltSet[i], i);
         setCurr(fCurrSet[i], i);
     }
-    
-    return true;
 }
 
 void ControlTTiPower::setVolt(double pVoltage , int pId)
