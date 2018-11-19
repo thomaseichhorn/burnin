@@ -626,7 +626,7 @@ void MainWindow::on_Down_pushButton_clicked()
 void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int pId, bool pArg)
 {
     if(pSourceName == "TTI1"){
-        if( pArg){
+        if(pArg){
 
             fControl->getObject(pSourceName)->setVolt(gui_pointers_low_voltage[0]->v_set->value(), pId);
             fControl->getObject(pSourceName)->setCurr(gui_pointers_low_voltage[0]->i_set->value(), pId);
@@ -638,7 +638,7 @@ void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int pId, bool 
     }
     if(pSourceName == "Keithley2410"){
 
-        if( pArg){
+        if(pArg){
             fControl->getObject(pSourceName)->setVolt(gui_pointers_high_voltage[0]->v_set->value(), pId);
             fControl->getObject(pSourceName)->setCurr(gui_pointers_high_voltage[0]->i_set->value(), pId);
             AdditionalThread *cThread = new AdditionalThread("keithley", fControl);
@@ -681,26 +681,27 @@ void MainWindow::receiveOnOff(string pSourceName, bool pArg)
 //Set func
 void MainWindow::on_V_set_doubleSpinBox_valueChanged(string pSourceName, int pId, double pVolt)
 {
+    std::cout << "MainWindow::on_V_set_doubleSpinBox_valueChanged(" << pSourceName << ", " << pId << ", " << pVolt << ")" << std::endl;
     fControl->getObject(pSourceName)->setVolt(pVolt, pId);
     QThread::sleep(0.5);
 }
 
 void MainWindow::on_I_set_doubleSpinBox_valueChanged(string pSourceName , int pId, double pCurr)
 {
-
+    std::cout << "MainWindow::on_I_set_doubleSpinBox_valueChanged(" << pSourceName << ", " << pId << ", " << pCurr << ")" << std::endl;
     fControl->getObject(pSourceName)->setCurr(pCurr, pId);
     QThread::sleep(0.5);
 }
 
 void MainWindow::updateTTiIWidget(PowerControlClass::fVACvalues* pObject)
 {
-    gui_pointers_low_voltage[0][0].i_set->setValue(pObject->pISet1);
-    gui_pointers_low_voltage[0][0].v_set->setValue(pObject->pVSet1);
+    //gui_pointers_low_voltage[0][0].i_set->setValue(pObject->pISet1);
+    //gui_pointers_low_voltage[0][0].v_set->setValue(pObject->pVSet1);
     gui_pointers_low_voltage[0][0].i_applied->display(pObject->pIApp1);
     gui_pointers_low_voltage[0][0].v_applied->display(pObject->pVApp1);
 
-    gui_pointers_low_voltage[0][1].i_set->setValue(pObject->pISet2);
-    gui_pointers_low_voltage[0][1].v_set->setValue(pObject->pVSet2);
+    //gui_pointers_low_voltage[0][1].i_set->setValue(pObject->pISet2);
+    //gui_pointers_low_voltage[0][1].v_set->setValue(pObject->pVSet2);
     gui_pointers_low_voltage[0][1].i_applied->display(pObject->pIApp2);
     gui_pointers_low_voltage[0][1].v_applied->display(pObject->pVApp2);
 }
@@ -772,13 +773,13 @@ bool MainWindow::readXmlFile()
 
                 gui_pointers_low_voltage.push_back(SetVoltageSource(low_layout, i.first, "TTI", nOutputs));
 
-                for(int i = 0 ; i != nOutputs ; i++){
+                for(int i = 0; i != nOutputs; i++){
                     connect(gui_pointers_low_voltage[0][i].onoff_button, &QCheckBox::toggled, [this,i](bool pArg)
-                    {this->on_OnOff_button_stateChanged("TTI1" , i+1, pArg);});
-//                    connect(gui_pointers_low_voltage[0][i].v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pVolt)
-//                    {this->on_V_set_doubleSpinBox_valueChanged("TTI1" , i+1, pVolt);});
-//                    connect(gui_pointers_low_voltage[0][i].i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pCurr)
-//                    {this->on_I_set_doubleSpinBox_valueChanged("TTI1", i+1, pCurr);});
+                        {this->on_OnOff_button_stateChanged("TTI1" , i+1, pArg);});
+                    connect(gui_pointers_low_voltage[0][i].v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pVolt)
+                        {this->on_V_set_doubleSpinBox_valueChanged("TTI1" , i+1, pVolt);});
+                    connect(gui_pointers_low_voltage[0][i].i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this,i](double pCurr)
+                        {this->on_I_set_doubleSpinBox_valueChanged("TTI1", i+1, pCurr);});
                  }
 
             }
