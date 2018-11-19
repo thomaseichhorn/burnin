@@ -151,12 +151,12 @@ void SystemControllerClass::ParseVSources()
                     cCurr.push_back(fHWDescription[i].operational_settings[j]["CurrentLimit"]);
 
                 }
-                string cConnectStr = getTypeOfConnection(cConnection , cAddress , cPort);
-                PowerControlClass *fPowerLow = new ControlTTiPower(cConnectStr , cId , cVolt, cCurr);
+                PowerControlClass *fPowerLow = new ControlTTiPower(cAddress , cId , cVolt, cCurr);
                 fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerLow));
                 fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerLow));
                 fNamesVoltageSources.push_back(fHWDescription[i].name);
                 fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
+                std::cout << "Added \"" << fHWDescription[i].name << "\" on " << cAddress << std::endl;
             }
         }
 
@@ -168,13 +168,12 @@ void SystemControllerClass::ParseVSources()
                 cPort = fHWDescription[i].interface_settings["port"];
                 cSetVolt = fHWDescription[i].operational_settings[0]["Voltage"];
                 cSetCurr = fHWDescription[i].operational_settings[0]["CurrentLimit"];
-                string cConnectStr = getTypeOfConnection(cConnection , cAddress , cPort);
-                PowerControlClass *fPowerHigh = new ControlKeithleyPower(cConnectStr, cSetVolt, cSetCurr);
+                PowerControlClass *fPowerHigh = new ControlKeithleyPower(cAddress, cSetVolt, cSetCurr);
                 fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerHigh));
                 fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerHigh));
                 fNamesVoltageSources.push_back(fHWDescription[i].name);
                 fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
-
+                std::cout << "Added \"" << fHWDescription[i].name << "\" on " << cAddress << std::endl;
             }
         }
     }
@@ -254,6 +253,7 @@ string SystemControllerClass::getTypeOfConnection(string pConnection, string pAd
 
     if(pConnection == "ethernet")
        cStr = "TCPIP::" + pAddress + "::" + pPort + "::SOCKET";
+
 
     if(pConnection == "rs232"){
         size_t cPos = pAddress.find('S');
