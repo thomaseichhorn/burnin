@@ -26,10 +26,6 @@ CONFIG += c++11
 #unix:
 LIBS += -L/usr/local/lib/ -llxi
 
-#unix:
-#INCLUDEPATH += /usr/include/ni-visa
-INCLUDEPATH += /home/fedorcht/software/liblxi-1.13/src/include/
-
 SOURCES += \
     additional/additionalthread.cpp \
     additional/hwdescriptionparser.cpp \
