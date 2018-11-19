@@ -4,7 +4,9 @@
 
 #include <QString>
 
-#include "lxi.h"
+extern "C" {
+	#include "lxi.h"
+}
 
 #include "general/genericinstrumentclass.h"
 

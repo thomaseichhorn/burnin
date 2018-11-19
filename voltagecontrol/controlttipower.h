@@ -3,7 +3,9 @@
 
 #include <QObject>
 
-#include "lxi.h"
+extern "C" {
+	#include "lxi.h"
+}
 
 #include "powercontrolclass.h"
 
