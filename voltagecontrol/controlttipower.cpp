@@ -55,14 +55,14 @@ void ControlTTiPower::setVolt(double pVoltage , int pId)
 {
 //    viPrintf(fVi , "V%d %f\n" , pId , pVoltage);
     char cCommand[BUFLEN];
-    snprintf(cCommand, sizeof(cCommand), "V%d %.f\n", pId, pVoltage);
+    snprintf(cCommand, sizeof(cCommand), "V%d %.4f\n", pId, pVoltage);
     lxi_send(fDevice, cCommand, strlen(cCommand), cTimeOut);
 }
 
 void ControlTTiPower::setCurr(double pCurrent , int pId)
 {
     char cCommand[BUFLEN];
-    snprintf(cCommand, sizeof(cCommand), "V%d %f\n", pId, pCurrent);
+    snprintf(cCommand, sizeof(cCommand), "I%d %.4f\n", pId, pCurrent);
     lxi_send(fDevice, cCommand, strlen(cCommand), cTimeOut);
 }
 
