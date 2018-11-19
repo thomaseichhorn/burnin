@@ -87,11 +87,13 @@ output_pointer_t MainWindow::SetSourceOutputLayout(std::string pType)
     cOutputPointers.i_set = new QDoubleSpinBox();
     cOutputPointers.i_set->setMaximumHeight(20);
     cOutputPointers.i_set->setDecimals(3);
+    cOutputPointers.i_set->setSuffix(" A");
     cOutputPointers.layout->addWidget(cOutputPointers.i_set);
     cOutputPointers.v_set = new QDoubleSpinBox();
     cOutputPointers.v_set->setMaximumHeight(20);
     cOutputPointers.v_set->setMinimum(-100000);
     cOutputPointers.v_set->setDecimals(3);
+    cOutputPointers.v_set->setSuffix(" V");
     cOutputPointers.layout->addWidget(cOutputPointers.v_set);
 
     // applied
@@ -105,7 +107,7 @@ output_pointer_t MainWindow::SetSourceOutputLayout(std::string pType)
     cOutputPointers.layout->addWidget(cOutputPointers.v_applied);
 
     // on off
-    cOutputPointers.onoff_button = new QCheckBox("On/Off");
+    cOutputPointers.onoff_button = new QCheckBox("On");
     cOutputPointers.onoff_button->setMaximumHeight(20);
     cOutputPointers.layout->addWidget(cOutputPointers.onoff_button);
 
@@ -245,16 +247,16 @@ output_pointer_t* MainWindow::SetVoltageSource(QLayout *pMainLayout, std::string
     QLabel *label_type = new QLabel("Type:");
     label_type->setMinimumSize(size);
     label_layout->addWidget(label_type);
-    QLabel *label_i_set = new QLabel("I(set), A:");
+    QLabel *label_i_set = new QLabel("Current limit:");
     label_i_set->setMinimumSize(size);
     label_layout->addWidget(label_i_set);
-    QLabel *label_v_set = new QLabel("V(set), V:");
+    QLabel *label_v_set = new QLabel("Voltage:");
     label_v_set->setMinimumSize(size);
     label_layout->addWidget(label_v_set);
-    QLabel *label_i_applied = new QLabel("I(applied), A:");
+    QLabel *label_i_applied = new QLabel("Current limit applied:");
     label_i_applied->setMinimumSize(size);
     label_layout->addWidget(label_i_applied);
-    QLabel *label_v_applied = new QLabel("V(applied), V:");
+    QLabel *label_v_applied = new QLabel("Voltage applied:");
     label_v_applied->setMinimumSize(size);
     label_layout->addWidget(label_v_applied);
     QLabel *label_onoff = new QLabel("On/Off:");
