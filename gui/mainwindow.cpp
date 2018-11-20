@@ -395,7 +395,7 @@ void MainWindow::getMeasurments()
     AdditionalThread *cThread = new AdditionalThread("B" , fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getRaspSensors()));
-    connect(cThread, SIGNAL(sendToThreadString(QString)),this , SLOT(updateRaspWidget(QString)));
+    connect(cThread, SIGNAL(updatedThermorasp(QMap<QString, QString>)), this, SLOT(updateRaspWidget(QMap<QString, QString>)));
     cThread->moveToThread(cQThread);
     cQThread->start();
 }
@@ -504,23 +504,12 @@ void MainWindow::on_Start_pushButton_clicked()
 }
 
 //reads sensor on rasp and sets info to Raspberry sensors
-void MainWindow::updateRaspWidget(QString pStr)
-{
-    int numSensors = fControl->fRaspberrySensorsNames.size();
-    QString pattern("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d+");
-    for (int i = 0; i < numSensors; ++i)
-        pattern += " (\\d+\\.?\\d*?)?";
-    pattern += "$";
-    QRegularExpression re(pattern);
-    QRegularExpressionMatch match = re.match(pStr);
-    
-    if (not match.hasMatch()) {
-        cerr << "Raspberry line has invalid format: " << pStr.toStdString() << endl;
-        return;
+void MainWindow::updateRaspWidget(QMap<QString, QString> readings) {
+    int i = 0;
+    for (const string& name: fControl->fRaspberrySensorsNames) {
+        gui_raspberry[i].value->display(readings[QString::fromStdString(name)]);
+        ++i;
     }
-    
-    for (int i = 0; i < numSensors; ++i)
-        gui_raspberry[i].value->display(match.captured(i));
 }
 
 void MainWindow::updateChillerWidget(QString pStr)
@@ -789,7 +778,7 @@ bool MainWindow::readXmlFile()
             if( dynamic_cast<JulaboFP50*>(i.second)){
                 cout << "Julabo" << endl;
             }
-            if( dynamic_cast<ConnectionInterfaceClass*>(i.second)){
+            if( dynamic_cast<Thermorasp*>(i.second)){
                 cout << " Raspberry " << endl;
             }
         }
@@ -824,7 +813,7 @@ bool MainWindow::readXmlFile()
                  {this->on_I_set_doubleSpinBox_valueChanged("Keithley2410", 0, pCurr);});
             }
 
-            if( dynamic_cast<ConnectionInterfaceClass*>(i.second) ){
+            if( dynamic_cast<Thermorasp*>(i.second) ){
                 gui_raspberry = SetRaspberryOutput(rasp_layout , fControl->fRaspberrySensorsNames , i.first);
             }
 

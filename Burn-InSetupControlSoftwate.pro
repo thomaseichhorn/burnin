@@ -31,7 +31,7 @@ SOURCES += \
     additional/hwdescriptionparser.cpp \
     general/FP50ComHandler.cpp \
     general/JulaboFP50.cpp \
-    general/connectioninterfaceclass.cpp \
+    general/thermorasp.cpp \
     general/daqcontrolclass.cpp \
     general/databaseinterfaceclass.cpp \
     general/environmentcontrolclass.cpp \
@@ -63,7 +63,7 @@ DISTFILES += \
 HEADERS += \
     additional/additionalthread.h \
     additional/hwdescriptionparser.h \
-    general/connectioninterfaceclass.h \
+    general/thermorasp.h \
     general/daqcontrolclass.h \
     general/databaseinterfaceclass.h \
     general/environmentcontrolclass.h \
@@ -78,7 +78,7 @@ HEADERS += \
     additional/hwdescriptionparser.h \
     general/FP50ComHandler.h \
     general/JulaboFP50.h \
-    general/connectioninterfaceclass.h \
+    general/thermorasp.h \
     general/daqcontrolclass.h \
     general/databaseinterfaceclass.h \
     general/environmentcontrolclass.h \

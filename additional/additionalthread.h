@@ -20,7 +20,7 @@ public:
 signals:
     void sendToThread(PowerControlClass::fVACvalues *);
     void sendToThreadKeithley(PowerControlClass::fVACvalues *);
-    void sendToThreadString(QString);
+    void updatedThermorasp(QMap<QString, QString>);
     void volt();
     void sendFromChiller(QString);
 

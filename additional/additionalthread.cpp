@@ -27,18 +27,9 @@ void AdditionalThread::getVAC()
 //sends info from Raspberry Pi sensors
 void AdditionalThread::getRaspSensors()
 {
-    while(true){
-        QString cStr;
-        if(fAddControl->fConnectRasp != nullptr)
-            cStr = fAddControl->fConnectRasp->getInfoFromSensors();
-        if (!cStr.isEmpty()) {
-            string cTemp = cStr.toStdString();
-            size_t cPos = cTemp.find('\n');
-            if (cPos != string::npos) {
-                cTemp = cTemp.substr(cPos + 1, cTemp.size());
-                emit sendToThreadString(QString::fromStdString(cTemp));
-            }
-        }
+    while (true){
+        QMap<QString, QString> readings = fAddControl->fConnectRasp->getReadings();
+        emit updatedThermorasp(readings);
         QThread::sleep(10);
     }
 }

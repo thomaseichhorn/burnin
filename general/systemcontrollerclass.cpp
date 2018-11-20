@@ -181,16 +181,16 @@ void SystemControllerClass::ParseVSources()
 
 void SystemControllerClass::ParseRaspberry()
 {
-    string cConnection , cAddress , cPort;
+    string cConnection, cAddress;
+    quint16 cPort;
 
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].classOfInstr == "Raspberry"){
             cConnection = fHWDescription[i].interface_settings["connection"];
             cAddress = fHWDescription[i].interface_settings["address"];
-            cPort = fHWDescription[i].interface_settings["port"];
-
-            fConnectRasp = new ConnectionInterfaceClass(cAddress , cPort);
+            cPort = stoi(fHWDescription[i].interface_settings["port"]);
+            fConnectRasp = new Thermorasp(cAddress , cPort);
             fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fConnectRasp));
             fNamesInstruments.push_back(fHWDescription[i].name);
 
@@ -270,6 +270,5 @@ void SystemControllerClass::closeConneections()
     for(size_t i = 0 ; i != fNamesVoltageSources.size() ; i++){
         getObject(fNamesVoltageSources[i])->closeConnection();
     }
-    fConnectRasp->closeConnection();
 }
 

@@ -11,7 +11,7 @@
 #include "environmentcontrolclass.h"
 #include "databaseinterfaceclass.h"
 #include "voltagecontrol/controlttipower.h"
-#include "connectioninterfaceclass.h"
+#include "thermorasp.h"
 #include "voltagecontrol/controlkeithleypower.h"
 #include "JulaboFP50.h"
 #include "additional/hwdescriptionparser.h"
@@ -27,7 +27,7 @@ public:
     SystemControllerClass();
     ~SystemControllerClass();
 
-    ConnectionInterfaceClass *fConnectRasp;
+    Thermorasp *fConnectRasp;
     DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;

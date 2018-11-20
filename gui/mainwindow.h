@@ -67,7 +67,7 @@ private slots:
 
     void on_Start_pushButton_clicked();
 
-    void updateRaspWidget(QString pStr);
+    void updateRaspWidget(QMap<QString, QString>);
 
     void updateTTiIWidget(PowerControlClass::fVACvalues *pObject);
 

@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     //replaces commas with dots in printf
     setlocale(LC_ALL,"");
     setlocale(LC_NUMERIC,"");
+    qRegisterMetaType<QMap<QString, QString>>("QMap<QString, QString>");
 
     QApplication a(argc, argv);
 
