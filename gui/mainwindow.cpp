@@ -168,7 +168,7 @@ output_Chiller MainWindow::setChilerLayout()
 
 
     // on off
-    cOutputPointers.onoff_button = new QCheckBox("On/Off");
+    cOutputPointers.onoff_button = new QCheckBox("On");
     cOutputPointers.onoff_button->setMaximumHeight(20);
     cOutputPointers.layout->addWidget(cOutputPointers.onoff_button);
 
@@ -207,10 +207,10 @@ output_Chiller* MainWindow::SetChillerOutput(QLayout *pMainLayout, string pName)
     QLabel *label_t_sensor = new QLabel("T(sensor), °C:");
     label_t_sensor->setMinimumSize(size);
     label_layout->addWidget(label_t_sensor);
-    QLabel *label_pressure = new QLabel("P , Pa");
+    QLabel *label_pressure = new QLabel("P, Pa:");
     label_pressure->setMinimumSize(size);
     label_layout->addWidget(label_pressure);
-    QLabel *label_on_off = new QLabel("On/Off");
+    QLabel *label_on_off = new QLabel("On/Off:");
     label_on_off->setMinimumSize(size);
     label_layout->addWidget(label_on_off);
     // add stretchconnect(fControl, SIGNAL(sendOnOff(string,bool)) , this , SLOT(receiveOnOff(string,bool)));
@@ -679,12 +679,18 @@ void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int pId, bool 
         }
     }
     if(pSourceName == "JulaboFP50"){
+        JulaboWrapper* wrapper = dynamic_cast<JulaboWrapper*>(fControl->getGenericInstrObj("JulaboFP50"));
+        JulaboFP50* chiller = wrapper->fJulabo;
         if(pArg){
-//            fControl->getGenericInstrObj(pSourceName)->SetWorkingTemperature(gui_chiller->setTemperature->value());
-//            fControl->getGenericInstrObj(pSourceName)->SetCirculatorOn();
+            gui_chiller->setTemperature->setEnabled(false);
+            
+            chiller->SetWorkingTemperature(gui_chiller->setTemperature->value());
+            chiller->SetCirculatorOn();
         }
         else{
-//            fControl->getGenericInstrObj(pSourceName)->SetCirculatorOff();
+            gui_chiller->setTemperature->setEnabled(true);
+            
+            chiller->SetCirculatorOff();
         }
     }
 }
