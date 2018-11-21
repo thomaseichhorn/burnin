@@ -8,7 +8,6 @@
 
 #include "voltagecontrol/controlttipower.h"
 #include "general/systemcontrollerclass.h"
-#include "general/connectioninterfaceclass.h"
 
 
 class AdditionalThread : public QObject
