@@ -59,8 +59,12 @@ void FP50ComHandler::SendCommand( const char *commandString ) {
     
     // scan command string character wise & write
     singleCharacter = commandString[i];
-    write( fIoPortFileDescriptor, &singleCharacter, 1 );
-
+    ssize_t bytes_written;
+    bytes_written = write( fIoPortFileDescriptor, &singleCharacter, 1 );
+    if ( bytes_written < 0 )
+    {
+      std::cerr << "Problem in writing to FP50ComHandler!" << std::endl;
+    }
   }
 
   // send feed characters
@@ -101,7 +105,7 @@ void FP50ComHandler::ReceiveString( char *receiveString ) {
 /*!
   \internal
 */
-void FP50ComHandler::OpenIoPort( void ) throw (int) {
+void FP50ComHandler::OpenIoPort( void ) noexcept {
 
   // open io port ( read/write | no term control | no DCD line check )
   fIoPortFileDescriptor = open( fIoPort, O_RDWR | O_NOCTTY  | O_NDELAY );
@@ -112,7 +116,6 @@ void FP50ComHandler::OpenIoPort( void ) throw (int) {
               << fIoPort << "." << std::endl;
     std::cerr << "                               (probably it's not user-writable)."
               << std::endl;
-    throw int(-1);
 
   } else {
     // configure port with no delay
@@ -230,8 +233,15 @@ void FP50ComHandler::SendFeedString( void ) {
   // feed string is <NL>
   char feedString = 10;
 
+  ssize_t bytes_written;
+
   // write <CR> and get echo
-  write( fIoPortFileDescriptor, &feedString, 1 );
+  bytes_written = write( fIoPortFileDescriptor, &feedString, 1 );
+
+  if ( bytes_written < 0 )
+  {
+      std::cerr << "Problem in writing to FP50ComHandler!" << std::endl;
+  }
 }
 
 
