@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <HardwareDescription>
-	<!-- section with power control -->
-	<Power>
-		<!-- Low Voltage Section -->
-                <LowVoltage>
-			<VoltageSource name="TTI1" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.180" description="used for something">			
-				<Output output_id="0" Voltage="5" CurrentLimit="0.250"/>
-                                <Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
-                        </VoltageSource>
-                </LowVoltage>
-		<!-- High Voltage Section -->
-		<HighVoltage>
-                        <VoltageSource name="Keithley1" class="Keithley2410" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyS5" description="used for bias">
-				<Output id="0" Voltage="-40" CurrentLimit="1.0"/>		
-			</VoltageSource>
-		</HighVoltage>
-	</Power>
+    <!-- section with power control -->
+    <Power>
+        <!-- Low Voltage Section -->
+        <LowVoltage>
+            <VoltageSource name="TTI1" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.180" description="used for something">         
+                <Output output_id="0" Voltage="5" CurrentLimit="0.250"/>
+                <Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
+            </VoltageSource>
+        </LowVoltage>
+        <!-- High Voltage Section -->
+        <HighVoltage>
+            <VoltageSource name="Keithley2410" class="Keithley2410" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyUSB0" description="used for bias">
+                <Output id="0" Voltage="-40" CurrentLimit="1.0"/>       
+            </VoltageSource>
+        </HighVoltage>
+    </Power>
 
-	<!-- environment section -->
-	<Environment>		
-		<!-- Chiller Section -->
-                <ChillerControl name="JulaboFP50" class="Chiller" type="" connection="rs232" address="/dev/ttyUSB1" description="used to cool done the cooling block" />
-		<!-- Peltier Section -->
-		<PeltierControl>
-			<!-- to be defined -->
-		</PeltierControl>
-		<!--Raspberry  Section -->
-                <RaspberryControl name="fhlthermorasp4" class="Raspberry" type="" connection="ethernet" address="fhlthermorasp4.desy.de" port="50007" description="used for display temperature humidity pressure" >
-			<Sensor sensor="BME680_i2c-0_0x77_temp"/>
-			<Sensor sensor="BME680_i2c-0_0x77_hum"/>
-			<Sensor sensor="BME680_i2c-0_0x77_pres"/>
-			
-		</RaspberryControl>
-	</Environment>
+    <!-- environment section -->
+    <Environment>       
+        <!-- Chiller Section -->
+        <ChillerControl name="JulaboFP50" class="Chiller" type="" connection="rs232" address="/dev/ttyS0" description="used to cool done the cooling block" />
+            <!-- Peltier Section -->
+        <PeltierControl>
+            <!-- to be defined -->
+        </PeltierControl>
+        <!--Raspberry  Section -->
+        <RaspberryControl name="fhlthermorasp" class="Raspberry" type="" connection="ethernet" address="fhlthermorasp1.desy.de" port="50007" description="used for display temperature humidity pressure" >
+            <Sensor sensor="W1_10-0008032b1481_temp"/>
+            <Sensor sensor="DHT11_PIN4_temp"/>
+            <Sensor sensor="DHT11_PIN4_hum"/>
+            <Sensor sensor="SHT75_temp"/>
+            <Sensor sensor="SHT75_hum"/>
+        </RaspberryControl>
+    </Environment>
 </HardwareDescription>
 
- 
