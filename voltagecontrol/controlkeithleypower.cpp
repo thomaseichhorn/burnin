@@ -31,9 +31,44 @@ ControlKeithleyPower::ControlKeithleyPower(string pConnection , string pSetVolt 
 void ControlKeithleyPower::initialize(){
 
     const ioport_t ioPort = fConnection.c_str();
-    comHandler_ = new FP50ComHandler( ioPort );
+    speed_t keithleybaud = B19200;
+    comHandler_ = new FP50ComHandler( ioPort, keithleybaud );
 
 	std::cout << "Created FP50ComHandler on port " << ioPort << " at " << comHandler_ << std::endl;
+	char stringinput[512];
+	char buffer[512];
+	strcpy(stringinput , ":*RST\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+
+	strcpy(stringinput , ":*IDN?\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+
+	// this should be off.
+	// the default checking of the current should query this state and, if off, NOT read the current...
+	strcpy(stringinput , ":OUTPUT1:STATE ON\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+
+	strcpy(stringinput , ":SOURCE:VOLTAGE:RANGE 1000\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+	
+	strcpy(stringinput , ":SENSE:FUNCTION 'CURRENT:DC'\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+
 }
 
 
