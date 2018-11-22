@@ -31,7 +31,11 @@ public:
     string fConnection;
 
     ComHandler* comHandler_;
-    
+
+    bool keithleyOutputOn;
+
+    void setKeithleyOutputState ( int outputsetting );
+    bool getKeithleyOutputState ( );
 };
 
 #endif // CONTROLKEITHLEYPOWER_H
