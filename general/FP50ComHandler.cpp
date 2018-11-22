@@ -31,14 +31,24 @@ FP50ComHandler::FP50ComHandler( const ioport_t ioPort ) {
   // save ioport 
   fIoPort = ioPort;
 
+  // default baud rate
+  speed_t defaultbaud = B9600;
+
   // initialize
   OpenIoPort();
-  InitializeIoPort();
+  InitializeIoPort( defaultbaud );
 }
 
-///
-///
-///
+FP50ComHandler::FP50ComHandler( const ioport_t ioPort, speed_t baud ) {
+
+  // save ioport 
+  fIoPort = ioPort;
+
+  // initialize
+  OpenIoPort();
+  InitializeIoPort( baud );
+}
+
 FP50ComHandler::~FP50ComHandler( void ) {
 
   // restore ioport options as they were
@@ -127,7 +137,7 @@ void FP50ComHandler::OpenIoPort( void ) noexcept {
 /*!
   \internal
 */
-void FP50ComHandler::InitializeIoPort( void ) {
+void FP50ComHandler::InitializeIoPort( speed_t baudrate ) {
 
 #ifndef USE_FAKEIO
 
@@ -142,8 +152,8 @@ void FP50ComHandler::InitializeIoPort( void ) {
   // all these settings copied from stty output..
 
   // baud rate
-  cfsetispeed( &fThisTermios, B9600 );  // input speed
-  cfsetospeed( &fThisTermios, B9600 );  // output speed
+  cfsetispeed( &fThisTermios, baudrate );  // input speed
+  cfsetospeed( &fThisTermios, baudrate );  // output speed
 
   // various settings, 8N1 (no parity, 1 stopbit)
   fThisTermios.c_cflag   &= ~PARENB;

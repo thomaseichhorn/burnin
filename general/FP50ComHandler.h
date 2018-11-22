@@ -42,6 +42,8 @@ class FP50ComHandler {
   //! Constructor.
   FP50ComHandler( ioport_t );
 
+  FP50ComHandler( ioport_t, speed_t );
+
   //! Destructor.
   ~FP50ComHandler();
 
@@ -56,7 +58,7 @@ class FP50ComHandler {
  private:
 
   void OpenIoPort( void ) noexcept;
-  void InitializeIoPort( void );
+  void InitializeIoPort( speed_t baud );
   void RestoreIoPort( void );
   void CloseIoPort( void );
   void SendFeedString( void );
