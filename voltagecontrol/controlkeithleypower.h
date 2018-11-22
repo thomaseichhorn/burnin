@@ -5,7 +5,7 @@
 #include <QThread>
 
 #include "powercontrolclass.h"
-#include "general/FP50ComHandler.h"
+#include "general/ComHandler.h"
 
 class ControlKeithleyPower:public PowerControlClass, public QThread
 {
@@ -30,7 +30,7 @@ public:
     double fCurrCompliance;
     string fConnection;
 
-    FP50ComHandler* comHandler_;
+    ComHandler* comHandler_;
     
 };
 

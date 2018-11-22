@@ -21,7 +21,7 @@
 #include <fstream>
 
 typedef const char* ioport_t;
-class FP50ComHandler;
+class ComHandler;
 class JulaboFP50
 {
  public:
@@ -56,7 +56,7 @@ class JulaboFP50
  private:
 
   void Device_Init( void );
-  FP50ComHandler* comHandler_;
+  ComHandler* comHandler_;
   bool isCommunication_;
 
 };

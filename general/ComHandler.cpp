@@ -10,7 +10,7 @@
 //                                                                             //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "FP50ComHandler.h"
+#include "ComHandler.h"
 
 // SETTINGS ON THE DEVICE:
 // (MENU RS-232)
@@ -26,7 +26,7 @@
   ttyS0 ... ttyS3<br>
   "/dev/ttyS1" ... "/dev/ttyS3"
 */
-FP50ComHandler::FP50ComHandler( const ioport_t ioPort ) {
+ComHandler::ComHandler( const ioport_t ioPort ) {
 
   // save ioport 
   fIoPort = ioPort;
@@ -39,7 +39,7 @@ FP50ComHandler::FP50ComHandler( const ioport_t ioPort ) {
   InitializeIoPort( defaultbaud );
 }
 
-FP50ComHandler::FP50ComHandler( const ioport_t ioPort, speed_t baud ) {
+ComHandler::ComHandler( const ioport_t ioPort, speed_t baud ) {
 
   // save ioport 
   fIoPort = ioPort;
@@ -49,7 +49,7 @@ FP50ComHandler::FP50ComHandler( const ioport_t ioPort, speed_t baud ) {
   InitializeIoPort( baud );
 }
 
-FP50ComHandler::~FP50ComHandler( void ) {
+ComHandler::~ComHandler( void ) {
 
   // restore ioport options as they were
   RestoreIoPort();
@@ -59,7 +59,7 @@ FP50ComHandler::~FP50ComHandler( void ) {
 }
 
 //! Send the command string &lt;commandString&gt; to device.
-void FP50ComHandler::SendCommand( const char *commandString ) {
+void ComHandler::SendCommand( const char *commandString ) {
 
   char singleCharacter = 0;
 
@@ -73,7 +73,7 @@ void FP50ComHandler::SendCommand( const char *commandString ) {
     bytes_written = write( fIoPortFileDescriptor, &singleCharacter, 1 );
     if ( bytes_written < 0 )
     {
-      std::cerr << "Problem in writing to FP50ComHandler!" << std::endl;
+      std::cerr << "Problem in writing to ComHandler!" << std::endl;
     }
   }
 
@@ -91,7 +91,7 @@ void FP50ComHandler::SendCommand( const char *commandString ) {
 
   See example program in class description.
 */
-void FP50ComHandler::ReceiveString( char *receiveString ) {
+void ComHandler::ReceiveString( char *receiveString ) {
 
   usleep( ComHandlerDelay );
 
@@ -116,16 +116,16 @@ void FP50ComHandler::ReceiveString( char *receiveString ) {
 /*!
   \internal
 */
-void FP50ComHandler::OpenIoPort( void ) noexcept {
+void ComHandler::OpenIoPort( void ) noexcept {
 
   // open io port ( read/write | no term control | no DCD line check )
   fIoPortFileDescriptor = open( fIoPort, O_RDWR | O_NOCTTY  | O_NDELAY );
 
   // check if successful
   if ( fIoPortFileDescriptor == -1 ) {
-    std::cerr << "[FP50ComHandler::OpenIoPort] ** ERROR: could not open device file "
+    std::cerr << "[ComHandler::OpenIoPort] ** ERROR: could not open device file "
               << fIoPort << "." << std::endl;
-    std::cerr << "                               (probably it's not user-writable)."
+    std::cerr << "                           (probably it's not user-writable)."
               << std::endl;
 
   } else {
@@ -138,7 +138,7 @@ void FP50ComHandler::OpenIoPort( void ) noexcept {
 /*!
   \internal
 */
-void FP50ComHandler::InitializeIoPort( speed_t baudrate ) {
+void ComHandler::InitializeIoPort( speed_t baudrate ) {
 
 #ifndef USE_FAKEIO
 
@@ -220,7 +220,7 @@ void FP50ComHandler::InitializeIoPort( speed_t baudrate ) {
 /*!
   \internal
 */
-void FP50ComHandler::RestoreIoPort( void ) {
+void ComHandler::RestoreIoPort( void ) {
 
   // restore old com port settings
   tcsetattr( fIoPortFileDescriptor, TCSANOW, &fCurrentTermios );
@@ -230,7 +230,7 @@ void FP50ComHandler::RestoreIoPort( void ) {
 /*!
   \internal
 */
-void FP50ComHandler::CloseIoPort( void ) {
+void ComHandler::CloseIoPort( void ) {
 
   close( fIoPortFileDescriptor );
 }
@@ -239,7 +239,7 @@ void FP50ComHandler::CloseIoPort( void ) {
 /*!
   \internal
 */
-void FP50ComHandler::SendFeedString( void ) {
+void ComHandler::SendFeedString( void ) {
 
   // feed string is <NL>
   char feedString = 10;
@@ -251,7 +251,7 @@ void FP50ComHandler::SendFeedString( void ) {
 
   if ( bytes_written < 0 )
   {
-      std::cerr << "Problem in writing to FP50ComHandler!" << std::endl;
+      std::cerr << "Problem in writing to ComHandler!" << std::endl;
   }
 }
 

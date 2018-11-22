@@ -17,7 +17,7 @@
 #include <utility>
 #include <fstream>
 
-#include "FP50ComHandler.h"
+#include "ComHandler.h"
 
 #include "JulaboFP50.h"
 
@@ -32,7 +32,7 @@
 JulaboFP50::JulaboFP50( const ioport_t ioPort )
 
 {
-  comHandler_ = new FP50ComHandler( ioPort );
+  comHandler_ = new ComHandler( ioPort );
   isCommunication_ = false;
   Device_Init();
 }

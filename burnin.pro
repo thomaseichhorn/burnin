@@ -35,7 +35,7 @@ LIBS += -L/usr/local/lib/ -llxi
 SOURCES += \
     additional/additionalthread.cpp \
     additional/hwdescriptionparser.cpp \
-    general/FP50ComHandler.cpp \
+    general/ComHandler.cpp \
     general/JulaboFP50.cpp \
     general/thermorasp.cpp \
     general/daqcontrolclass.cpp \
@@ -80,6 +80,6 @@ HEADERS += \
     voltagecontrol/controlkeithleypower.h \
     voltagecontrol/controlttipower.h \
     voltagecontrol/powercontrolclass.h \
-    general/FP50ComHandler.h \
+    general/ComHandler.h \
     general/JulaboFP50.h \
     general/julabowrapper.h
