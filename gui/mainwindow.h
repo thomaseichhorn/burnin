@@ -91,8 +91,6 @@ private slots:
 
     void on_read_conf_button_clicked();
 
-    void on_init_button_clicked();
-
 private:
     Ui::MainWindow *ui;
     int fRowClicked;

@@ -53,7 +53,7 @@ FP50ComHandler::~FP50ComHandler( void ) {
 
   // restore ioport options as they were
   RestoreIoPort();
-  
+
   // close device file
   CloseIoPort();
 }
@@ -62,11 +62,11 @@ FP50ComHandler::~FP50ComHandler( void ) {
 void FP50ComHandler::SendCommand( const char *commandString ) {
 
   char singleCharacter = 0;
-  
+
   std::cout << "Command to " << fIoPort << ": " << commandString << std::endl;
 
   for ( unsigned int i = 0; i < strlen( commandString ); i++ ) {
-    
+
     // scan command string character wise & write
     singleCharacter = commandString[i];
     ssize_t bytes_written;
@@ -105,10 +105,11 @@ void FP50ComHandler::ReceiveString( char *receiveString ) {
       receiveString[readResult] = 0;
       break;
     }
-    
+
     timeout++;
 
   }
+  std::cout << "Read from  " << fIoPort << ": " << receiveString << std::endl;
 }
 
 //! Open I/O port.
