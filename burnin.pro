@@ -7,7 +7,7 @@
 QT       += core gui widgets
 QT       += network
 
-TARGET = Burn-InSetupControlSoftwate
+TARGET = burnin
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -23,13 +23,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+OBJECTS_DIR = obj
+MOC_DIR = obj
+UI_HEADERS_DIR = obj
+UI_SOURCES_DIR = obj
+UI_DIR = obj
+
 #unix:
 LIBS += -L/usr/local/lib/ -llxi
 
 SOURCES += \
     additional/additionalthread.cpp \
     additional/hwdescriptionparser.cpp \
-    general/FP50ComHandler.cpp \
+    general/ComHandler.cpp \
     general/JulaboFP50.cpp \
     general/thermorasp.cpp \
     general/daqcontrolclass.cpp \
@@ -53,8 +59,8 @@ FORMS += \
     gui/mainwindow.ui
 
 # Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
+qnx: target.path = /tmp/$${TARGET}/
+else: unix:!android: target.path = /opt/$${TARGET}/
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
@@ -74,19 +80,6 @@ HEADERS += \
     voltagecontrol/controlkeithleypower.h \
     voltagecontrol/controlttipower.h \
     voltagecontrol/powercontrolclass.h \
-    additional/additionalthread.h \
-    additional/hwdescriptionparser.h \
-    general/FP50ComHandler.h \
+    general/ComHandler.h \
     general/JulaboFP50.h \
-    general/thermorasp.h \
-    general/daqcontrolclass.h \
-    general/databaseinterfaceclass.h \
-    general/environmentcontrolclass.h \
-    general/genericinstrumentclass.h \
-    general/systemcontrollerclass.h \
-    gui/additionalwindow.h \
-    gui/mainwindow.h \
-    voltagecontrol/controlkeithleypower.h \
-    voltagecontrol/controlttipower.h \
-    voltagecontrol/powercontrolclass.h \
     general/julabowrapper.h

@@ -1,2 +1,7 @@
 *.pro.user
 *.autosave
+Makefile
+obj/*
+ui_*
+.qmake.stash
+burnin

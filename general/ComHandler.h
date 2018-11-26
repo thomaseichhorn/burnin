@@ -10,8 +10,8 @@
 //                                                                             //
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef _FP50COMHANDLER_H_
-#define _FP50COMHANDLER_H_
+#ifndef _COMHANDLER_H_
+#define _COMHANDLER_H_
 
 #include <termios.h>
 #include <string.h>
@@ -35,18 +35,20 @@
 typedef const char* ioport_t;
 typedef struct termios termios_t;
 
-class FP50ComHandler {
+class ComHandler {
 
  public:
   
   //! Constructor.
-  FP50ComHandler( ioport_t );
+  ComHandler( ioport_t );
+
+  ComHandler( ioport_t, speed_t );
 
   //! Destructor.
-  ~FP50ComHandler();
+  ~ComHandler();
 
   //! Default bitwise copy constructor.
-  FP50ComHandler( const FP50ComHandler& );
+  ComHandler( const ComHandler& );
 
   void SendCommand( const char* );
   void ReceiveString( char* );
@@ -55,8 +57,8 @@ class FP50ComHandler {
 
  private:
 
-  void OpenIoPort( void ) throw (int);
-  void InitializeIoPort( void );
+  void OpenIoPort( void ) noexcept;
+  void InitializeIoPort( speed_t baud );
   void RestoreIoPort( void );
   void CloseIoPort( void );
   void SendFeedString( void );

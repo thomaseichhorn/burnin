@@ -107,6 +107,7 @@ void SystemControllerClass::startDoingList()
 void SystemControllerClass::setTemperature(double pTemp)
 {
 //    getGenericInstrObj("JulaboFP50")->SetWorkingTemperature(pTemp);
+    std::cout << "Unused call to  SystemControllerClass::setTemperature with " << pTemp << std::endl;
 
 }
 

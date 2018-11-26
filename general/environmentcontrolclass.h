@@ -3,7 +3,6 @@
 #define ENVIRONMENTCONTROLCLASS_H
 
 
-#include "connectioninterfaceclass.h"
 #include "genericinstrumentclass.h"
 
 class EnvironmentControlClass:public GenericInstrumentClass

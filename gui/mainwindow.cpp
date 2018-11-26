@@ -58,7 +58,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // default disabled everything
     ui->tabWidget->setEnabled(false);
-    ui->init_button->setEnabled(false);
     ui->Down_pushButton->setEnabled(false);
     ui->Up_pushButton->setEnabled(false);
     ui->Start_pushButton->setEnabled(false);
@@ -845,17 +844,9 @@ void MainWindow::on_read_conf_button_clicked()
     // enable gui
     if (cSuccess) {
         // enable back
-        ui->init_button->setEnabled(true);
         ui->tabWidget->setEnabled(true);
+	this->initHard();
+	ui->Start_pushButton->setEnabled(true);
     }
 }
 
-void MainWindow::on_init_button_clicked()
-{
-    // init hard
-    this->initHard();
-
-    // disable init
-    ui->init_button->setEnabled(false);
-    ui->Start_pushButton->setEnabled(true);
-}

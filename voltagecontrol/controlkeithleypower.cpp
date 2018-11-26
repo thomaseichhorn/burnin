@@ -31,14 +31,16 @@ ControlKeithleyPower::ControlKeithleyPower(string pConnection , string pSetVolt 
 void ControlKeithleyPower::initialize(){
 
     const ioport_t ioPort = fConnection.c_str();
-    comHandler_ = new FP50ComHandler( ioPort );
-
-	std::cout << "Created FP50ComHandler on port " << ioPort << " at " << comHandler_ << std::endl;
+    speed_t keithleybaud = B19200;
+    comHandler_ = new ComHandler( ioPort, keithleybaud );
+    std::cout << "Created ComHandler on port " << ioPort << " at " << comHandler_ << std::endl;
+    setKeithleyOutputState ( 0 );
 }
 
 
 void ControlKeithleyPower::onPower(int)
 {
+    setKeithleyOutputState ( 1 );
     sweepVolt(fVoltSet);
     QThread::sleep(1);
 }
@@ -46,6 +48,7 @@ void ControlKeithleyPower::onPower(int)
 void ControlKeithleyPower::offPower(int)
 {
     sweepVolt(0);
+    setKeithleyOutputState ( 0 );
 }
 
 void ControlKeithleyPower::setVolt(double pVoltage , int)
@@ -92,16 +95,30 @@ PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
 {
     PowerControlClass::fVACvalues *cObject = new PowerControlClass::fVACvalues();
 
-    checkVAC();
+    if ( getKeithleyOutputState ( ) )
+    {
+	checkVAC();
 
-    cObject->pVSet1 = fVoltSet;
-    cObject->pISet1 = fCurrCompliance;
-    cObject->pVApp1 = fVolt;
-    cObject->pIApp1 = fCurr;
-    cObject->pVSet2 = 0;
-    cObject->pISet2 = 0;
-    cObject->pVApp2 = 0;
-    cObject->pIApp2 = 0;
+	cObject->pVSet1 = fVoltSet;
+	cObject->pISet1 = fCurrCompliance;
+	cObject->pVApp1 = fVolt;
+	cObject->pIApp1 = fCurr;
+	cObject->pVSet2 = 0;
+	cObject->pISet2 = 0;
+	cObject->pVApp2 = 0;
+	cObject->pIApp2 = 0;
+    }
+    else
+    {
+	cObject->pVSet1 = 0;
+	cObject->pISet1 = 0;
+	cObject->pVApp1 = 0;
+	cObject->pIApp1 = 0;
+	cObject->pVSet2 = 0;
+	cObject->pISet2 = 0;
+	cObject->pVApp2 = 0;
+	cObject->pIApp2 = 0;
+    }
 
     return cObject;
 
@@ -134,4 +151,60 @@ void ControlKeithleyPower::checkVAC()
 void ControlKeithleyPower::closeConnection()
 {
 
+}
+
+void ControlKeithleyPower::setKeithleyOutputState ( int outputsetting )
+{
+    if ( outputsetting == 0 )
+    {
+	char stringinput[512];
+	char buffer[512];
+	strcpy(stringinput , ":OUTPUT1:STATE OFF\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+	keithleyOutputOn = false;
+    }
+    else if ( outputsetting == 1 )
+    {
+	char stringinput[512];
+	char buffer[512];
+	strcpy(stringinput , ":*RST\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+
+	strcpy(stringinput , ":*IDN?\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+
+	strcpy(stringinput , ":OUTPUT1:STATE ON\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+
+	strcpy(stringinput , ":SOURCE:VOLTAGE:RANGE 1000\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+	
+	strcpy(stringinput , ":SENSE:FUNCTION 'CURRENT:DC'\r\n");
+	comHandler_->SendCommand(stringinput);
+	comHandler_->ReceiveString(buffer);
+	std::cout << buffer << std::endl;
+	usleep(1000);
+
+	keithleyOutputOn = true;
+    }
+}
+
+bool ControlKeithleyPower::getKeithleyOutputState ( )
+{
+    return ( keithleyOutputOn );
 }
