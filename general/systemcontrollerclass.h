@@ -54,6 +54,7 @@ public:
     void ParseVSources();
     void ParseRaspberry();
 
+    int countIntrument(string instrument_name);
     PowerControlClass* getObject(string pStr);
     GenericInstrumentClass* getGenericInstrObj(string pStr);
     vector<string> getSourceNameVec();

@@ -214,6 +214,10 @@ void SystemControllerClass::ParseChiller()
     }
 }
 
+int SystemControllerClass::countIntrument(string instrument_name) {
+    return fGenericInstrumentMap.count(instrument_name);
+}
+
 GenericInstrumentClass* SystemControllerClass::getGenericInstrObj(string pStr)
 {
     return fGenericInstrumentMap[pStr];
