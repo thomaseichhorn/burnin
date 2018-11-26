@@ -850,3 +850,12 @@ void MainWindow::on_read_conf_button_clicked()
     }
 }
 
+void MainWindow::app_quit() {
+    // Set chillder temperature and turn off
+    if (fControl->countIntrument("JulaboFP50") > 0) {
+        JulaboWrapper* wrapper = dynamic_cast<JulaboWrapper*>(fControl->getGenericInstrObj("JulaboFP50"));
+        JulaboFP50* chiller = wrapper->fJulabo;
+        chiller->SetWorkingTemperature(20);
+        chiller->SetCirculatorOff();
+    }
+}

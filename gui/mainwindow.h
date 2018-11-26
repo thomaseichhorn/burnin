@@ -90,6 +90,8 @@ private slots:
     bool readXmlFile();
 
     void on_read_conf_button_clicked();
+    
+    void app_quit();
 
 private:
     Ui::MainWindow *ui;
