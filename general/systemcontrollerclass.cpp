@@ -76,8 +76,9 @@ void SystemControllerClass::startDoingList()
         double cValue = (*cIter).cValue;
         if(cStr == "Set Temperature (°C)"){
            // moveToThread(cThread);
-            connect(cThread, &QThread::started, [this, cValue]
-            {this->setTemperature(cValue);});
+            connect(cThread, &QThread::started, [this, cValue] {
+                dynamic_cast<JulaboWrapper*>(this->getGenericInstrObj("JulaboFP50"))->fJulabo->SetWorkingTemperature(cValue);
+            });
             cThread->start();
         }
         if(cStr == "Wait (Sec)"){
@@ -102,13 +103,6 @@ void SystemControllerClass::startDoingList()
             }
         }
     }
-}
-
-void SystemControllerClass::setTemperature(double pTemp)
-{
-//    getGenericInstrObj("JulaboFP50")->SetWorkingTemperature(pTemp);
-    std::cout << "Unused call to  SystemControllerClass::setTemperature with " << pTemp << std::endl;
-
 }
 
 void SystemControllerClass::wait(double pTime)
@@ -246,30 +240,3 @@ vector<string> SystemControllerClass::getSourceNameVec()
 {
     return fNamesVoltageSources;
 }
-
-//returns a string for connection to power supply
-string SystemControllerClass::getTypeOfConnection(string pConnection, string pAddress , string pPort)
-{
-    string cStr;
-
-    if(pConnection == "ethernet")
-       cStr = "TCPIP::" + pAddress + "::" + pPort + "::SOCKET";
-
-
-    if(pConnection == "rs232"){
-        size_t cPos = pAddress.find('S');
-        pAddress = pAddress[cPos+1];
-        int cNum = stoi(pAddress);
-        pAddress = to_string(cNum + 1);
-        cStr = "ASRL" + pAddress + "::INSTR";
-        }
-    return cStr;
-}
-
-void SystemControllerClass::closeConneections()
-{
-    for(size_t i = 0 ; i != fNamesVoltageSources.size() ; i++){
-        getObject(fNamesVoltageSources[i])->closeConnection();
-    }
-}
-

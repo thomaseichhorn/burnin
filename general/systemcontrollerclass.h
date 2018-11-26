@@ -49,7 +49,6 @@ public:
     void ReadXmlFile(std::string pFileName);
     void startDoingList();
     void Wait(int pSec);
-    void closeConneections();
 
     void ParseChiller();
     void ParseVSources();
@@ -61,10 +60,8 @@ public:
     vector<QString>* readFile();
 
 private:
-    string getTypeOfConnection(string pConnection , string pAddress, string pPort);
 
 private slots:
-    void setTemperature(double pTemp);
     void wait(double pTime);
     void onPower(string pSourceName);
     void offPower(string pSourceName);
