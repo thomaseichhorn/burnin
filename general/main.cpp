@@ -2,6 +2,10 @@
 #include "systemcontrollerclass.h"
 #include <QApplication>
 
+extern "C" {
+	#include "lxi.h"
+}
+
 #include <vector>
 #include <iostream>
 #include <locale>
@@ -14,6 +18,7 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL,"");
     setlocale(LC_NUMERIC,"");
     qRegisterMetaType<QMap<QString, QString>>("QMap<QString, QString>");
+    lxi_init();
 
     QApplication a(argc, argv);
 

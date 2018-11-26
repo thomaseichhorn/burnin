@@ -32,8 +32,6 @@ void ControlTTiPower::initialize()
 {
     int pPort = 9221;
 
-    lxi_init();
-
     // Current installed lxi version accepts char* instead of const char*
     // Make a non-const copy as a workaround
     char* pConn = new char[fConnection.length() + 1];

@@ -14,11 +14,19 @@ AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pContro
 //sends info from TTi to thread
 void AdditionalThread::getVAC()
 {
+    const vector<string> sources = fAddControl->getSourceNameVec();
     while (true) {
         PowerControlClass *cPowerObj;
-        cPowerObj = dynamic_cast<PowerControlClass*>(fAddControl->getGenericInstrObj("TTI1"));
-        if (cPowerObj != nullptr) {
-            emit sendToThread(cPowerObj->getVoltAndCurr());
+        int dev_num = 0;
+        for (const string& name: sources) {
+            if (name.substr(0, 3) != "TTI")
+                continue;
+            
+            cPowerObj = dynamic_cast<PowerControlClass*>(fAddControl->getGenericInstrObj(name));
+            if (cPowerObj != nullptr) {
+                emit sendToThread(cPowerObj->getVoltAndCurr(), dev_num);
+            }
+            ++dev_num;
         }
         QThread::sleep(2);
     }

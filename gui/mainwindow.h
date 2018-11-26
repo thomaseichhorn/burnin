@@ -69,7 +69,7 @@ private slots:
 
     void updateRaspWidget(QMap<QString, QString>);
 
-    void updateTTiIWidget(PowerControlClass::fVACvalues *pObject);
+    void updateTTiIWidget(PowerControlClass::fVACvalues *pObject, int dev_num);
 
     void updateKeithleyWidget(PowerControlClass::fVACvalues *pObject);
 
@@ -128,7 +128,7 @@ private:
 
     void on_V_set_doubleSpinBox_valueChanged(string pSourceName , int pId , double pVolt);
 
-    void on_OnOff_button_stateChanged(string pSourceName , int pId , bool pArg);
+    void on_OnOff_button_stateChanged(string pSourceName, int dev_num, int pId, bool pArg);
 
     void on_I_set_doubleSpinBox_valueChanged(string pSourceName , int pId, double pCurr);
 

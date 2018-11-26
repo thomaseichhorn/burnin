@@ -17,7 +17,7 @@ public:
     AdditionalThread(QString pName , SystemControllerClass *pControl);
 
 signals:
-    void sendToThread(PowerControlClass::fVACvalues *);
+    void sendToThread(PowerControlClass::fVACvalues *, int dev_num);
     void sendToThreadKeithley(PowerControlClass::fVACvalues *);
     void updatedThermorasp(QMap<QString, QString>);
     void volt();
