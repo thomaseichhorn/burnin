@@ -15,7 +15,7 @@ class ControlTTiPower:public PowerControlClass
 {
 
 public:
-    ControlTTiPower(string pConnection , vector<string> pId , vector<string> pVolt , vector<string> pCurr);
+    ControlTTiPower(string pAddress, int pPort, vector<double> pVolt, vector<double> pCurr);
 
     int fId;
 
@@ -28,10 +28,8 @@ public:
     void offPower(int pId);
     void closeConnection();
 
-    string fConnection;
-
-    int fId1;
-    int fId2;
+    string fAddress;
+    int fPort;
 
     int fDevice;
     

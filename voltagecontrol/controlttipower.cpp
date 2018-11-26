@@ -13,39 +13,33 @@ using namespace std;
 const int cTimeOut = 1000;
 const int BUFLEN = 256;
 
-ControlTTiPower::ControlTTiPower(string pConnection , vector<string> pId , vector<string> pVolt, vector<string> pCurr)
+ControlTTiPower::ControlTTiPower(string pAddress, int pPort, vector<double> pVolt, vector<double> pCurr)
 {
-    fConnection = pConnection;
-
-    fId1 = QString::fromStdString(pId[0]).toInt() + 1;
-    fId2 = QString::fromStdString(pId[1]).toInt() + 1;
-
+    fAddress = pAddress;
+    fPort = pPort;
+    
     fDevice = 0;
     
-    for(size_t i = 0; i != pVolt.size(); i++){
-        fVoltSet.push_back(stod(pVolt[i]));
-        fCurrSet.push_back(stod(pCurr[i]));
-    }
+    fVoltSet = pVolt;
+    fCurrSet = pCurr;
 }
 
 void ControlTTiPower::initialize()
 {
-    int pPort = 9221;
-
     // Current installed lxi version accepts char* instead of const char*
     // Make a non-const copy as a workaround
-    char* pConn = new char[fConnection.length() + 1];
-    strcpy(pConn, fConnection.c_str());
-    fDevice = lxi_connect(pConn, pPort, NULL, cTimeOut, RAW);
+    char* pConn = new char[fAddress.length() + 1];
+    strcpy(pConn, fAddress.c_str());
+    fDevice = lxi_connect(pConn, fPort, NULL, cTimeOut, RAW);
     delete[] pConn;
     
     if (fDevice == -1) {
-        std::cerr << "Could not open ControlTTiPower on " << fConnection << " and port " << pPort << std::endl;
+        std::cerr << "Could not open ControlTTiPower on " << fAddress << " and port " << fPort << std::endl;
     }
 
-    for(size_t i = 0; i!= fVoltSet.size(); i++){
-        setVolt(fVoltSet[i], i);
-        setCurr(fCurrSet[i], i);
+    for (int i = 0; i < 2; ++i) {
+        setVolt(fVoltSet[i], i + 1);
+        setCurr(fCurrSet[i], i + 1);
     }
 }
 
@@ -105,6 +99,7 @@ PowerControlClass::fVACvalues* ControlTTiPower::getVoltAndCurr()
 
     }
 
+    QThread::msleep(50); // Sometimes the TTis need a bit of time to respond to all four requests.
     int len;
     if ((len = lxi_receive(fDevice, cBuff, sizeof(cBuff), cTimeOut)) == LXI_ERROR) {
         std::cerr << "ControlTTiPower::getVoltAndCurr: Could not receive values." << std::endl;
@@ -113,7 +108,7 @@ PowerControlClass::fVACvalues* ControlTTiPower::getVoltAndCurr()
         return nullptr;
     }
     
-    cBuff[255] = 0;
+    cBuff[len] = 0;
 
     QString pStr = QString(cBuff);
     string cStr = pStr.toStdString();

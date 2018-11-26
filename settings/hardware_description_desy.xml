@@ -5,12 +5,12 @@
         <!-- Low Voltage Section -->
         <LowVoltage>
             <VoltageSource name="TTI1" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.180" description="used for something">
-                <Output output_id="0" Voltage="5" CurrentLimit="0.250"/>
-                <Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
+                <Output Voltage="3" CurrentLimit="0.250"/>
+                <Output Voltage="4" CurrentLimit="0.250"/>
             </VoltageSource>
             <VoltageSource name="TTI2" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.181" description="used for something">
-                <Output output_id="0" Voltage="5" CurrentLimit="0.250"/>
-                <Output output_id="1" Voltage="6" CurrentLimit="0.250"/>
+                <Output Voltage="5" CurrentLimit="0.250"/>
+                <Output Voltage="6" CurrentLimit="0.250"/>
             </VoltageSource>
         </LowVoltage>
         <!-- High Voltage Section -->

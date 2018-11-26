@@ -372,12 +372,21 @@ void MainWindow::doListOfCommands()
 //reads out TTi once and creates a new thread to take info from TTi
 void MainWindow::getVoltAndCurr()
 {
-    ControlTTiPower* ttidev = dynamic_cast<ControlTTiPower*>(fControl->getGenericInstrObj("TTI1"));
-    PowerControlClass::fVACvalues* vals = ttidev->getVoltAndCurr();
-    gui_pointers_low_voltage[0][1].i_set->setValue(vals->pISet1);
-    gui_pointers_low_voltage[0][1].v_set->setValue(vals->pVSet1);
-    gui_pointers_low_voltage[0][0].i_set->setValue(vals->pISet2);
-    gui_pointers_low_voltage[0][0].v_set->setValue(vals->pVSet2);
+    const vector<string> sources = fControl->getSourceNameVec();
+    int dev_num = 0;
+    for (const string& name: sources) {
+        if (name.substr(0, 3) != "TTI")
+            continue;
+            
+        ControlTTiPower* ttidev = dynamic_cast<ControlTTiPower*>(fControl->getGenericInstrObj(name));
+        PowerControlClass::fVACvalues* vals = ttidev->getVoltAndCurr();
+        std::cout << "gui_pointers_low_voltage[" << dev_num << "] " << vals->pISet1 << " " << vals->pVSet1 << " " << vals->pISet2 << " " << vals->pVSet2 << endl;
+        gui_pointers_low_voltage[dev_num][1].i_set->setValue(vals->pISet1);
+        gui_pointers_low_voltage[dev_num][1].v_set->setValue(vals->pVSet1);
+        gui_pointers_low_voltage[dev_num][0].i_set->setValue(vals->pISet2);
+        gui_pointers_low_voltage[dev_num][0].v_set->setValue(vals->pVSet2);
+        ++dev_num;
+    }
     
     AdditionalThread *cThread  = new AdditionalThread("A", fControl);
     QThread *cQThread = new QThread();

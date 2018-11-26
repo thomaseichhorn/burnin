@@ -124,29 +124,28 @@ void SystemControllerClass::offPower(string pSourceName)
 //reads file and makes map with name and object of power supply
 void SystemControllerClass::ParseVSources()
 {
-    string cConnection , cSetVolt , cSetCurr , cAddress , cPort, cnOutputs;
-    //vectors for id , voltage and current
-    vector<string> cId;
-    vector<string> cVolt;
-    vector<string> cCurr;
+    string cConnection, cSetVolt, cSetCurr, cAddress;
 
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].typeOfClass == "LowVoltageSource"){
 
             if(fHWDescription[i].classOfInstr == "TTI"){
+                int cPort;
+                vector<double> cVolt(2, 0);
+                vector<double> cCurr(2, 0);
+                
                 cConnection = fHWDescription[i].interface_settings["connection"];
                 cAddress = fHWDescription[i].interface_settings["address"];
-                cPort = fHWDescription[i].interface_settings["port"];
+                cPort = stoi(fHWDescription[i].interface_settings["port"]);
 
-                for(size_t j = 0 ; j != fHWDescription[i].operational_settings.size() ; j++){
-
-                    cId.push_back(fHWDescription[i].operational_settings[j]["output_id"]);
-                    cVolt.push_back(fHWDescription[i].operational_settings[j]["Voltage"]);
-                    cCurr.push_back(fHWDescription[i].operational_settings[j]["CurrentLimit"]);
-
+                int opset_size = fHWDescription[i].operational_settings.size();
+                for (int j = 0; j < min(2, opset_size); ++j) {
+                    cVolt[1 - j] = stod(fHWDescription[i].operational_settings[j]["Voltage"]);
+                    cCurr[1 - j] = stod(fHWDescription[i].operational_settings[j]["CurrentLimit"]);
                 }
-                PowerControlClass *fPowerLow = new ControlTTiPower(cAddress , cId , cVolt, cCurr);
+                PowerControlClass *fPowerLow = new ControlTTiPower(cAddress, cPort, cVolt, cCurr);
+                
                 fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerLow));
                 fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerLow));
                 fNamesVoltageSources.push_back(fHWDescription[i].name);
@@ -160,7 +159,6 @@ void SystemControllerClass::ParseVSources()
             if(fHWDescription[i].classOfInstr == "Keithley2410"){
                 cConnection = fHWDescription[i].interface_settings["connection"];
                 cAddress = fHWDescription[i].interface_settings["address"];
-                cPort = fHWDescription[i].interface_settings["port"];
                 cSetVolt = fHWDescription[i].operational_settings[0]["Voltage"];
                 cSetCurr = fHWDescription[i].operational_settings[0]["CurrentLimit"];
                 PowerControlClass *fPowerHigh = new ControlKeithleyPower(cAddress, cSetVolt, cSetCurr);
