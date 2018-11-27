@@ -124,7 +124,7 @@ void SystemControllerClass::offPower(string pSourceName)
 //reads file and makes map with name and object of power supply
 void SystemControllerClass::ParseVSources()
 {
-    string cConnection, cSetVolt, cSetCurr, cAddress;
+    string cConnection, cAddress;
 
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
@@ -157,10 +157,12 @@ void SystemControllerClass::ParseVSources()
         if(fHWDescription[i].typeOfClass == "HighVoltageSource"){
 
             if(fHWDescription[i].classOfInstr == "Keithley2410"){
+                double cSetVolt, cSetCurr;
+                
                 cConnection = fHWDescription[i].interface_settings["connection"];
                 cAddress = fHWDescription[i].interface_settings["address"];
-                cSetVolt = fHWDescription[i].operational_settings[0]["Voltage"];
-                cSetCurr = fHWDescription[i].operational_settings[0]["CurrentLimit"];
+                cSetVolt = stod(fHWDescription[i].operational_settings[0]["Voltage"]);
+                cSetCurr = stod(fHWDescription[i].operational_settings[0]["CurrentLimit"]);
                 PowerControlClass *fPowerHigh = new ControlKeithleyPower(cAddress, cSetVolt, cSetCurr);
                 fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerHigh));
                 fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerHigh));

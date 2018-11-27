@@ -16,7 +16,7 @@
         <!-- High Voltage Section -->
         <HighVoltage>
             <VoltageSource name="Keithley2410" class="Keithley2410" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyUSB0" description="used for bias">
-                <Output id="0" Voltage="-40" CurrentLimit="1.0"/>       
+                <Output Voltage="-40" CurrentLimit="1.0"/>
             </VoltageSource>
         </HighVoltage>
     </Power>

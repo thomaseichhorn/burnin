@@ -412,7 +412,7 @@ void MainWindow::getVoltAndCurrKeithley()
     ControlKeithleyPower* keihleydev = dynamic_cast<ControlKeithleyPower*>(fControl->getGenericInstrObj("Keithley2410"));
     PowerControlClass::fVACvalues* vals = keihleydev->getVoltAndCurr();
     gui_pointers_high_voltage[0]->i_set->setValue(vals->pISet1);
-    //gui_pointers_high_voltage[0]->v_set->setValue(vals->pVSet1);
+    gui_pointers_high_voltage[0]->v_set->setValue(vals->pVSet1);
     
     AdditionalThread *cThread  = new AdditionalThread("C", fControl);
     QThread *cQThread = new QThread();

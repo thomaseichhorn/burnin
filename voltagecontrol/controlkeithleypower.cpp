@@ -19,11 +19,11 @@
 
 using namespace std;
 
-ControlKeithleyPower::ControlKeithleyPower(string pConnection , string pSetVolt , string pSetCurr)
+ControlKeithleyPower::ControlKeithleyPower(string pConnection, double pSetVolt, double pSetCurr)
 {
     fConnection = pConnection;
-    fVoltSet = QString::fromStdString(pSetVolt).toDouble();
-    fCurrCompliance = QString::fromStdString(pSetCurr).toDouble();
+    fVoltSet = pSetVolt;
+    fCurrCompliance = pSetCurr;
 //    set the number of steps
     fStep = 10;
 }
@@ -35,6 +35,7 @@ void ControlKeithleyPower::initialize(){
     comHandler_ = new ComHandler( ioPort, keithleybaud );
     std::cout << "Created ComHandler on port " << ioPort << " at " << comHandler_ << std::endl;
     setKeithleyOutputState ( 0 );
+    setCurr(fCurrCompliance);
 }
 
 
@@ -95,13 +96,14 @@ PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
 {
     PowerControlClass::fVACvalues *cObject = new PowerControlClass::fVACvalues();
     memset(cObject, 0, sizeof(PowerControlClass::fVACvalues));
+    
+    cObject->pVSet1 = fVoltSet;
+    cObject->pISet1 = fCurrCompliance;
 
     if ( getKeithleyOutputState ( ) )
     {
 	checkVAC();
 
-	cObject->pVSet1 = fVoltSet;
-	cObject->pISet1 = fCurrCompliance;
 	cObject->pVApp1 = fVolt;
 	cObject->pIApp1 = fCurr;
     }
