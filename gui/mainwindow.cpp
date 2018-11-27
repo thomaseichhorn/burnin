@@ -854,8 +854,9 @@ void MainWindow::on_read_conf_button_clicked()
     if (cSuccess) {
         // enable back
         ui->tabWidget->setEnabled(true);
-	this->initHard();
-	ui->Start_pushButton->setEnabled(true);
+        this->initHard();
+        ui->Start_pushButton->setEnabled(true);
+        ui->read_conf_button->setEnabled(false);
     }
 }
 
