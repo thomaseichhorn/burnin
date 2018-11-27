@@ -18,6 +18,7 @@
 #include "ui_mainwindow.h"
 #include "additional/additionalthread.h"
 #include "general/julabowrapper.h"
+#include "general/BurnInException.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -847,14 +848,23 @@ bool MainWindow::readXmlFile()
 
 void MainWindow::on_read_conf_button_clicked()
 {
-    // read the xml file
-    bool cSuccess = this->readXmlFile();
+    bool cSuccess = false;
+    try {
+        // read the xml file
+        cSuccess = readXmlFile();
 
-    // enable gui
+        // enable gui
+        if (cSuccess)
+            initHard();
+    } catch (BurnInException e) {
+        QMessageBox dialog(this);
+        dialog.critical(this, "Error", QString::fromStdString(e.what()));
+        cSuccess = false;
+    }
+    
     if (cSuccess) {
         // enable back
         ui->tabWidget->setEnabled(true);
-        this->initHard();
         ui->Start_pushButton->setEnabled(true);
         ui->read_conf_button->setEnabled(false);
     }

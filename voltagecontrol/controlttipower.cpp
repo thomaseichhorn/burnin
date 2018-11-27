@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 
+#include "general/BurnInException.h"
 
 using namespace std;
 
@@ -33,8 +34,10 @@ void ControlTTiPower::initialize()
     fDevice = lxi_connect(pConn, fPort, NULL, cTimeOut, RAW);
     delete[] pConn;
     
-    if (fDevice == -1)
+    if (fDevice == -1) {
         std::cerr << "Could not open ControlTTiPower on " << fAddress << " and port " << fPort << std::endl;
+        throw BurnInException("Could not open ControlTTiPower");
+    }
 
     for (int i = 0; i < 2; ++i) {
         setVolt(fVoltSet[i], i + 1);

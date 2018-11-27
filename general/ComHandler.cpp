@@ -11,6 +11,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "ComHandler.h"
+#include "BurnInException.h"
 
 // SETTINGS ON THE DEVICE:
 // (MENU RS-232)
@@ -128,7 +129,8 @@ void ComHandler::OpenIoPort( void ) noexcept {
               << fIoPort << "." << std::endl;
     std::cerr << "                           (probably it's not user-writable)."
               << std::endl;
-
+    throw BurnInException("[ComHandler::OpenIoPort] ** ERROR: could not open device file");
+    
   } else {
     // configure port with no delay
     fcntl( fIoPortFileDescriptor, F_SETFL, FNDELAY );
