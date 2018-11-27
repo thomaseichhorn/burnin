@@ -17,7 +17,7 @@ ControlTTiPower::ControlTTiPower(string pAddress, int pPort, vector<double> pVol
 {
     fAddress = pAddress;
     fPort = pPort;
-    
+
     fDevice = 0;
     
     fVoltSet = pVolt;
@@ -33,9 +33,8 @@ void ControlTTiPower::initialize()
     fDevice = lxi_connect(pConn, fPort, NULL, cTimeOut, RAW);
     delete[] pConn;
     
-    if (fDevice == -1) {
+    if (fDevice == -1)
         std::cerr << "Could not open ControlTTiPower on " << fAddress << " and port " << fPort << std::endl;
-    }
 
     for (int i = 0; i < 2; ++i) {
         setVolt(fVoltSet[i], i + 1);
@@ -84,6 +83,7 @@ void ControlTTiPower::offPower(int pId)
 PowerControlClass::fVACvalues* ControlTTiPower::getVoltAndCurr()
 {
     fVACvalues *cObject = new fVACvalues;
+    memset(cObject, 0, sizeof(fVACvalues));
     char cBuff[256];
     char cCommand[BUFLEN];
 
@@ -98,8 +98,8 @@ PowerControlClass::fVACvalues* ControlTTiPower::getVoltAndCurr()
         lxi_send(fDevice, cCommand, strlen(cCommand), cTimeOut);
 
     }
-
     QThread::msleep(50); // Sometimes the TTis need a bit of time to respond to all four requests.
+
     int len;
     if ((len = lxi_receive(fDevice, cBuff, sizeof(cBuff), cTimeOut)) == LXI_ERROR) {
         std::cerr << "ControlTTiPower::getVoltAndCurr: Could not receive values." << std::endl;

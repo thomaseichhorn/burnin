@@ -43,6 +43,7 @@ std::vector<GenericInstrumentDescription_t> HWDescriptionParser::ParseXML(std::s
         }
     }
     delete cXmlFile;
+    delete cFile;
 
     return cInstruments;
 }

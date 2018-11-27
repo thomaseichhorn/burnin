@@ -17,8 +17,6 @@ class ControlTTiPower:public PowerControlClass
 public:
     ControlTTiPower(string pAddress, int pPort, vector<double> pVolt, vector<double> pCurr);
 
-    int fId;
-
     void initialize();
     PowerControlClass::fVACvalues* getVoltAndCurr();
 

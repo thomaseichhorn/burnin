@@ -101,10 +101,11 @@ void ComHandler::ReceiveString( char *receiveString ) {
 
     readResult = read( fIoPortFileDescriptor, receiveString, 1024 );
 
-    if ( readResult > 0 )   {
+    if ( readResult >= 0 )
       receiveString[readResult] = 0;
+
+    if ( readResult > 0 )
       break;
-    }
 
     timeout++;
 

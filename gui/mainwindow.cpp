@@ -380,7 +380,6 @@ void MainWindow::getVoltAndCurr()
             
         ControlTTiPower* ttidev = dynamic_cast<ControlTTiPower*>(fControl->getGenericInstrObj(name));
         PowerControlClass::fVACvalues* vals = ttidev->getVoltAndCurr();
-        std::cout << "gui_pointers_low_voltage[" << dev_num << "] " << vals->pISet1 << " " << vals->pVSet1 << " " << vals->pISet2 << " " << vals->pVSet2 << endl;
         gui_pointers_low_voltage[dev_num][1].i_set->setValue(vals->pISet1);
         gui_pointers_low_voltage[dev_num][1].v_set->setValue(vals->pVSet1);
         gui_pointers_low_voltage[dev_num][0].i_set->setValue(vals->pISet2);
@@ -724,6 +723,8 @@ void MainWindow::updateTTiIWidget(PowerControlClass::fVACvalues* pObject, int de
 
     gui_pointers_low_voltage[dev_num][0].i_applied->display(pObject->pIApp2);
     gui_pointers_low_voltage[dev_num][0].v_applied->display(pObject->pVApp2);
+    
+    delete pObject;
 }
 
 void MainWindow::updateKeithleyWidget(PowerControlClass::fVACvalues* pObject)
@@ -732,6 +733,8 @@ void MainWindow::updateKeithleyWidget(PowerControlClass::fVACvalues* pObject)
     //gui_pointers_high_voltage[0]->v_set->setValue(pObject->pVSet1);
     gui_pointers_high_voltage[0]->i_applied->display(pObject->pIApp1);
     gui_pointers_high_voltage[0]->v_applied->display(pObject->pVApp1);
+    
+    delete pObject;
 }
 
 void MainWindow::initHard()

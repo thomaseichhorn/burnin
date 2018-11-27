@@ -94,6 +94,7 @@ void ControlKeithleyPower::setCurr(double pCurrent, int)
 PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
 {
     PowerControlClass::fVACvalues *cObject = new PowerControlClass::fVACvalues();
+    memset(cObject, 0, sizeof(PowerControlClass::fVACvalues));
 
     if ( getKeithleyOutputState ( ) )
     {
@@ -103,21 +104,6 @@ PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
 	cObject->pISet1 = fCurrCompliance;
 	cObject->pVApp1 = fVolt;
 	cObject->pIApp1 = fCurr;
-	cObject->pVSet2 = 0;
-	cObject->pISet2 = 0;
-	cObject->pVApp2 = 0;
-	cObject->pIApp2 = 0;
-    }
-    else
-    {
-	cObject->pVSet1 = 0;
-	cObject->pISet1 = 0;
-	cObject->pVApp1 = 0;
-	cObject->pIApp1 = 0;
-	cObject->pVSet2 = 0;
-	cObject->pISet2 = 0;
-	cObject->pVApp2 = 0;
-	cObject->pIApp2 = 0;
     }
 
     return cObject;
@@ -127,7 +113,7 @@ PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
 void ControlKeithleyPower::checkVAC()
 {
     char stringinput[512];
-    char buffer[512];
+    char buffer[1024];
 
     strcpy(stringinput , ":READ?\r\n");
     comHandler_->SendCommand(stringinput);
@@ -158,7 +144,7 @@ void ControlKeithleyPower::setKeithleyOutputState ( int outputsetting )
     if ( outputsetting == 0 )
     {
 	char stringinput[512];
-	char buffer[512];
+	char buffer[1024];
 	strcpy(stringinput , ":OUTPUT1:STATE OFF\r\n");
 	comHandler_->SendCommand(stringinput);
 	comHandler_->ReceiveString(buffer);
@@ -169,7 +155,7 @@ void ControlKeithleyPower::setKeithleyOutputState ( int outputsetting )
     else if ( outputsetting == 1 )
     {
 	char stringinput[512];
-	char buffer[512];
+	char buffer[1024];
 	strcpy(stringinput , ":*RST\r\n");
 	comHandler_->SendCommand(stringinput);
 	comHandler_->ReceiveString(buffer);
