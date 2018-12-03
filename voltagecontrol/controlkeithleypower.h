@@ -55,7 +55,6 @@ public:
     double fVolt;
     double fVoltSet;
     double fCurr;
-    double fStep;
     double fCurrCompliance;
     string fConnection;
 
