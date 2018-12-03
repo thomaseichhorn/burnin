@@ -111,7 +111,10 @@ void ComHandler::ReceiveString( char *receiveString ) {
     timeout++;
 
   }
-  std::cout << "Read from  " << fIoPort << ": " << receiveString << std::endl;
+  if (timeout >= 100000)
+    std::cout << "Timeout reached when reading from " << fIoPort << std::endl;
+  else
+    std::cout << "Read " << readResult << " bytes from " << fIoPort << ": " << receiveString << std::endl;
 }
 
 //! Open I/O port.
