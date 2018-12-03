@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QMutex>
 #include <QTimer>
 
 #include "powercontrolclass.h"
@@ -72,6 +73,7 @@ signals:
 
 private:
     QThread _sweepThread;
+    QMutex _commMutex;
     bool _turnOffScheduled;
 };
 

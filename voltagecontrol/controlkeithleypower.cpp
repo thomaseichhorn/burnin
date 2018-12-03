@@ -114,8 +114,10 @@ void ControlKeithleyPower::setVolt(double pVoltage , int)
 void ControlKeithleyPower::sendVoltageCommand(double pVoltage) {
     char buf[512];
     sprintf(buf ,":SOUR:VOLT:LEV %G\r\n", pVoltage);
+    _commMutex.lock();
     comHandler_->SendCommand(buf);
     QThread::msleep(100);
+    _commMutex.unlock();
 }
 
 void ControlKeithleyPower::onTargetVoltageReached(double voltage) {
@@ -126,9 +128,11 @@ void ControlKeithleyPower::onTargetVoltageReached(double voltage) {
 void ControlKeithleyPower::setCurr(double pCurrent, int)
 {
     char stringinput[512];
-
+    
+    _commMutex.lock();
     sprintf(stringinput ,":SENS:CURR:PROT %lGE-6\r\n" , pCurrent);
     comHandler_->SendCommand(stringinput);
+    _commMutex.unlock();
 }
 
 PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
@@ -157,11 +161,13 @@ void ControlKeithleyPower::checkVAC()
     char buffer[1024];
     buffer[0] = 0;
 
+    _commMutex.lock();
     strcpy(stringinput , ":READ?\r\n");
     comHandler_->SendCommand(stringinput);
     QThread::msleep(500);
 
     comHandler_->ReceiveString(buffer);
+    _commMutex.unlock();
     
     string str(buffer);
     size_t cPos = str.find(',');
@@ -186,12 +192,15 @@ void ControlKeithleyPower::setKeithleyOutputState ( int outputsetting )
 {
     if ( outputsetting == 0 and keithleyOutputOn)
     {
+	_commMutex.lock();
 	comHandler_->SendCommand(":OUTPUT1:STATE OFF\r\n");
 	usleep(1000);
+	_commMutex.unlock();
 	keithleyOutputOn = false;
     }
     else if ( outputsetting == 1 and not keithleyOutputOn)
     {
+	_commMutex.lock();
 	comHandler_->SendCommand(":*RST\r\n");
 	usleep(1000);
 
@@ -203,6 +212,7 @@ void ControlKeithleyPower::setKeithleyOutputState ( int outputsetting )
 	
 	comHandler_->SendCommand(":SENSE:FUNCTION 'CURRENT:DC'\r\n");
 	usleep(1000);
+	_commMutex.unlock();
 
 	keithleyOutputOn = true;
     }
