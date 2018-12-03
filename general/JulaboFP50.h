@@ -56,7 +56,7 @@ class JulaboFP50: public GenericInstrumentClass
   void StripBuffer( char* ) const;
   
   static constexpr int FP50LowerTempLimit = -50;
-  static constexpr int FP50UpperTempLimit =  30;
+  static constexpr int FP50UpperTempLimit =  55;
 
  private:
 
