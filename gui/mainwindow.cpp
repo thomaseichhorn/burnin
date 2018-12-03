@@ -656,23 +656,13 @@ void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int dev_num, i
             
             fControl->getObject(pSourceName)->setVolt(gui_pointers_high_voltage[dev_num]->v_set->value(), pId);
             fControl->getObject(pSourceName)->setCurr(gui_pointers_high_voltage[dev_num]->i_set->value(), pId);
-            AdditionalThread *cThread = new AdditionalThread("keithley", fControl);
-            QThread *cQThread = new QThread();
-            connect(cQThread , SIGNAL(started()), cThread, SLOT(onVolt()));
-            cThread->moveToThread(cQThread);
-            cQThread->start();
-            //fControl->getObject(pSourceName)->onPower(pId);
+            fControl->getObject(pSourceName)->onPower(0);
         }
         else{
             gui_pointers_high_voltage[0]->v_set->setEnabled(true);
             gui_pointers_high_voltage[0]->i_set->setEnabled(true);
             
-            AdditionalThread *cThread = new AdditionalThread("keithleyOff", fControl);
-            QThread *cQThread = new QThread();
-            connect(cQThread , SIGNAL(started()), cThread, SLOT(offVolt()));
-            cThread->moveToThread(cQThread);
-            cQThread->start();
-            //fControl->getObject(pSourceName)->offPower(pId);
+            fControl->getObject(pSourceName)->offPower(0);
         }
     }
     if(pSourceName == "JulaboFP50"){
@@ -818,10 +808,6 @@ bool MainWindow::readXmlFile()
 
                  connect(gui_pointers_high_voltage[0]->onoff_button, &QCheckBox::toggled, [this](bool pArg)
                  {this->on_OnOff_button_stateChanged("Keithley2410", 0, 0, pArg);});
-                 connect(gui_pointers_high_voltage[0]->v_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pVolt)
-                 {this->on_V_set_doubleSpinBox_valueChanged("Keithley2410" , 0, pVolt);});
-                 connect(gui_pointers_high_voltage[0]->i_set, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double pCurr)
-                 {this->on_I_set_doubleSpinBox_valueChanged("Keithley2410", 0, pCurr);});
             }
 
             if( dynamic_cast<Thermorasp*>(i.second) ){
