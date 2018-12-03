@@ -719,11 +719,13 @@ void MainWindow::on_I_set_doubleSpinBox_valueChanged(string pSourceName , int pI
 
 void MainWindow::updateTTiIWidget(PowerControlClass::fVACvalues* pObject, int dev_num)
 {
-    gui_pointers_low_voltage[dev_num][1].i_applied->display(pObject->pIApp1);
-    gui_pointers_low_voltage[dev_num][1].v_applied->display(pObject->pVApp1);
+    // The TTis can not output negative voltages. Sometimes they report small
+    // negative values like -0.005 V. Use abs refresh the display anyway.
+    gui_pointers_low_voltage[dev_num][1].i_applied->display(abs(pObject->pIApp1));
+    gui_pointers_low_voltage[dev_num][1].v_applied->display(abs(pObject->pVApp1));
 
-    gui_pointers_low_voltage[dev_num][0].i_applied->display(pObject->pIApp2);
-    gui_pointers_low_voltage[dev_num][0].v_applied->display(pObject->pVApp2);
+    gui_pointers_low_voltage[dev_num][0].i_applied->display(abs(pObject->pIApp2));
+    gui_pointers_low_voltage[dev_num][0].v_applied->display(abs(pObject->pVApp2));
     
     delete pObject;
 }
