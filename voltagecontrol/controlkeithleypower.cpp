@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <utility>
 #include <fstream>
+#include <cmath>
 
 #include <QDebug>
 #include <QThread>
@@ -19,13 +20,66 @@
 
 using namespace std;
 
+const int SWEEP_INTERVAL = 500; //ms
+const double SWEEP_STEP = 10; //V
+
+KeithleyPowerSweepWorker::KeithleyPowerSweepWorker(ControlKeithleyPower* keithley):
+    _keithley(keithley),
+    _timer(this)
+{
+    connect(&_timer, SIGNAL(timeout()), this, SLOT(doSweeping()));
+    _timer.start(SWEEP_INTERVAL);
+    
+    _voltTarget = _keithley->fVoltSet;
+    _voltApplied = _keithley->fVolt;
+    _outputState = _keithley->keithleyOutputOn;
+}
+
+void KeithleyPowerSweepWorker::doSweeping() {
+    if (not _outputState or _voltTarget == _voltApplied) {
+	_timer.start(SWEEP_INTERVAL);
+	return;
+    }
+    
+    if (abs(_voltTarget - _voltApplied) < SWEEP_STEP)
+	_voltApplied = _voltTarget;
+    else
+	_voltApplied += copysign(SWEEP_STEP, _voltTarget - _voltApplied);
+    
+    _keithley->sendVoltageCommand(_voltApplied);
+    if (_voltApplied == _voltTarget)
+	emit targetReached(_voltTarget);
+    
+    _timer.start(SWEEP_INTERVAL);
+}
+
+void KeithleyPowerSweepWorker::doVoltSet(double volts) {
+    _voltTarget = volts;
+}
+
+void KeithleyPowerSweepWorker::doVoltApp(double volts) {
+    _voltApplied = volts;
+}
+
+void KeithleyPowerSweepWorker::doOutputState(bool state) {
+    _outputState = state;
+}
+
 ControlKeithleyPower::ControlKeithleyPower(string pConnection, double pSetVolt, double pSetCurr)
 {
     fConnection = pConnection;
     fVoltSet = pSetVolt;
     fCurrCompliance = pSetCurr;
-//    set the number of steps
-    fStep = 10;
+    _turnOffScheduled = false;
+    
+    KeithleyPowerSweepWorker* worker = new KeithleyPowerSweepWorker(this);
+    worker->moveToThread(&_sweepThread);
+    connect(&_sweepThread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(this, &ControlKeithleyPower::voltSetChanged, worker, &KeithleyPowerSweepWorker::doVoltSet);
+    connect(this, &ControlKeithleyPower::voltAppChanged, worker, &KeithleyPowerSweepWorker::doVoltApp);
+    connect(this, &ControlKeithleyPower::outputStateChanged, worker, &KeithleyPowerSweepWorker::doOutputState);
+    connect(worker, &KeithleyPowerSweepWorker::targetReached, this, &ControlKeithleyPower::onTargetVoltageReached);
+    _sweepThread.start();
 }
 
 void ControlKeithleyPower::initialize(){
@@ -34,62 +88,51 @@ void ControlKeithleyPower::initialize(){
     speed_t keithleybaud = B19200;
     comHandler_ = new ComHandler( ioPort, keithleybaud );
     std::cout << "Created ComHandler on port " << ioPort << " at " << comHandler_ << std::endl;
-    setKeithleyOutputState ( 0 );
+    setKeithleyOutputState(0);
     setCurr(fCurrCompliance);
 }
 
 
 void ControlKeithleyPower::onPower(int)
 {
+    _turnOffScheduled = false;
     setKeithleyOutputState ( 1 );
-    sweepVolt(fVoltSet);
-    QThread::sleep(1);
 }
 
 void ControlKeithleyPower::offPower(int)
 {
-    sweepVolt(0);
-    setKeithleyOutputState ( 0 );
+    _turnOffScheduled = true;
+    setVolt(0);
 }
 
 void ControlKeithleyPower::setVolt(double pVoltage , int)
 {
     fVoltSet = pVoltage;
+    emit voltSetChanged(fVoltSet);
 }
 
-void ControlKeithleyPower::sweepVolt(double pVoltage)
-{
-    checkVAC();
+void ControlKeithleyPower::sendVoltageCommand(double pVoltage) {
+    char buf[512];
+    sprintf(buf ,":SOUR:VOLT:LEV %G\r\n", pVoltage);
+    _commMutex.lock();
+    comHandler_->SendCommand(buf);
+    QThread::msleep(100);
+    _commMutex.unlock();
+}
 
-    char stringinput[512];
-    double step = fStep;
-    double start_volt = fVolt;
-    if (start_volt != pVoltage){
-        if(pVoltage < start_volt)
-            step = -step;
-        
-        //current_volt = current_volt + step;
-        for (int i = 0; i < (pVoltage - start_volt) / step; ++i) {
-            sprintf(stringinput ,":SOUR:VOLT:LEV %G\r", start_volt + step * i);
-            comHandler_->SendCommand(stringinput);
-            QThread::sleep(1.0);
-            checkVAC();
-        }
-        
-        // Send final set to take care of differences smaller than step
-        sprintf(stringinput ,":SOUR:VOLT:LEV %G\r", pVoltage);
-        comHandler_->SendCommand(stringinput);
-        QThread::sleep(1.0);
-        checkVAC();
-    }
+void ControlKeithleyPower::onTargetVoltageReached(double voltage) {
+    if (_turnOffScheduled and voltage == 0)
+	setKeithleyOutputState(0);
 }
 
 void ControlKeithleyPower::setCurr(double pCurrent, int)
 {
     char stringinput[512];
-
+    
+    _commMutex.lock();
     sprintf(stringinput ,":SENS:CURR:PROT %lGE-6\r\n" , pCurrent);
     comHandler_->SendCommand(stringinput);
+    _commMutex.unlock();
 }
 
 PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
@@ -116,12 +159,15 @@ void ControlKeithleyPower::checkVAC()
 {
     char stringinput[512];
     char buffer[1024];
+    buffer[0] = 0;
 
+    _commMutex.lock();
     strcpy(stringinput , ":READ?\r\n");
     comHandler_->SendCommand(stringinput);
-    usleep(1000);
+    QThread::msleep(500);
 
     comHandler_->ReceiveString(buffer);
+    _commMutex.unlock();
     
     string str(buffer);
     size_t cPos = str.find(',');
@@ -134,62 +180,44 @@ void ControlKeithleyPower::checkVAC()
 
     fCurr = fCurrStr.toDouble();
 
+    emit voltAppChanged(fVolt);
 }
 
 void ControlKeithleyPower::closeConnection()
 {
-
+    setKeithleyOutputState ( 0 );
 }
 
 void ControlKeithleyPower::setKeithleyOutputState ( int outputsetting )
 {
-    if ( outputsetting == 0 )
+    if ( outputsetting == 0 and keithleyOutputOn)
     {
-	char stringinput[512];
-	char buffer[1024];
-	strcpy(stringinput , ":OUTPUT1:STATE OFF\r\n");
-	comHandler_->SendCommand(stringinput);
-	comHandler_->ReceiveString(buffer);
-	std::cout << buffer << std::endl;
+	_commMutex.lock();
+	comHandler_->SendCommand(":OUTPUT1:STATE OFF\r\n");
 	usleep(1000);
+	_commMutex.unlock();
 	keithleyOutputOn = false;
     }
-    else if ( outputsetting == 1 )
+    else if ( outputsetting == 1 and not keithleyOutputOn)
     {
-	char stringinput[512];
-	char buffer[1024];
-	strcpy(stringinput , ":*RST\r\n");
-	comHandler_->SendCommand(stringinput);
-	comHandler_->ReceiveString(buffer);
-	std::cout << buffer << std::endl;
+	_commMutex.lock();
+	comHandler_->SendCommand(":*RST\r\n");
 	usleep(1000);
 
-	strcpy(stringinput , ":*IDN?\r\n");
-	comHandler_->SendCommand(stringinput);
-	comHandler_->ReceiveString(buffer);
-	std::cout << buffer << std::endl;
+	comHandler_->SendCommand(":OUTPUT1:STATE ON\r\n");
 	usleep(1000);
 
-	strcpy(stringinput , ":OUTPUT1:STATE ON\r\n");
-	comHandler_->SendCommand(stringinput);
-	comHandler_->ReceiveString(buffer);
-	std::cout << buffer << std::endl;
-	usleep(1000);
-
-	strcpy(stringinput , ":SOURCE:VOLTAGE:RANGE 1000\r\n");
-	comHandler_->SendCommand(stringinput);
-	comHandler_->ReceiveString(buffer);
-	std::cout << buffer << std::endl;
+	comHandler_->SendCommand(":SOURCE:VOLTAGE:RANGE 1000\r\n");
 	usleep(1000);
 	
-	strcpy(stringinput , ":SENSE:FUNCTION 'CURRENT:DC'\r\n");
-	comHandler_->SendCommand(stringinput);
-	comHandler_->ReceiveString(buffer);
-	std::cout << buffer << std::endl;
+	comHandler_->SendCommand(":SENSE:FUNCTION 'CURRENT:DC'\r\n");
 	usleep(1000);
+	_commMutex.unlock();
 
 	keithleyOutputOn = true;
     }
+    
+    emit outputStateChanged(keithleyOutputOn);
 }
 
 bool ControlKeithleyPower::getKeithleyOutputState ( )

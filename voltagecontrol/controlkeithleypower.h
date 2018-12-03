@@ -3,12 +3,41 @@
 
 #include <QObject>
 #include <QThread>
+#include <QMutex>
+#include <QTimer>
 
 #include "powercontrolclass.h"
 #include "general/ComHandler.h"
 
-class ControlKeithleyPower:public PowerControlClass, public QThread
+class ControlKeithleyPower;
+
+class KeithleyPowerSweepWorker: public QObject {
+    Q_OBJECT
+    
+public:
+    KeithleyPowerSweepWorker(ControlKeithleyPower* keithley);
+    
+public slots:
+    void doSweeping();
+    void doVoltSet(double volts);
+    void doVoltApp(double volts);
+    void doOutputState(bool state);
+    
+signals:
+    void targetReached(double voltage);
+    
+private:
+    ControlKeithleyPower* _keithley;
+    QTimer _timer;
+    double _voltTarget;
+    double _voltApplied;
+    bool _outputState;
+};
+
+class ControlKeithleyPower: public QObject, public PowerControlClass
 {
+    Q_OBJECT
+    
 public:
     ControlKeithleyPower(string pConnection, double pSetVolt, double pSetCurr);
 
@@ -20,13 +49,13 @@ public:
     void offPower(int);
     void closeConnection();
 
-    void sweepVolt(double pVoltage);
+    void sendVoltageCommand(double pVoltage);
+    void onTargetVoltageReached(double voltage);
     void checkVAC();
 
     double fVolt;
     double fVoltSet;
     double fCurr;
-    double fStep;
     double fCurrCompliance;
     string fConnection;
 
@@ -36,6 +65,16 @@ public:
 
     void setKeithleyOutputState ( int outputsetting );
     bool getKeithleyOutputState ( );
+    
+signals:
+    void voltSetChanged(double volts);
+    void voltAppChanged(double volts);
+    void outputStateChanged(bool state);
+
+private:
+    QThread _sweepThread;
+    QMutex _commMutex;
+    bool _turnOffScheduled;
 };
 
 #endif // CONTROLKEITHLEYPOWER_H
