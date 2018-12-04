@@ -12,6 +12,7 @@
 #include "general/systemcontrollerclass.h"
 #include "additional/hwdescriptionparser.h"
 #include "julabowrapper.h"
+#include "BurnInException.h"
 
 using namespace std;
 
@@ -120,6 +121,18 @@ void SystemControllerClass::offPower(string pSourceName)
     getObject(pSourceName)->offPower(0);
 }
 
+string SystemControllerClass::_getIdentifierForDescription(const GenericInstrumentDescription_t& desc) const {
+    string ident;
+    
+    ident = desc.classOfInstr;
+    int n = 1;
+    while (fGenericInstrumentMap.count(ident)) {
+        ++n;
+        ident = desc.classOfInstr + string("_") + to_string(n);
+    }
+    
+    return ident;
+}
 
 //reads file and makes map with name and object of power supply
 void SystemControllerClass::ParseVSources()
@@ -127,8 +140,7 @@ void SystemControllerClass::ParseVSources()
     string cConnection, cAddress;
 
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
-
-        if(fHWDescription[i].typeOfClass == "LowVoltageSource"){
+        string ident = _getIdentifierForDescription(fHWDescription[i]);
 
             if(fHWDescription[i].classOfInstr == "TTI"){
                 int cPort;
@@ -146,15 +158,12 @@ void SystemControllerClass::ParseVSources()
                 }
                 PowerControlClass *fPowerLow = new ControlTTiPower(cAddress, cPort, cVolt, cCurr);
                 
-                fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerLow));
-                fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerLow));
-                fNamesVoltageSources.push_back(fHWDescription[i].name);
+                fMapSources.insert(pair<string , PowerControlClass*>(ident , fPowerLow));
+                fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fPowerLow));
+                fNamesVoltageSources.push_back(ident);
                 fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
-                std::cout << "Added \"" << fHWDescription[i].name << "\" on " << cAddress << std::endl;
+                std::cout << "Added \"" << fHWDescription[i].classOfInstr << "\" on " << cAddress << std::endl;
             }
-        }
-
-        if(fHWDescription[i].typeOfClass == "HighVoltageSource"){
 
             if(fHWDescription[i].classOfInstr == "Keithley2410"){
                 double cSetVolt, cSetCurr;
@@ -164,13 +173,12 @@ void SystemControllerClass::ParseVSources()
                 cSetVolt = stod(fHWDescription[i].operational_settings[0]["Voltage"]);
                 cSetCurr = stod(fHWDescription[i].operational_settings[0]["CurrentLimit"]);
                 PowerControlClass *fPowerHigh = new ControlKeithleyPower(cAddress, cSetVolt, cSetCurr);
-                fMapSources.insert(pair<string , PowerControlClass*>(fHWDescription[i].name , fPowerHigh));
-                fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fPowerHigh));
-                fNamesVoltageSources.push_back(fHWDescription[i].name);
+                fMapSources.insert(pair<string , PowerControlClass*>(ident, fPowerHigh));
+                fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fPowerHigh));
+                fNamesVoltageSources.push_back(ident);
                 fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
-                std::cout << "Added \"" << fHWDescription[i].name << "\" on " << cAddress << std::endl;
+                std::cout << "Added \"" << fHWDescription[i].classOfInstr << "\" on " << cAddress << std::endl;
             }
-        }
     }
 }
 
@@ -180,14 +188,15 @@ void SystemControllerClass::ParseRaspberry()
     quint16 cPort;
 
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
-
-        if(fHWDescription[i].classOfInstr == "Raspberry"){
+        if(fHWDescription[i].classOfInstr == "Thermorasp"){
+            string ident = _getIdentifierForDescription(fHWDescription[i]);
+            
             cConnection = fHWDescription[i].interface_settings["connection"];
             cAddress = fHWDescription[i].interface_settings["address"];
             cPort = stoi(fHWDescription[i].interface_settings["port"]);
             fConnectRasp = new Thermorasp(cAddress , cPort);
-            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fConnectRasp));
-            fNamesInstruments.push_back(fHWDescription[i].name);
+            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fConnectRasp));
+            fNamesInstruments.push_back(ident);
 
             for(size_t j = 0 ; j != fHWDescription[i].operational_settings.size() ; j++){
                 fRaspberrySensorsNames.push_back(fHWDescription[i].operational_settings[j]["sensor"]);
@@ -202,12 +211,14 @@ void SystemControllerClass::ParseChiller()
     string cAddress, cConnection;
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
-        if(fHWDescription[i].classOfInstr == "Chiller"){
+        if(fHWDescription[i].classOfInstr == "JulaboFP50"){
+            string ident = _getIdentifierForDescription(fHWDescription[i]);
+            
             cAddress = fHWDescription[i].interface_settings["address"];
             cConnection = fHWDescription[i].interface_settings["connection"];
 
             GenericInstrumentClass* fJulaboWrapper = new JulaboWrapper(cAddress);
-            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(fHWDescription[i].name , fJulaboWrapper));
+            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fJulaboWrapper));
             fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
 
         }
@@ -227,6 +238,19 @@ void SystemControllerClass::ReadXmlFile(std::string pFileName)
 {
     HWDescriptionParser cParser;
     fHWDescription = cParser.ParseXML(pFileName);
+    
+    for (const auto& desc: fHWDescription) {
+        if (desc.classOfInstr == "") {
+            throw BurnInException("Device is missing class name");
+        } else if (desc.classOfInstr != "TTI" and
+            desc.classOfInstr != "Keithley2410" and
+            desc.classOfInstr != "JulaboFP50" and
+            desc.classOfInstr != "Thermorasp") {
+                
+            throw BurnInException(string("Invalid class \"") + desc.classOfInstr
+                + "\". Valid classes are: TTI, Keithley2410, JulaboFP50, Thermorasp");
+        }
+    }
 
     this->ParseVSources();
     this->ParseRaspberry();
