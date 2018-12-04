@@ -16,7 +16,7 @@
 // SETTINGS ON THE DEVICE:
 // (MENU RS-232)
 // 
-// BAUD: 9600
+// BAUD: 9600 (default) or set by using the corresponding constructor parameter.
 // HARDW HANDSHAKE: on
 // PARITY: none (8N1)
 // TX TERM: NL

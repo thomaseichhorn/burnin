@@ -113,7 +113,7 @@ void ControlKeithleyPower::setVolt(double pVoltage , int)
 
 void ControlKeithleyPower::sendVoltageCommand(double pVoltage) {
     char buf[512];
-    sprintf(buf ,":SOUR:VOLT:LEV %G\r\n", pVoltage);
+    sprintf(buf ,":SOUR:VOLT:LEV %G", pVoltage);
     _commMutex.lock();
     comHandler_->SendCommand(buf);
     QThread::msleep(100);
@@ -130,7 +130,7 @@ void ControlKeithleyPower::setCurr(double pCurrent, int)
     char stringinput[512];
     
     _commMutex.lock();
-    sprintf(stringinput ,":SENS:CURR:PROT %lGE-6\r\n" , pCurrent);
+    sprintf(stringinput ,":SENS:CURR:PROT %lGE-6" , pCurrent);
     comHandler_->SendCommand(stringinput);
     _commMutex.unlock();
 }
@@ -157,13 +157,11 @@ PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()
 
 void ControlKeithleyPower::checkVAC()
 {
-    char stringinput[512];
     char buffer[1024];
     buffer[0] = 0;
 
     _commMutex.lock();
-    strcpy(stringinput , ":READ?\r\n");
-    comHandler_->SendCommand(stringinput);
+    comHandler_->SendCommand(":READ?");
     QThread::msleep(500);
 
     comHandler_->ReceiveString(buffer);
@@ -193,7 +191,7 @@ void ControlKeithleyPower::setKeithleyOutputState ( int outputsetting )
     if ( outputsetting == 0 and keithleyOutputOn)
     {
 	_commMutex.lock();
-	comHandler_->SendCommand(":OUTPUT1:STATE OFF\r\n");
+	comHandler_->SendCommand(":OUTPUT1:STATE OFF");
 	usleep(1000);
 	_commMutex.unlock();
 	keithleyOutputOn = false;
@@ -201,16 +199,16 @@ void ControlKeithleyPower::setKeithleyOutputState ( int outputsetting )
     else if ( outputsetting == 1 and not keithleyOutputOn)
     {
 	_commMutex.lock();
-	comHandler_->SendCommand(":*RST\r\n");
+	comHandler_->SendCommand(":*RST");
 	usleep(1000);
 
-	comHandler_->SendCommand(":OUTPUT1:STATE ON\r\n");
+	comHandler_->SendCommand(":OUTPUT1:STATE ON");
 	usleep(1000);
 
-	comHandler_->SendCommand(":SOURCE:VOLTAGE:RANGE 1000\r\n");
+	comHandler_->SendCommand(":SOURCE:VOLTAGE:RANGE 1000");
 	usleep(1000);
 	
-	comHandler_->SendCommand(":SENSE:FUNCTION 'CURRENT:DC'\r\n");
+	comHandler_->SendCommand(":SENSE:FUNCTION 'CURRENT:DC'");
 	usleep(1000);
 	_commMutex.unlock();
 
