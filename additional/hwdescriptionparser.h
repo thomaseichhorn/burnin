@@ -6,7 +6,6 @@
 
 struct GenericInstrumentDescription_t {
     std::string name;
-    std::string typeOfClass;
     std::string classOfInstr;
     std::string description;
     std::map<std::string, std::string> interface_settings;

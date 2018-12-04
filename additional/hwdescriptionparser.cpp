@@ -1,6 +1,8 @@
 // Project includes
 #include "hwdescriptionparser.h"
 
+#include "general/BurnInException.h"
+
 // Qt includes
 #include "QFile"
 #include "QXmlStreamReader"
@@ -21,10 +23,7 @@ std::vector<GenericInstrumentDescription_t> HWDescriptionParser::ParseXML(std::s
     // opening file    
     QFile *cFile =  new QFile(pFileName.c_str());
     if(!cFile->open(QFile::ReadOnly))
-    {
-        std::cout << "Unable to open XML file" << std::endl;
-        exit(1);
-    }
+        throw BurnInException("Unable to open XML file");
     QXmlStreamReader *cXmlFile = new QXmlStreamReader(cFile);
 
     while (!cXmlFile->atEnd() && !cXmlFile->hasError())
@@ -72,10 +71,9 @@ void HWDescriptionParser::ParseVoltageSource(QXmlStreamReader *pXmlFile, std::ve
     GenericInstrumentDescription_t cInstrument;
     QXmlStreamAttributes attributes = pXmlFile->attributes();
     for(int i = 0; i < attributes.length(); i++) {
-        //add name clas type and description to same keys in map and all other attributes to interface settings map
+        //add name class and description to same keys in map and all other attributes to interface settings map
         if (attributes.at(i).name() == "name") cInstrument.name = attributes.at(i).value().toString().toStdString();
         else if (attributes.at(i).name() == "class") cInstrument.classOfInstr = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "type") cInstrument.typeOfClass = attributes.at(i).value().toString().toStdString();
         else if (attributes.at(i).name() == "description") cInstrument.description = attributes.at(i).value().toString().toStdString();
         else cInstrument.interface_settings[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
     }

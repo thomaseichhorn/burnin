@@ -4,18 +4,18 @@
     <Power>
         <!-- Low Voltage Section -->
         <LowVoltage>
-            <VoltageSource name="TTI1" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.180" description="used for something">
+            <VoltageSource class="TTI" port="9221" address="192.168.1.180" description="used for something">
                 <Output Voltage="5" CurrentLimit="0.06"/>
                 <Output Voltage="5" CurrentLimit="0.06"/>
             </VoltageSource>
-            <VoltageSource name="TTI2" class="TTI" type="LowVoltageSource" noutputs="2" connection="ethernet" port="9221" address="192.168.1.181" description="used for something">
+            <VoltageSource class="TTI" port="9221" address="192.168.1.181" description="used for something">
                 <Output Voltage="3.3" CurrentLimit="0.75"/>
                 <Output Voltage="1.2" CurrentLimit="0.4"/>
             </VoltageSource>
         </LowVoltage>
         <!-- High Voltage Section -->
         <HighVoltage>
-            <VoltageSource name="Keithley2410" class="Keithley2410" type="HighVoltageSource" noutputs="1" connection="rs232" address="/dev/ttyUSB0" description="used for bias">
+            <VoltageSource class="Keithley2410" address="/dev/ttyUSB0" description="used for bias">
                 <Output Voltage="-40" CurrentLimit="1.0"/>
             </VoltageSource>
         </HighVoltage>
@@ -24,13 +24,13 @@
     <!-- environment section -->
     <Environment>       
         <!-- Chiller Section -->
-        <ChillerControl name="JulaboFP50" class="Chiller" type="" connection="rs232" address="/dev/ttyS0" description="used to cool done the cooling block" />
+        <ChillerControl class="JulaboFP50" address="/dev/ttyS0" description="used to cool done the cooling block" />
             <!-- Peltier Section -->
         <PeltierControl>
             <!-- to be defined -->
         </PeltierControl>
         <!--Raspberry  Section -->
-        <RaspberryControl name="fhlthermorasp" class="Raspberry" type="" connection="ethernet" address="fhlthermorasp1.desy.de" port="50007" description="used for display temperature humidity pressure" >
+        <RaspberryControl class="Thermorasp" address="fhlthermorasp1.desy.de" port="50007" description="used for display temperature humidity pressure" >
             <Sensor sensor="W1_10-0008032b1481_temp"/>
             <Sensor sensor="DHT11_PIN4_temp"/>
             <Sensor sensor="DHT11_PIN4_hum"/>

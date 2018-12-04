@@ -61,6 +61,7 @@ public:
     vector<QString>* readFile();
 
 private:
+    string _getIdentifierForDescription(const GenericInstrumentDescription_t& desc) const;
 
 private slots:
     void wait(double pTime);
