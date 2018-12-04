@@ -121,7 +121,7 @@ void ComHandler::ReceiveString( char *receiveString ) {
 /*!
   \internal
 */
-void ComHandler::OpenIoPort( void ) noexcept {
+void ComHandler::OpenIoPort( void ) {
 
   // open io port ( read/write | no term control | no DCD line check )
   fIoPortFileDescriptor = open( fIoPort, O_RDWR | O_NOCTTY  | O_NDELAY );
@@ -132,7 +132,7 @@ void ComHandler::OpenIoPort( void ) noexcept {
               << fIoPort << "." << std::endl;
     std::cerr << "                           (probably it's not user-writable)."
               << std::endl;
-    throw BurnInException("[ComHandler::OpenIoPort] ** ERROR: could not open device file");
+    throw BurnInException("Could not open device file");
     
   } else {
     // configure port with no delay

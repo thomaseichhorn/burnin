@@ -57,7 +57,7 @@ class ComHandler {
 
  private:
 
-  void OpenIoPort( void ) noexcept;
+  void OpenIoPort( void );
   void InitializeIoPort( speed_t baud );
   void RestoreIoPort( void );
   void CloseIoPort( void );
