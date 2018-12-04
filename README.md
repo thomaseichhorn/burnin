@@ -9,3 +9,7 @@ qmake
 make
 ./burnin
 ```
+
+When using serial communication the Keithley needs to be set to a baud
+rate of 19200, while the Julabo chiller needs to be set to 9600 baud.
+Both need their terminator to be set to line feed.
