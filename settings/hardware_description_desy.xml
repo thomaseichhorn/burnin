@@ -25,10 +25,6 @@
     <Environment>       
         <!-- Chiller Section -->
         <ChillerControl class="JulaboFP50" address="/dev/ttyS0" description="used to cool done the cooling block" />
-            <!-- Peltier Section -->
-        <PeltierControl>
-            <!-- to be defined -->
-        </PeltierControl>
         <!--Raspberry  Section -->
         <RaspberryControl class="Thermorasp" address="fhlthermorasp1.desy.de" port="50007" description="used for display temperature humidity pressure" >
             <Sensor sensor="W1_10-0008032b1481_temp"/>

@@ -12,6 +12,7 @@
 #include "general/systemcontrollerclass.h"
 #include "additional/hwdescriptionparser.h"
 #include "julabowrapper.h"
+#include "BurnInException.h"
 
 using namespace std;
 
@@ -187,7 +188,6 @@ void SystemControllerClass::ParseRaspberry()
     quint16 cPort;
 
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
-
         if(fHWDescription[i].classOfInstr == "Thermorasp"){
             string ident = _getIdentifierForDescription(fHWDescription[i]);
             
@@ -238,6 +238,19 @@ void SystemControllerClass::ReadXmlFile(std::string pFileName)
 {
     HWDescriptionParser cParser;
     fHWDescription = cParser.ParseXML(pFileName);
+    
+    for (const auto& desc: fHWDescription) {
+        if (desc.classOfInstr == "") {
+            throw BurnInException("Device is missing class name");
+        } else if (desc.classOfInstr != "TTI" and
+            desc.classOfInstr != "Keithley2410" and
+            desc.classOfInstr != "JulaboFP50" and
+            desc.classOfInstr != "Thermorasp") {
+                
+            throw BurnInException(string("Invalid class \"") + desc.classOfInstr
+                + "\". Valid classes are: TTI, Keithley2410, JulaboFP50, Thermorasp");
+        }
+    }
 
     this->ParseVSources();
     this->ParseRaspberry();
