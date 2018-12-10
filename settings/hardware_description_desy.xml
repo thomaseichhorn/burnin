@@ -9,8 +9,8 @@
                 <Output Voltage="5" CurrentLimit="0.06"/>
             </VoltageSource>
             <VoltageSource class="TTI" port="9221" address="192.168.1.181" description="used for something">
-                <Output Voltage="3.3" CurrentLimit="0.75"/>
-                <Output Voltage="1.2" CurrentLimit="0.4"/>
+                <Output Voltage="3.3" CurrentLimit="0.4"/>
+                <Output Voltage="1.3" CurrentLimit="0.75"/>
             </VoltageSource>
         </LowVoltage>
         <!-- High Voltage Section -->
