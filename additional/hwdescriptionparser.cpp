@@ -66,17 +66,28 @@ void HWDescriptionParser::ParsePower(QXmlStreamReader *pXmlFile, std::vector<Gen
 
 }
 
-void HWDescriptionParser::ParseVoltageSource(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) {
-
+GenericInstrumentDescription_t HWDescriptionParser::ParseGeneric(const QXmlStreamReader *pXmlFile) const {
     GenericInstrumentDescription_t cInstrument;
     QXmlStreamAttributes attributes = pXmlFile->attributes();
-    for(int i = 0; i < attributes.length(); i++) {
-        //add name class and description to same keys in map and all other attributes to interface settings map
-        if (attributes.at(i).name() == "name") cInstrument.name = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "class") cInstrument.classOfInstr = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "description") cInstrument.description = attributes.at(i).value().toString().toStdString();
-        else cInstrument.interface_settings[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
+    for (const auto& attribute: attributes) {
+        std::string name = attribute.name().toString().toStdString();
+        std::string value = attribute.value().toString().toStdString();
+        if (name == "name")
+            cInstrument.name = value;
+        else if (name == "class")
+            cInstrument.classOfInstr = value;
+        else if (name == "desciption")
+            cInstrument.description = value;
+        else
+            cInstrument.interface_settings[name] = value;
     }
+    
+    return cInstrument;
+}
+
+void HWDescriptionParser::ParseVoltageSource(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) {
+
+    GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
 
     while (!(pXmlFile->tokenType() == QXmlStreamReader::EndElement && pXmlFile->name() == "VoltageSource"))
     {
@@ -119,42 +130,20 @@ void HWDescriptionParser::ParseEnvironment(QXmlStreamReader *pXmlFile, std::vect
 
 void HWDescriptionParser::ParseChiller(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
-    GenericInstrumentDescription_t cInstrument;
-    QXmlStreamAttributes attributes = pXmlFile->attributes();
-    for(int i = 0; i < attributes.length(); i++) {
-        if (attributes.at(i).name() == "name") cInstrument.name = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "class") cInstrument.classOfInstr = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "description") cInstrument.description = attributes.at(i).value().toString().toStdString();
-        else cInstrument.interface_settings[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
-    }
-
+    GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
     // push back now
     pInstruments.push_back(cInstrument);
 }
 
 void HWDescriptionParser::ParsePeltier(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
-    GenericInstrumentDescription_t cInstrument;
-    QXmlStreamAttributes attributes = pXmlFile->attributes();
-    for(int i = 0; i < attributes.length(); i++) {
-        if (attributes.at(i).name() == "name") cInstrument.name = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "class") cInstrument.classOfInstr = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "description") cInstrument.description = attributes.at(i).value().toString().toStdString();
-        else cInstrument.interface_settings[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
-    }
+    GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
     pInstruments.push_back(cInstrument);
 }
 
 void HWDescriptionParser::ParseRaspberry(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
-    GenericInstrumentDescription_t cInstrument;
-    QXmlStreamAttributes attributes = pXmlFile->attributes();
-    for(int i = 0; i < attributes.length(); i++) {
-        if (attributes.at(i).name() == "name") cInstrument.name = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "class") cInstrument.classOfInstr = attributes.at(i).value().toString().toStdString();
-        else if (attributes.at(i).name() == "description") cInstrument.description = attributes.at(i).value().toString().toStdString();
-        else cInstrument.interface_settings[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
-    }
+    GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
 
     while (!(pXmlFile->tokenType() == QXmlStreamReader::EndElement && pXmlFile->name() == "RaspberryControl"))
     {
