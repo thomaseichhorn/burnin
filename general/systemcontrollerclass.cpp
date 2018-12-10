@@ -226,7 +226,21 @@ void SystemControllerClass::_parseChiller()
 }
 
 void SystemControllerClass::_parseDataAquisition() {
-    
+    for (const auto& desc: fHWDescription) {
+        if (desc.classOfInstr != "DAQModule")
+            continue;
+        
+        QString controlhubPath, ph2acfPath, daqHwdescFile, daqImage;
+        controlhubPath = QString::fromStdString(desc.interface_settings.at("controlhubPath"));
+        ph2acfPath = QString::fromStdString(desc.interface_settings.at("ph2acfPath"));
+        daqHwdescFile = QString::fromStdString(desc.interface_settings.at("daqHwdescFile"));
+        daqImage = QString::fromStdString(desc.interface_settings.at("daqImage"));
+        
+        string ident = _getIdentifierForDescription(desc);
+        DAQModule* module = new DAQModule(controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
+        daqmodules.push_back(module);
+        fGenericInstrumentMap[ident] = module;
+    }
 }
 
 int SystemControllerClass::countIntrument(string instrument_name) {
@@ -273,4 +287,8 @@ PowerControlClass* SystemControllerClass::getObject(string pStr)
 vector<string> SystemControllerClass::getSourceNameVec()
 {
     return fNamesVoltageSources;
+}
+
+const vector<DAQModule*> SystemControllerClass::getDaqModules() const {
+    return daqmodules;
 }

@@ -49,7 +49,9 @@ SOURCES += \
     voltagecontrol/controlkeithleypower.cpp \
     voltagecontrol/controlttipower.cpp \
     voltagecontrol/powercontrolclass.cpp \
-    general/julabowrapper.cpp
+    general/julabowrapper.cpp \
+    general/daqmodule.cpp \
+    gui/daqpage.cpp
 
 
 
@@ -82,4 +84,6 @@ HEADERS += \
     voltagecontrol/powercontrolclass.h \
     general/ComHandler.h \
     general/JulaboFP50.h \
-    general/julabowrapper.h
+    general/julabowrapper.h \
+    general/daqmodule.h \
+    gui/daqpage.h

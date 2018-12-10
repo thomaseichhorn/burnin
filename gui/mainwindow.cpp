@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->setupUi(this);
+    daqPage = new DAQPage(ui->DAQControl);
 
 //    fControl = new SystemControllerClass();
 
@@ -827,6 +828,9 @@ bool MainWindow::readXmlFile()
         ui->groupBox_2->setLayout(high_layout);
         ui->groupBox_3->setLayout(rasp_layout);
         ui->groupBox_Chiller->setLayout(chiller_layout);
+        
+        if (fControl->getDaqModules().size() > 0)
+            daqPage->setDAQModule(fControl->getDaqModules()[0]);
 
         //make a list with commands( depends on the devices we have read )
         this->doListOfCommands();
@@ -845,6 +849,7 @@ void MainWindow::on_read_conf_button_clicked()
         if (cSuccess)
             initHard();
     } catch (BurnInException e) {
+        cerr << "Error: " << e.what() << endl;
         QMessageBox dialog(this);
         dialog.critical(this, "Error", QString::fromStdString(e.what()));
         cSuccess = false;
