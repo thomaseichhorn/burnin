@@ -35,10 +35,12 @@ std::vector<GenericInstrumentDescription_t> HWDescriptionParser::ParseXML(std::s
         {
             if (cXmlFile->name() == "HardwareDescription")
                 continue;
-            if (cXmlFile->name() == "Power")
+            else if (cXmlFile->name() == "Power")
                 ParsePower(cXmlFile, cInstruments);
-            if (cXmlFile->name() == "Environment")
+            else if (cXmlFile->name() == "Environment")
                 ParseEnvironment(cXmlFile , cInstruments);
+            else if (cXmlFile->name() == "DataAcquisition")
+                ParseDataAquisition(cXmlFile, cInstruments);
         }
     }
     delete cXmlFile;
@@ -163,3 +165,21 @@ void HWDescriptionParser::ParseRaspberry(QXmlStreamReader *pXmlFile, std::vector
     pInstruments.push_back(cInstrument);
 }
 
+void HWDescriptionParser::ParseDataAquisition(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) const {
+    while (pXmlFile->tokenType() != QXmlStreamReader::EndElement) {
+        pXmlFile->readNext();
+        if (pXmlFile->tokenType() != QXmlStreamReader::StartElement)
+            continue;
+        
+        std::string name = pXmlFile->name().toString().toStdString();
+        if(name == "DAQModule")
+            ParseDAQModule(pXmlFile , pInstruments);
+        else
+            throw BurnInException("Invalid DataAquisition tag \"" + name + "\". Valid tags are: DAQModule");
+    }
+}
+
+void HWDescriptionParser::ParseDAQModule(const QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) const {
+    GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    pInstruments.push_back(cInstrument);
+}

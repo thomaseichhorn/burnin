@@ -34,5 +34,8 @@
             <Sensor sensor="SHT75_hum"/>
         </RaspberryControl>
     </Environment>
+    <DataAcquisition>
+        <DAQModule class="DAQModule" controlhubPath="/opt/cactus/bin" ph2acfPath="/opt/Ph2_ACF" daqHwdescFile="/opt/Ph2_ACF/settings/D19CDescription8CBC2.xml" daqImage="d19c_8xCBC2_21112018.bin"/>
+    </DataAcquisition>
 </HardwareDescription>
 
