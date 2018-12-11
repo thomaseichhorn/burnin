@@ -9,6 +9,10 @@ class GenericInstrumentClass
 {
 public:
     GenericInstrumentClass();
+    
+    virtual ~GenericInstrumentClass() {
+    
+    };
 
     virtual void initialize() = 0;
 

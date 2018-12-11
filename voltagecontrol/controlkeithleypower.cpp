@@ -82,6 +82,11 @@ ControlKeithleyPower::ControlKeithleyPower(string pConnection, double pSetVolt, 
     _sweepThread.start();
 }
 
+ControlKeithleyPower::~ControlKeithleyPower() {
+    _sweepThread.quit();
+    _sweepThread.wait();
+}
+
 void ControlKeithleyPower::initialize(){
 
     const ioport_t ioPort = fConnection.c_str();

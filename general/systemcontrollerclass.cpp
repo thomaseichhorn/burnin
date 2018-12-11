@@ -253,28 +253,45 @@ GenericInstrumentClass* SystemControllerClass::getGenericInstrObj(string pStr)
 
 void SystemControllerClass::ReadXmlFile(std::string pFileName)
 {
-    HWDescriptionParser cParser;
-    fHWDescription = cParser.ParseXML(pFileName);
-    
-    for (const auto& desc: fHWDescription) {
-        if (desc.classOfInstr == "") {
-            throw BurnInException("Device is missing class name");
-        } else if (desc.classOfInstr != "TTI" and
-            desc.classOfInstr != "Keithley2410" and
-            desc.classOfInstr != "JulaboFP50" and
-            desc.classOfInstr != "Thermorasp" and
-            desc.classOfInstr != "DAQModule") {
-                
-            throw BurnInException(string("Invalid class \"") + desc.classOfInstr
-                + "\". Valid classes are: TTI, Keithley2410, JulaboFP50, "
-                "Thermorasp, DAQModule");
+    try {
+        HWDescriptionParser cParser;
+        fHWDescription = cParser.ParseXML(pFileName);
+        
+        for (const auto& desc: fHWDescription) {
+            if (desc.classOfInstr == "") {
+                throw BurnInException("Device is missing class name");
+            } else if (desc.classOfInstr != "TTI" and
+                desc.classOfInstr != "Keithley2410" and
+                desc.classOfInstr != "JulaboFP50" and
+                desc.classOfInstr != "Thermorasp" and
+                desc.classOfInstr != "DAQModule") {
+                    
+                throw BurnInException(string("Invalid class \"") + desc.classOfInstr
+                    + "\". Valid classes are: TTI, Keithley2410, JulaboFP50, "
+                    "Thermorasp, DAQModule");
+            }
         }
-    }
 
-    this->_parseVSources();
-    this->_parseRaspberry();
-    this->_parseChiller();
-    this->_parseDataAquisition();
+        _parseVSources();
+        _parseRaspberry();
+        _parseChiller();
+        _parseDataAquisition();
+        
+    } catch (BurnInException e) {
+        fNamesInstruments.clear();
+        fConnectRasp = nullptr;
+        fRaspberrySensorsNames.clear();
+        fNamesVoltageSources.clear();
+        fMapSources.clear();
+        fHWDescription.clear();
+        fListOfCommands.clear();
+        
+        for (const auto& instrument: fGenericInstrumentMap)
+            delete instrument.second;
+        fGenericInstrumentMap.clear();
+        
+        throw;
+    }
 }
 
 //gets the value of key pStr
