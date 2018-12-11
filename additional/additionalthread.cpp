@@ -4,7 +4,7 @@
 #include "gui/mainwindow.h"
 #include "general/environmentcontrolclass.h"
 #include "general/genericinstrumentclass.h"
-#include "general/julabowrapper.h"
+#include "general/JulaboFP50.h"
 
 AdditionalThread::AdditionalThread(QString pName, SystemControllerClass *pControl) : fName(pName)
 {
@@ -75,8 +75,7 @@ void AdditionalThread::getChillerStatus()
 {
     float cBathTemp, cPressure, cSensorTemp, cWorkingTemp;
     string cMeas;
-    JulaboWrapper* wrapper = dynamic_cast<JulaboWrapper*>(fAddControl->getGenericInstrObj("JulaboFP50"));
-    JulaboFP50* cEnv = wrapper->fJulabo;
+    JulaboFP50* cEnv = dynamic_cast<JulaboFP50*>(fAddControl->getGenericInstrObj("JulaboFP50"));
     while(true){
         cBathTemp = cEnv->GetBathTemperature();
         cPressure = cEnv->GetPumpPressure();

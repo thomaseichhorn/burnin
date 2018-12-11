@@ -11,7 +11,7 @@
 
 #include "general/systemcontrollerclass.h"
 #include "additional/hwdescriptionparser.h"
-#include "julabowrapper.h"
+#include "JulaboFP50.h"
 #include "BurnInException.h"
 
 using namespace std;
@@ -77,7 +77,7 @@ void SystemControllerClass::startDoingList()
         if(cStr == "Set Temperature (°C)"){
            // moveToThread(cThread);
             connect(cThread, &QThread::started, [this, cValue] {
-                dynamic_cast<JulaboWrapper*>(this->getGenericInstrObj("JulaboFP50"))->fJulabo->SetWorkingTemperature(cValue);
+                dynamic_cast<JulaboFP50*>(this->getGenericInstrObj("JulaboFP50"))->SetWorkingTemperature(cValue);
             });
             cThread->start();
         }
@@ -216,8 +216,8 @@ void SystemControllerClass::_parseChiller()
             cAddress = fHWDescription[i].interface_settings["address"];
             cConnection = fHWDescription[i].interface_settings["connection"];
 
-            GenericInstrumentClass* fJulaboWrapper = new JulaboWrapper(cAddress);
-            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fJulaboWrapper));
+            GenericInstrumentClass* fJulabo = new JulaboFP50(cAddress);
+            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fJulabo));
             fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
 
         }

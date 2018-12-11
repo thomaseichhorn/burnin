@@ -32,8 +32,19 @@
 JulaboFP50::JulaboFP50( const ioport_t ioPort )
 
 {
-  comHandler_ = new ComHandler( ioPort );
+  ioPort_ = ioPort;
+  comHandler_ = nullptr;
   isCommunication_ = false;
+}
+
+JulaboFP50::JulaboFP50(const std::string& ioPort) {
+  ioPort_ = ioPort;
+  comHandler_ = nullptr;
+  isCommunication_ = false;
+}
+
+void JulaboFP50::initialize() {
+  comHandler_ = new ComHandler( ioPort_.c_str() );
   Device_Init();
 }
 
