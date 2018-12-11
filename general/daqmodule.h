@@ -30,6 +30,7 @@ private:
     QString _ph2FpgaConfigPath;
     QString _ph2SystemtestPath;
     QString _ph2DatatestPath;
+    QString _ph2CalibratePath;
     QString _ph2HybridtestPath;
     QString _ph2CmtestPath;
     QString _ph2CommissionPath;
@@ -39,6 +40,7 @@ private:
     bool _fc7power;
     
     QString _pathjoin(const std::initializer_list<const QString>& parts) const;
+    void _run_ph2_binary(const QString& name, const QString& path) const;
 };
 
 #endif // DAQMODULE_H
