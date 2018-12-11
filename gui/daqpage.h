@@ -19,6 +19,7 @@ private:
     DAQModule* _module;
     
 private slots:
+    void onFc7powerState(int state);
     void onLoadfirmwareClicked();
     void onSystemtestClicked();
     void onCalibrateClicked();

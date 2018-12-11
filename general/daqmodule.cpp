@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-DAQModule::DAQModule(const QString& controlhubPath, const QString& ph2acfPath, const QString& daqHwdescFile, const QString& daqImage)
+DAQModule::DAQModule(const QString& fc7Port, const QString& controlhubPath, const QString& ph2acfPath, const QString& daqHwdescFile, const QString& daqImage)
 {
 	_contrStartPath = _pathjoin({controlhubPath, "bin", "controlhub_start"});
 	_ph2SetupPath = _pathjoin({ph2acfPath, "setup.sh"});
@@ -23,6 +23,8 @@ DAQModule::DAQModule(const QString& controlhubPath, const QString& ph2acfPath, c
 	_daqHwdescFile = daqHwdescFile;
 	_daqImage = daqImage;
 	
+	_fc7Port = fc7Port;
+	_fc7comhandler = nullptr;
 	_fc7power = false;
 	
 	// Check if all needed executables and files exist
@@ -44,12 +46,18 @@ DAQModule::DAQModule(const QString& controlhubPath, const QString& ph2acfPath, c
 		throw BurnInException("Can not read daqHwdescFile " + _daqHwdescFile.toStdString());
 }
 
+DAQModule::~DAQModule() {
+	if (_fc7comhandler != nullptr)
+		delete _fc7comhandler;
+}
+
 void DAQModule::initialize() {
 	// Start controlhub
 	QProcess controlhub_start;
 	if (not controlhub_start.startDetached(_contrStartPath, {}))
 		throw BurnInException("Unable to start the controlhub " + _contrStartPath.toStdString());
 		
+	_fc7comhandler = new ComHandler(_fc7Port.toStdString().c_str(), B9600);
 	// Get whether FC7 is powered on
 	// TODO
 }
@@ -65,7 +73,11 @@ QString DAQModule::_pathjoin(const std::initializer_list<const QString>& parts) 
 }
 
 void DAQModule::setFC7Power(bool power) {
-	// TODO
+	if (power)
+		_fc7comhandler->SendCommand("1");
+	else
+		_fc7comhandler->SendCommand("0");
+	_fc7power = power;
 }
 
 bool DAQModule::getFC7Power() const {

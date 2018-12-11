@@ -2,6 +2,7 @@
 #define DAQMODULE_H
 
 #include "genericinstrumentclass.h"
+#include "ComHandler.h"
 
 #include <QString>
 #include <initializer_list>
@@ -9,7 +10,11 @@
 class DAQModule : public GenericInstrumentClass
 {
 public:
-    DAQModule(const QString& controlhubPath, const QString& ph2acfPath, const QString& daqHwdescFile, const QString& daqImage);
+    DAQModule(const QString& fc7Port, const QString& controlhubPath, const QString& ph2acfPath, const QString& daqHwdescFile, const QString& daqImage);
+    ~DAQModule();
+    DAQModule(const DAQModule&) = delete;
+    DAQModule& operator=(const DAQModule&) = delete;
+    
     void initialize();
     
     void setFC7Power(bool power);
@@ -37,6 +42,8 @@ private:
     QString _daqHwdescFile;
     QString _daqImage;
     
+    QString _fc7Port;
+    ComHandler* _fc7comhandler;
     bool _fc7power;
     
     QString _pathjoin(const std::initializer_list<const QString>& parts) const;

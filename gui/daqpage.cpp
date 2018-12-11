@@ -1,11 +1,15 @@
 #include "daqpage.h"
 
+#include <QCheckBox>
 #include <QPushButton>
 
 DAQPage::DAQPage(QWidget* daqPageWidget)
 {
     _daqPageWidget = daqPageWidget;
     _module = nullptr;
+    
+    QCheckBox* fc7power_check = _daqPageWidget->findChild<QCheckBox*>("fc7power_check");
+    connect(fc7power_check, SIGNAL(stateChanged(int)), this, SLOT(onFc7powerState(int)));
     
     QPushButton* loadfirmware_button = _daqPageWidget->findChild<QPushButton*>("loadfirmware_button");
     connect(loadfirmware_button, SIGNAL(clicked()), this, SLOT(onLoadfirmwareClicked()));
@@ -31,6 +35,10 @@ DAQPage::DAQPage(QWidget* daqPageWidget)
 
 void DAQPage::setDAQModule(DAQModule* module) {
     _module = module;
+}
+
+void DAQPage::onFc7powerState(int state) {
+    _module->setFC7Power(state);
 }
 
 void DAQPage::onLoadfirmwareClicked() {

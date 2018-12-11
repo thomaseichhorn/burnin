@@ -229,14 +229,15 @@ void SystemControllerClass::_parseDataAquisition() {
         if (desc.classOfInstr != "DAQModule")
             continue;
         
-        QString controlhubPath, ph2acfPath, daqHwdescFile, daqImage;
+        QString fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage;
+        fc7Port = QString::fromStdString(desc.interface_settings.at("fc7Port"));
         controlhubPath = QString::fromStdString(desc.interface_settings.at("controlhubPath"));
         ph2acfPath = QString::fromStdString(desc.interface_settings.at("ph2acfPath"));
         daqHwdescFile = QString::fromStdString(desc.interface_settings.at("daqHwdescFile"));
         daqImage = QString::fromStdString(desc.interface_settings.at("daqImage"));
         
         string ident = _getIdentifierForDescription(desc);
-        DAQModule* module = new DAQModule(controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
+        DAQModule* module = new DAQModule(fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
         daqmodules.push_back(module);
         fGenericInstrumentMap[ident] = module;
     }
