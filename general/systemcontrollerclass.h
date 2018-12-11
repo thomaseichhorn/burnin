@@ -16,11 +16,12 @@
 #include "JulaboFP50.h"
 #include "additional/hwdescriptionparser.h"
 #include "genericinstrumentclass.h"
+#include "daqmodule.h"
 
 
 using namespace  std;
 
-class SystemControllerClass:public QThread
+class SystemControllerClass:public QObject
 {
     Q_OBJECT
 public:
@@ -50,18 +51,23 @@ public:
     void startDoingList();
     void Wait(int pSec);
 
-    void ParseChiller();
-    void ParseVSources();
-    void ParseRaspberry();
-
     int countIntrument(string instrument_name);
     PowerControlClass* getObject(string pStr);
     GenericInstrumentClass* getGenericInstrObj(string pStr);
     vector<string> getSourceNameVec();
     vector<QString>* readFile();
+    
+    const vector<DAQModule*> getDaqModules() const;
 
 private:
     string _getIdentifierForDescription(const GenericInstrumentDescription_t& desc) const;
+    
+    void _parseChiller();
+    void _parseVSources();
+    void _parseRaspberry();
+    void _parseDataAquisition();
+    
+    vector<DAQModule*> daqmodules;
 
 private slots:
     void wait(double pTime);

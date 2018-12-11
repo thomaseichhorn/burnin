@@ -9,8 +9,8 @@
                 <Output Voltage="5" CurrentLimit="0.06"/>
             </VoltageSource>
             <VoltageSource class="TTI" port="9221" address="192.168.1.181" description="used for something">
-                <Output Voltage="3.3" CurrentLimit="0.75"/>
-                <Output Voltage="1.2" CurrentLimit="0.4"/>
+                <Output Voltage="3.3" CurrentLimit="0.4"/>
+                <Output Voltage="1.3" CurrentLimit="0.75"/>
             </VoltageSource>
         </LowVoltage>
         <!-- High Voltage Section -->
@@ -34,5 +34,8 @@
             <Sensor sensor="SHT75_hum"/>
         </RaspberryControl>
     </Environment>
+    <DataAcquisition>
+        <DAQModule class="DAQModule" controlhubPath="/opt/cactus" ph2acfPath="/opt/Ph2_ACF" daqHwdescFile="/opt/Ph2_ACF/settings/D19CDescription8CBC2.xml" daqImage="d19c_8xCBC2_21112018.bin"/>
+    </DataAcquisition>
 </HardwareDescription>
 

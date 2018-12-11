@@ -135,7 +135,7 @@ string SystemControllerClass::_getIdentifierForDescription(const GenericInstrume
 }
 
 //reads file and makes map with name and object of power supply
-void SystemControllerClass::ParseVSources()
+void SystemControllerClass::_parseVSources()
 {
     string cConnection, cAddress;
 
@@ -182,7 +182,7 @@ void SystemControllerClass::ParseVSources()
     }
 }
 
-void SystemControllerClass::ParseRaspberry()
+void SystemControllerClass::_parseRaspberry()
 {
     string cConnection, cAddress;
     quint16 cPort;
@@ -206,7 +206,7 @@ void SystemControllerClass::ParseRaspberry()
     }
 }
 
-void SystemControllerClass::ParseChiller()
+void SystemControllerClass::_parseChiller()
 {
     string cAddress, cConnection;
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
@@ -222,6 +222,24 @@ void SystemControllerClass::ParseChiller()
             fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
 
         }
+    }
+}
+
+void SystemControllerClass::_parseDataAquisition() {
+    for (const auto& desc: fHWDescription) {
+        if (desc.classOfInstr != "DAQModule")
+            continue;
+        
+        QString controlhubPath, ph2acfPath, daqHwdescFile, daqImage;
+        controlhubPath = QString::fromStdString(desc.interface_settings.at("controlhubPath"));
+        ph2acfPath = QString::fromStdString(desc.interface_settings.at("ph2acfPath"));
+        daqHwdescFile = QString::fromStdString(desc.interface_settings.at("daqHwdescFile"));
+        daqImage = QString::fromStdString(desc.interface_settings.at("daqImage"));
+        
+        string ident = _getIdentifierForDescription(desc);
+        DAQModule* module = new DAQModule(controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
+        daqmodules.push_back(module);
+        fGenericInstrumentMap[ident] = module;
     }
 }
 
@@ -245,17 +263,19 @@ void SystemControllerClass::ReadXmlFile(std::string pFileName)
         } else if (desc.classOfInstr != "TTI" and
             desc.classOfInstr != "Keithley2410" and
             desc.classOfInstr != "JulaboFP50" and
-            desc.classOfInstr != "Thermorasp") {
+            desc.classOfInstr != "Thermorasp" and
+            desc.classOfInstr != "DAQModule") {
                 
             throw BurnInException(string("Invalid class \"") + desc.classOfInstr
-                + "\". Valid classes are: TTI, Keithley2410, JulaboFP50, Thermorasp");
+                + "\". Valid classes are: TTI, Keithley2410, JulaboFP50, "
+                "Thermorasp, DAQModule");
         }
     }
 
-    this->ParseVSources();
-    this->ParseRaspberry();
-    this->ParseChiller();
-
+    this->_parseVSources();
+    this->_parseRaspberry();
+    this->_parseChiller();
+    this->_parseDataAquisition();
 }
 
 //gets the value of key pStr
@@ -267,4 +287,8 @@ PowerControlClass* SystemControllerClass::getObject(string pStr)
 vector<string> SystemControllerClass::getSourceNameVec()
 {
     return fNamesVoltageSources;
+}
+
+const vector<DAQModule*> SystemControllerClass::getDaqModules() const {
+    return daqmodules;
 }

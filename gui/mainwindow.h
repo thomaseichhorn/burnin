@@ -16,6 +16,7 @@
 #include "voltagecontrol/powercontrolclass.h"
 #include "additionalwindow.h"
 #include "additional/additionalthread.h"
+#include "daqpage.h"
 
 namespace Ui {
 class MainWindow;
@@ -95,6 +96,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    DAQPage* daqPage;
     int fRowClicked;
     QStandardItemModel *model;
     QModelIndex fIndex;
