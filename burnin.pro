@@ -38,7 +38,6 @@ SOURCES += \
     general/ComHandler.cpp \
     general/JulaboFP50.cpp \
     general/thermorasp.cpp \
-    general/daqcontrolclass.cpp \
     general/databaseinterfaceclass.cpp \
     general/environmentcontrolclass.cpp \
     general/genericinstrumentclass.cpp \
@@ -72,7 +71,6 @@ HEADERS += \
     additional/additionalthread.h \
     additional/hwdescriptionparser.h \
     general/thermorasp.h \
-    general/daqcontrolclass.h \
     general/databaseinterfaceclass.h \
     general/environmentcontrolclass.h \
     general/genericinstrumentclass.h \

@@ -18,7 +18,6 @@ using namespace std;
 
 SystemControllerClass::SystemControllerClass()
 {
-    fDaqControl = new DAQControlClass();
     fDatabase = new DatabaseInterfaceClass();
     fConnectRasp = NULL;
 }
