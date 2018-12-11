@@ -7,7 +7,6 @@
 #include <QThread>
 
 #include "voltagecontrol/powercontrolclass.h"
-#include "daqcontrolclass.h"
 #include "environmentcontrolclass.h"
 #include "databaseinterfaceclass.h"
 #include "voltagecontrol/controlttipower.h"
@@ -29,7 +28,6 @@ public:
     ~SystemControllerClass();
 
     Thermorasp *fConnectRasp;
-    DAQControlClass *fDaqControl;
     EnvironmentControlClass *fEnv;
     DatabaseInterfaceClass *fDatabase;
     vector<string> fRaspberrySensorsNames;

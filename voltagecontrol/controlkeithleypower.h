@@ -40,6 +40,7 @@ class ControlKeithleyPower: public QObject, public PowerControlClass
     
 public:
     ControlKeithleyPower(string pConnection, double pSetVolt, double pSetCurr);
+    virtual ~ControlKeithleyPower();
 
     void initialize();
     PowerControlClass::fVACvalues* getVoltAndCurr();

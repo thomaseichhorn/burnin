@@ -17,7 +17,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "additional/additionalthread.h"
-#include "general/julabowrapper.h"
+#include "general/JulaboFP50.h"
 #include "general/BurnInException.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -667,8 +667,7 @@ void MainWindow::on_OnOff_button_stateChanged(string pSourceName, int dev_num, i
         }
     }
     if(pSourceName == "JulaboFP50"){
-        JulaboWrapper* wrapper = dynamic_cast<JulaboWrapper*>(fControl->getGenericInstrObj("JulaboFP50"));
-        JulaboFP50* chiller = wrapper->fJulabo;
+        JulaboFP50* chiller = dynamic_cast<JulaboFP50*>(fControl->getGenericInstrObj("JulaboFP50"));
         if(pArg){
             gui_chiller->setTemperature->setEnabled(false);
             
@@ -815,7 +814,7 @@ bool MainWindow::readXmlFile()
                 gui_raspberry = SetRaspberryOutput(rasp_layout , fControl->fRaspberrySensorsNames , i.first);
             }
 
-            if( dynamic_cast<JulaboWrapper*>(i.second) ){
+            if( dynamic_cast<JulaboFP50*>(i.second) ){
                 gui_chiller = SetChillerOutput(chiller_layout , i.first);
 
                 connect(gui_chiller->onoff_button, &QCheckBox::toggled, [this](bool pArg)
@@ -866,8 +865,7 @@ void MainWindow::on_read_conf_button_clicked()
 void MainWindow::app_quit() {
     // Set chillder temperature and turn off
     if (fControl->countIntrument("JulaboFP50") > 0) {
-        JulaboWrapper* wrapper = dynamic_cast<JulaboWrapper*>(fControl->getGenericInstrObj("JulaboFP50"));
-        JulaboFP50* chiller = wrapper->fJulabo;
+        JulaboFP50* chiller = dynamic_cast<JulaboFP50*>(fControl->getGenericInstrObj("JulaboFP50"));
         chiller->SetWorkingTemperature(20);
         chiller->SetCirculatorOff();
     }

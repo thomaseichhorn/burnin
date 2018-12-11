@@ -38,7 +38,6 @@ SOURCES += \
     general/ComHandler.cpp \
     general/JulaboFP50.cpp \
     general/thermorasp.cpp \
-    general/daqcontrolclass.cpp \
     general/databaseinterfaceclass.cpp \
     general/environmentcontrolclass.cpp \
     general/genericinstrumentclass.cpp \
@@ -49,7 +48,6 @@ SOURCES += \
     voltagecontrol/controlkeithleypower.cpp \
     voltagecontrol/controlttipower.cpp \
     voltagecontrol/powercontrolclass.cpp \
-    general/julabowrapper.cpp \
     general/daqmodule.cpp \
     gui/daqpage.cpp
 
@@ -72,7 +70,6 @@ HEADERS += \
     additional/additionalthread.h \
     additional/hwdescriptionparser.h \
     general/thermorasp.h \
-    general/daqcontrolclass.h \
     general/databaseinterfaceclass.h \
     general/environmentcontrolclass.h \
     general/genericinstrumentclass.h \
@@ -84,6 +81,5 @@ HEADERS += \
     voltagecontrol/powercontrolclass.h \
     general/ComHandler.h \
     general/JulaboFP50.h \
-    general/julabowrapper.h \
     general/daqmodule.h \
     gui/daqpage.h

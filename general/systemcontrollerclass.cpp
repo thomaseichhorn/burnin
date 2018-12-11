@@ -11,14 +11,13 @@
 
 #include "general/systemcontrollerclass.h"
 #include "additional/hwdescriptionparser.h"
-#include "julabowrapper.h"
+#include "JulaboFP50.h"
 #include "BurnInException.h"
 
 using namespace std;
 
 SystemControllerClass::SystemControllerClass()
 {
-    fDaqControl = new DAQControlClass();
     fDatabase = new DatabaseInterfaceClass();
     fConnectRasp = NULL;
 }
@@ -78,7 +77,7 @@ void SystemControllerClass::startDoingList()
         if(cStr == "Set Temperature (°C)"){
            // moveToThread(cThread);
             connect(cThread, &QThread::started, [this, cValue] {
-                dynamic_cast<JulaboWrapper*>(this->getGenericInstrObj("JulaboFP50"))->fJulabo->SetWorkingTemperature(cValue);
+                dynamic_cast<JulaboFP50*>(this->getGenericInstrObj("JulaboFP50"))->SetWorkingTemperature(cValue);
             });
             cThread->start();
         }
@@ -217,8 +216,8 @@ void SystemControllerClass::_parseChiller()
             cAddress = fHWDescription[i].interface_settings["address"];
             cConnection = fHWDescription[i].interface_settings["connection"];
 
-            GenericInstrumentClass* fJulaboWrapper = new JulaboWrapper(cAddress);
-            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fJulaboWrapper));
+            GenericInstrumentClass* fJulabo = new JulaboFP50(cAddress);
+            fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fJulabo));
             fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
 
         }
@@ -230,14 +229,15 @@ void SystemControllerClass::_parseDataAquisition() {
         if (desc.classOfInstr != "DAQModule")
             continue;
         
-        QString controlhubPath, ph2acfPath, daqHwdescFile, daqImage;
+        QString fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage;
+        fc7Port = QString::fromStdString(desc.interface_settings.at("fc7Port"));
         controlhubPath = QString::fromStdString(desc.interface_settings.at("controlhubPath"));
         ph2acfPath = QString::fromStdString(desc.interface_settings.at("ph2acfPath"));
         daqHwdescFile = QString::fromStdString(desc.interface_settings.at("daqHwdescFile"));
         daqImage = QString::fromStdString(desc.interface_settings.at("daqImage"));
         
         string ident = _getIdentifierForDescription(desc);
-        DAQModule* module = new DAQModule(controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
+        DAQModule* module = new DAQModule(fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
         daqmodules.push_back(module);
         fGenericInstrumentMap[ident] = module;
     }
@@ -254,28 +254,45 @@ GenericInstrumentClass* SystemControllerClass::getGenericInstrObj(string pStr)
 
 void SystemControllerClass::ReadXmlFile(std::string pFileName)
 {
-    HWDescriptionParser cParser;
-    fHWDescription = cParser.ParseXML(pFileName);
-    
-    for (const auto& desc: fHWDescription) {
-        if (desc.classOfInstr == "") {
-            throw BurnInException("Device is missing class name");
-        } else if (desc.classOfInstr != "TTI" and
-            desc.classOfInstr != "Keithley2410" and
-            desc.classOfInstr != "JulaboFP50" and
-            desc.classOfInstr != "Thermorasp" and
-            desc.classOfInstr != "DAQModule") {
-                
-            throw BurnInException(string("Invalid class \"") + desc.classOfInstr
-                + "\". Valid classes are: TTI, Keithley2410, JulaboFP50, "
-                "Thermorasp, DAQModule");
+    try {
+        HWDescriptionParser cParser;
+        fHWDescription = cParser.ParseXML(pFileName);
+        
+        for (const auto& desc: fHWDescription) {
+            if (desc.classOfInstr == "") {
+                throw BurnInException("Device is missing class name");
+            } else if (desc.classOfInstr != "TTI" and
+                desc.classOfInstr != "Keithley2410" and
+                desc.classOfInstr != "JulaboFP50" and
+                desc.classOfInstr != "Thermorasp" and
+                desc.classOfInstr != "DAQModule") {
+                    
+                throw BurnInException(string("Invalid class \"") + desc.classOfInstr
+                    + "\". Valid classes are: TTI, Keithley2410, JulaboFP50, "
+                    "Thermorasp, DAQModule");
+            }
         }
-    }
 
-    this->_parseVSources();
-    this->_parseRaspberry();
-    this->_parseChiller();
-    this->_parseDataAquisition();
+        _parseVSources();
+        _parseRaspberry();
+        _parseChiller();
+        _parseDataAquisition();
+        
+    } catch (BurnInException e) {
+        fNamesInstruments.clear();
+        fConnectRasp = nullptr;
+        fRaspberrySensorsNames.clear();
+        fNamesVoltageSources.clear();
+        fMapSources.clear();
+        fHWDescription.clear();
+        fListOfCommands.clear();
+        
+        for (const auto& instrument: fGenericInstrumentMap)
+            delete instrument.second;
+        fGenericInstrumentMap.clear();
+        
+        throw;
+    }
 }
 
 //gets the value of key pStr

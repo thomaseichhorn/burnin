@@ -20,13 +20,18 @@
 #include <utility>
 #include <fstream>
 
+#include "genericinstrumentclass.h"
+
 typedef const char* ioport_t;
 class ComHandler;
-class JulaboFP50
+class JulaboFP50: public GenericInstrumentClass
 {
  public:
 
   JulaboFP50( ioport_t );
+  JulaboFP50( const std::string& ioPort );
+  
+  void initialize();
 
   bool SetWorkingTemperature( const float ) const;
   bool SetPumpPressure( const unsigned int ) const;
@@ -55,6 +60,7 @@ class JulaboFP50
 
  private:
 
+  std::string ioPort_;
   void Device_Init( void );
   ComHandler* comHandler_;
   bool isCommunication_;
