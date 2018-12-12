@@ -8,6 +8,10 @@
 
 #include <iostream>
 
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 DAQModule::DAQModule(const QString& fc7Port, const QString& controlhubPath, const QString& ph2acfPath, const QString& daqHwdescFile, const QString& daqImage)
 {
 	_contrStartPath = _pathjoin({controlhubPath, "bin", "controlhub_start"});
@@ -56,10 +60,32 @@ void DAQModule::initialize() {
 	QProcess controlhub_start;
 	if (not controlhub_start.startDetached(_contrStartPath, {}))
 		throw BurnInException("Unable to start the controlhub " + _contrStartPath.toStdString());
-		
-	_fc7comhandler = new ComHandler(_fc7Port.toStdString().c_str(), B9600);
-	// Get whether FC7 is powered on
-	// TODO
+
+	_fc7comhandler = new ComHandler ( _fc7Port.toStdString ( ) .c_str ( ), B9600 );
+	// query status
+	// no feed for the arduino
+	bool nofeed = false;
+	_fc7comhandler -> SendCommand ( "2", nofeed );
+	// wait for arduino to process this
+	// 1000 from comhandler...
+	usleep ( 10000 );
+	char buffer[1];
+	_fc7comhandler -> ReceiveByte ( buffer );
+	if ( buffer[0] == '0' )
+	{
+	    _fc7power = false;
+	    std::cout << "FC7 power is OFF!" << std::endl;
+	}
+	else if ( buffer[0] == '1' )
+	{
+	    _fc7power = true;
+	    std::cout << "FC7 power is ON!" << std::endl;
+	}
+	else
+	{
+	    throw BurnInException ( "Can't get FC7 power status!" );
+	}
+
 }
 
 QString DAQModule::_pathjoin(const std::initializer_list<const QString>& parts) const {
@@ -72,12 +98,37 @@ QString DAQModule::_pathjoin(const std::initializer_list<const QString>& parts) 
 	return QDir::cleanPath(path);
 }
 
-void DAQModule::setFC7Power(bool power) {
-	if (power)
-		_fc7comhandler->SendCommand("1");
-	else
-		_fc7comhandler->SendCommand("0");
-	_fc7power = power;
+void DAQModule::setFC7Power ( bool power )
+{
+    if ( power )
+    {
+	_fc7comhandler -> SendCommand ( "1", false );
+	//usleep ( 10000 );
+	//_fc7comhandler -> SendCommand ( "2", false );
+	//usleep ( 10000 );
+	//char buffer[1];
+	//_fc7comhandler -> ReceiveByte ( buffer );
+	//if ( buffer[0] != '1' )
+	//{
+	//    //throw BurnInException ( "Can't get FC7 power status!" );
+	//    std::cout << "asdf " << buffer << std::endl;
+	//}
+    }
+    else
+    {
+	_fc7comhandler -> SendCommand ( "0", false );
+	//usleep ( 10000 );
+	//_fc7comhandler -> SendCommand ( "2", false );
+	//usleep ( 10000 );
+	//char buffer[1];
+	//_fc7comhandler -> ReceiveByte ( buffer );
+	//if ( buffer[0] != '0' )
+	//{
+	//    //throw BurnInException ( "Can't get FC7 power status!" );
+	//    std::cout << "asdf " << buffer << std::endl;
+	//}
+    }
+    _fc7power = power;
 }
 
 bool DAQModule::getFC7Power() const {
