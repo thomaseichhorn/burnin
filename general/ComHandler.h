@@ -51,7 +51,9 @@ class ComHandler {
   ComHandler( const ComHandler& );
 
   void SendCommand( const char* );
+  void SendCommand( const char*, bool );
   void ReceiveString( char* );
+  void ReceiveByte ( char* );
 
   static constexpr int ComHandlerDelay = 1000;
 

@@ -82,6 +82,31 @@ void ComHandler::SendCommand( const char *commandString ) {
   SendFeedString();
 }
 
+void ComHandler::SendCommand( const char *commandString, bool needfeed ) {
+
+  char singleCharacter = 0;
+
+  std::cout << "Command to " << fIoPort << ": " << commandString << std::endl;
+
+  for ( unsigned int i = 0; i < strlen( commandString ); i++ ) {
+
+    // scan command string character wise & write
+    singleCharacter = commandString[i];
+    ssize_t bytes_written;
+    bytes_written = write( fIoPortFileDescriptor, &singleCharacter, 1 );
+    if ( bytes_written < 0 )
+    {
+      std::cerr << "Problem in writing to ComHandler!" << std::endl;
+    }
+  }
+
+  if ( needfeed )
+  {
+    // send feed characters
+    SendFeedString();
+  }
+}
+
 //! Read a string from device.
 /*!
 \par Input:
@@ -101,6 +126,32 @@ void ComHandler::ReceiveString( char *receiveString ) {
   while ( timeout < 100000 )  {
 
     readResult = read( fIoPortFileDescriptor, receiveString, 1024 );
+
+    if ( readResult >= 0 )
+      receiveString[readResult] = 0;
+
+    if ( readResult > 0 )
+      break;
+
+    timeout++;
+
+  }
+  if (timeout >= 100000)
+    std::cout << "Timeout reached when reading from " << fIoPort << std::endl;
+  else
+    std::cout << "Read " << readResult << " bytes from " << fIoPort << ": " << receiveString << std::endl;
+}
+
+void ComHandler::ReceiveByte ( char *receiveString )
+{
+
+  usleep( ComHandlerDelay );
+
+  int timeout = 0, readResult = 0;
+
+  while ( timeout < 100000 )  {
+
+    readResult = read( fIoPortFileDescriptor, receiveString, 1 );
 
     if ( readResult >= 0 )
       receiveString[readResult] = 0;
