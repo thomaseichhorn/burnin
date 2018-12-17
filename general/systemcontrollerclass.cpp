@@ -19,7 +19,8 @@ using namespace std;
 SystemControllerClass::SystemControllerClass()
 {
     fDatabase = new DatabaseInterfaceClass();
-    fConnectRasp = NULL;
+    _daqmodule = nullptr;
+    fConnectRasp = nullptr;
 }
 
 SystemControllerClass::~SystemControllerClass()
@@ -237,9 +238,8 @@ void SystemControllerClass::_parseDataAquisition() {
         daqImage = QString::fromStdString(desc.interface_settings.at("daqImage"));
         
         string ident = _getIdentifierForDescription(desc);
-        DAQModule* module = new DAQModule(fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
-        daqmodules.push_back(module);
-        fGenericInstrumentMap[ident] = module;
+        _daqmodule = new DAQModule(fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
+        fGenericInstrumentMap[ident] = _daqmodule;
     }
 }
 
@@ -306,6 +306,6 @@ vector<string> SystemControllerClass::getSourceNameVec()
     return fNamesVoltageSources;
 }
 
-const vector<DAQModule*> SystemControllerClass::getDaqModules() const {
-    return daqmodules;
+DAQModule* SystemControllerClass::getDaqModule() const {
+    return _daqmodule;
 }

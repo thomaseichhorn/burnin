@@ -30,6 +30,8 @@ public:
     void runHybridtest() const;
     void runCmtest() const;
     void runCommission() const;
+    
+    const int FC7SLEEP = 10000; //us
 
 signals:
     void fc7PowerChanged(bool);

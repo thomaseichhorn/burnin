@@ -55,7 +55,7 @@ public:
     vector<string> getSourceNameVec();
     vector<QString>* readFile();
     
-    const vector<DAQModule*> getDaqModules() const;
+    DAQModule* getDaqModule() const;
 
 private:
     string _getIdentifierForDescription(const GenericInstrumentDescription_t& desc) const;
@@ -65,7 +65,7 @@ private:
     void _parseRaspberry();
     void _parseDataAquisition();
     
-    vector<DAQModule*> daqmodules;
+    DAQModule* _daqmodule;
 
 private slots:
     void wait(double pTime);

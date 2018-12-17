@@ -34,6 +34,9 @@ DAQPage::DAQPage(QWidget* daqPageWidget)
 }
 
 void DAQPage::setDAQModule(DAQModule* module) {
+    if (_module != nullptr)
+        disconnect(_module, SIGNAL(fc7PowerChanged(bool)), this, SLOT(onFc4PowerChanged(bool)));
+    
     _module = module;
     
     connect(_module, SIGNAL(fc7PowerChanged(bool)), this, SLOT(onFc4PowerChanged(bool)));

@@ -71,7 +71,7 @@ void DAQModule::initialize() {
 	_fc7comhandler->SendCommand ("2", false);
 	// wait for arduino to process this
 	// 1000 from comhandler...
-	QThread::usleep(10000);
+	QThread::usleep(FC7SLEEP);
 	_fc7comhandler->ReceiveString(buf);
 	if (buf[0] == '0') {
 		_fc7power = false;
@@ -102,7 +102,7 @@ void DAQModule::setFC7Power(bool power) {
 		_fc7comhandler->SendCommand("0", false);
 	
 	char buf[1024];
-	QThread::usleep(10000);
+	QThread::usleep(FC7SLEEP);
 	_fc7comhandler->ReceiveString(buf);
 	switch (buf[0]) {
 	case '0':
