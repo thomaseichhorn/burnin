@@ -5,6 +5,7 @@
 #include <QXmlStreamReader>
 
 struct GenericInstrumentDescription_t {
+    std::string section;
     std::string name;
     std::string classOfInstr;
     std::string description;

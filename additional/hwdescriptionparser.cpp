@@ -85,6 +85,7 @@ GenericInstrumentDescription_t HWDescriptionParser::ParseGeneric(const QXmlStrea
 void HWDescriptionParser::ParseVoltageSource(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) {
 
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    cInstrument.section = "VoltageSource";
 
     while (pXmlFile->readNextStartElement()) {
         std::string name = pXmlFile->name().toString().toStdString();
@@ -124,6 +125,7 @@ void HWDescriptionParser::ParseEnvironment(QXmlStreamReader *pXmlFile, std::vect
 void HWDescriptionParser::ParseChiller(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    cInstrument.section = "ChillerControl";
     pXmlFile->skipCurrentElement();
     // push back now
     pInstruments.push_back(cInstrument);
@@ -132,6 +134,7 @@ void HWDescriptionParser::ParseChiller(QXmlStreamReader *pXmlFile, std::vector<G
 void HWDescriptionParser::ParsePeltier(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    cInstrument.section = "PeltierControl";
     pXmlFile->skipCurrentElement();
     pInstruments.push_back(cInstrument);
 }
@@ -139,6 +142,7 @@ void HWDescriptionParser::ParsePeltier(QXmlStreamReader *pXmlFile, std::vector<G
 void HWDescriptionParser::ParseRaspberry(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    cInstrument.section = "RaspberryControl";
 
     while (pXmlFile->readNextStartElement()) {
         std::string name = pXmlFile->name().toString().toStdString();
@@ -169,6 +173,7 @@ void HWDescriptionParser::ParseDataAquisition(QXmlStreamReader *pXmlFile, std::v
 
 void HWDescriptionParser::ParseDAQModule(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) {
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    cInstrument.section = "DAQModule";
     pXmlFile->skipCurrentElement();
     pInstruments.push_back(cInstrument);
 }

@@ -60,10 +60,12 @@ public:
 private:
     string _getIdentifierForDescription(const GenericInstrumentDescription_t& desc) const;
     
+    void _removeAllDevices();
+    
     void _parseChiller();
     void _parseVSources();
     void _parseRaspberry();
-    void _parseDataAquisition();
+    void _parseDaqModule();
     
     DAQModule* _daqmodule;
 
