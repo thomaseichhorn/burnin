@@ -23,8 +23,9 @@ SystemControllerClass::SystemControllerClass()
     fConnectRasp = nullptr;
 }
 
-SystemControllerClass::~SystemControllerClass()
-{}
+SystemControllerClass::~SystemControllerClass() {
+    _removeAllDevices();
+}
 
 void SystemControllerClass::Initialize()
 {
@@ -314,6 +315,9 @@ void SystemControllerClass::ReadXmlFile(std::string pFileName)
         _parseRaspberry();
         _parseChiller();
         _parseDaqModule();
+        
+        if (_daqmodule == nullptr)
+            cerr << "No DAQ module was found in config." << endl;
         
     } catch (BurnInException e) {
         _removeAllDevices();

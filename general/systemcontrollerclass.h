@@ -25,7 +25,9 @@ class SystemControllerClass:public QObject
     Q_OBJECT
 public:
     SystemControllerClass();
-    ~SystemControllerClass();
+    virtual ~SystemControllerClass();
+    SystemControllerClass(const SystemControllerClass&) = delete;
+    SystemControllerClass& operator=(const SystemControllerClass&) = delete;
 
     Thermorasp *fConnectRasp;
     EnvironmentControlClass *fEnv;

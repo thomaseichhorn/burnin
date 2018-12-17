@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     daqPage = new DAQPage(ui->DAQControl);
 
-//    fControl = new SystemControllerClass();
+    fControl = nullptr;
 
     model = new QStandardItemModel(this);
 
@@ -817,32 +817,49 @@ bool MainWindow::readXmlFile()
 
 void MainWindow::on_read_conf_button_clicked()
 {
-    bool cSuccess = false;
+    bool xml_was_read = false;
     try {
         // read the xml file
-        cSuccess = readXmlFile();
-
-        // enable gui
-        if (cSuccess)
-            initHard();
-    } catch (BurnInException e) {
-        cerr << "Error: " << e.what() << endl;
-        QMessageBox dialog(this);
-        dialog.critical(this, "Error", QString::fromStdString(e.what()));
-        cSuccess = false;
-    }
-    
-    if (cSuccess) {
+        readXmlFile();
+        xml_was_read = true;
+        
+        initHard();
+            
+            
         // enable back
         ui->tabWidget->setEnabled(true);
         ui->Start_pushButton->setEnabled(true);
         ui->read_conf_button->setEnabled(false);
+        
+        if (fControl->getDaqModule() != nullptr)
+            ui->DAQControl->setEnabled(true);
+            
+    } catch (BurnInException e) {
+        cerr << "Error: " << e.what() << endl;
+        QMessageBox dialog(this);
+        dialog.critical(this, "Error", QString::fromStdString(e.what()));
+        
+        if (xml_was_read) {
+            // Do a clean up of things that were created already
+            if (fControl != nullptr)
+                delete fControl;
+            for (auto& p: gui_pointers_low_voltage)
+                delete p;
+            for (auto& p: gui_pointers_high_voltage)
+                delete p;
+            gui_pointers_low_voltage.clear();
+            gui_pointers_high_voltage.clear();
+            delete ui->groupBox->layout();
+            delete ui->groupBox_2->layout();
+            delete ui->groupBox_3->layout();
+            delete ui->groupBox_Chiller->layout();
+        }
     }
 }
 
 void MainWindow::app_quit() {
     // Set chillder temperature and turn off
-    if (fControl->countIntrument("JulaboFP50") > 0) {
+    if (fControl != nullptr and fControl->countIntrument("JulaboFP50") > 0) {
         JulaboFP50* chiller = dynamic_cast<JulaboFP50*>(fControl->getGenericInstrObj("JulaboFP50"));
         chiller->SetWorkingTemperature(20);
         chiller->SetCirculatorOff();
