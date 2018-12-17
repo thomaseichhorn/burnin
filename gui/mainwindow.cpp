@@ -695,14 +695,12 @@ void MainWindow::receiveOnOff(string pSourceName, bool pArg)
 //Set func
 void MainWindow::on_V_set_doubleSpinBox_valueChanged(string pSourceName, int pId, double pVolt)
 {
-    std::cout << "MainWindow::on_V_set_doubleSpinBox_valueChanged(" << pSourceName << ", " << pId << ", " << pVolt << ")" << std::endl;
     fControl->getObject(pSourceName)->setVolt(pVolt, pId);
     QThread::sleep(0.5);
 }
 
 void MainWindow::on_I_set_doubleSpinBox_valueChanged(string pSourceName , int pId, double pCurr)
 {
-    std::cout << "MainWindow::on_I_set_doubleSpinBox_valueChanged(" << pSourceName << ", " << pId << ", " << pCurr << ")" << std::endl;
     fControl->getObject(pSourceName)->setCurr(pCurr, pId);
     QThread::sleep(0.5);
 }
@@ -762,26 +760,6 @@ bool MainWindow::readXmlFile()
         QHBoxLayout *high_layout = new QHBoxLayout;
         QHBoxLayout *rasp_layout = new QHBoxLayout;
         QHBoxLayout *chiller_layout = new QHBoxLayout;
-
-        for( auto const &i: fControl->fGenericInstrumentMap){
-            cout << i.first << endl;
-            cout << i.second << endl;
-        }
-        for(auto &i: fControl->fGenericInstrumentMap){
-
-            if( dynamic_cast<ControlTTiPower*>(i.second) ){
-                cout << "Power supply ttI" << endl;
-            }
-            if( dynamic_cast<ControlKeithleyPower*>(i.second) ){
-                cout << "Keithley" << endl;
-            }
-            if( dynamic_cast<JulaboFP50*>(i.second)){
-                cout << "Julabo" << endl;
-            }
-            if( dynamic_cast<Thermorasp*>(i.second)){
-                cout << " Raspberry " << endl;
-            }
-        }
 
         for(auto const& i: fControl->fGenericInstrumentMap){
 

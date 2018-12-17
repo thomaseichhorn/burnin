@@ -75,10 +75,8 @@ void DAQModule::initialize() {
 	_fc7comhandler->ReceiveString(buf);
 	if (buf[0] == '0') {
 		_fc7power = false;
-		std::cout << "FC7 power is OFF!" << std::endl;
 	} else if (buf[0] == '1') {
 		_fc7power = true;
-		std::cout << "FC7 power is ON!" << std::endl;
 	} else
 		throw BurnInException("Can't get FC7 power status!");
 		

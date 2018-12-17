@@ -194,7 +194,6 @@ void SystemControllerClass::_parseVSources()
         fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, dev));
         fNamesVoltageSources.push_back(ident);
         fNamesInstruments.push_back(desc.classOfInstr);
-        cout << "Added \"" << desc.classOfInstr << "\" on " << address << endl;
     }
 }
 
