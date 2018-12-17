@@ -4,11 +4,14 @@
 #include "genericinstrumentclass.h"
 #include "ComHandler.h"
 
+#include <QObject>
 #include <QString>
 #include <initializer_list>
 
-class DAQModule : public GenericInstrumentClass
+class DAQModule : public QObject, public GenericInstrumentClass
 {
+Q_OBJECT
+    
 public:
     DAQModule(const QString& fc7Port, const QString& controlhubPath, const QString& ph2acfPath, const QString& daqHwdescFile, const QString& daqImage);
     ~DAQModule();
@@ -27,6 +30,9 @@ public:
     void runHybridtest() const;
     void runCmtest() const;
     void runCommission() const;
+
+signals:
+    void fc7PowerChanged(bool);
     
 private:
     QString _contrStartPath;

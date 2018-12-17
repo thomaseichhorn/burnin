@@ -35,6 +35,15 @@ DAQPage::DAQPage(QWidget* daqPageWidget)
 
 void DAQPage::setDAQModule(DAQModule* module) {
     _module = module;
+    
+    connect(_module, SIGNAL(fc7PowerChanged(bool)), this, SLOT(onFc4PowerChanged(bool)));
+}
+
+void DAQPage::onFc4PowerChanged(bool state) {
+    QCheckBox* fc7power_check = _daqPageWidget->findChild<QCheckBox*>("fc7power_check");
+    bool blocked = fc7power_check->blockSignals(true);
+    fc7power_check->setChecked(state);
+    fc7power_check->blockSignals(blocked);
 }
 
 void DAQPage::onFc7powerState(int state) {

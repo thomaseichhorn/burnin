@@ -81,6 +81,8 @@ void DAQModule::initialize() {
 		std::cout << "FC7 power is ON!" << std::endl;
 	} else
 		throw BurnInException("Can't get FC7 power status!");
+		
+	emit fc7PowerChanged(_fc7power);
 }
 
 QString DAQModule::_pathjoin(const std::initializer_list<const QString>& parts) const {
@@ -115,6 +117,8 @@ void DAQModule::setFC7Power(bool power) {
 	}
 	if (_fc7power != power)
 		std::cerr << "Could not set FC7 power" << std::endl;
+		
+	emit fc7PowerChanged(_fc7power);
 }
 
 bool DAQModule::getFC7Power() const {
