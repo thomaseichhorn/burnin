@@ -71,31 +71,6 @@ void ComHandler::SendCommand( const char *commandString, bool sendfeed ) {
   }
 }
 
-void ComHandler::SendCommand( const char *commandString, bool needfeed ) {
-
-  char singleCharacter = 0;
-
-  std::cout << "Command to " << fIoPort << ": " << commandString << std::endl;
-
-  for ( unsigned int i = 0; i < strlen( commandString ); i++ ) {
-
-    // scan command string character wise & write
-    singleCharacter = commandString[i];
-    ssize_t bytes_written;
-    bytes_written = write( fIoPortFileDescriptor, &singleCharacter, 1 );
-    if ( bytes_written < 0 )
-    {
-      std::cerr << "Problem in writing to ComHandler!" << std::endl;
-    }
-  }
-
-  if ( needfeed )
-  {
-    // send feed characters
-    SendFeedString();
-  }
-}
-
 //! Read a string from device.
 /*!
 \par receiveString:
