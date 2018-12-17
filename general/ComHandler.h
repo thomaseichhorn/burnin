@@ -50,7 +50,7 @@ class ComHandler {
   //! Default bitwise copy constructor.
   ComHandler( const ComHandler& );
 
-  void SendCommand( const char* );
+  void SendCommand( const char*, bool sendfeed = true );
   void ReceiveString( char* );
 
   static constexpr int ComHandlerDelay = 1000;

@@ -42,7 +42,7 @@ private:
     QString _daqHwdescFile;
     QString _daqImage;
     
-    QString _fc7Port;
+    char* _fc7Port;
     ComHandler* _fc7comhandler;
     bool _fc7power;
     

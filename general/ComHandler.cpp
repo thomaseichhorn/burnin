@@ -60,7 +60,7 @@ ComHandler::~ComHandler( void ) {
 }
 
 //! Send the command string &lt;commandString&gt; to device.
-void ComHandler::SendCommand( const char *commandString ) {
+void ComHandler::SendCommand( const char *commandString, bool sendfeed ) {
 
   char singleCharacter = 0;
 
@@ -78,8 +78,10 @@ void ComHandler::SendCommand( const char *commandString ) {
     }
   }
 
-  // send feed characters
-  SendFeedString();
+  if (sendfeed) {
+    // send feed characters
+    SendFeedString();
+  }
 }
 
 //! Read a string from device.

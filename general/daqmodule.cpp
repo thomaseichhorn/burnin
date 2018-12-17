@@ -23,7 +23,8 @@ DAQModule::DAQModule(const QString& fc7Port, const QString& controlhubPath, cons
 	_daqHwdescFile = daqHwdescFile;
 	_daqImage = daqImage;
 	
-	_fc7Port = fc7Port;
+	_fc7Port = new char[fc7Port.length() + 1];
+	strcpy(_fc7Port, fc7Port.toUtf8().constData());
 	_fc7comhandler = nullptr;
 	_fc7power = false;
 	
@@ -47,6 +48,7 @@ DAQModule::DAQModule(const QString& fc7Port, const QString& controlhubPath, cons
 }
 
 DAQModule::~DAQModule() {
+	delete[] _fc7Port;
 	if (_fc7comhandler != nullptr)
 		delete _fc7comhandler;
 }
@@ -57,7 +59,7 @@ void DAQModule::initialize() {
 	if (not controlhub_start.startDetached(_contrStartPath, {}))
 		throw BurnInException("Unable to start the controlhub " + _contrStartPath.toStdString());
 		
-	_fc7comhandler = new ComHandler(_fc7Port.toStdString().c_str(), B9600);
+	_fc7comhandler = new ComHandler(_fc7Port, B9600);
 	// Get whether FC7 is powered on
 	// TODO
 }
@@ -74,9 +76,9 @@ QString DAQModule::_pathjoin(const std::initializer_list<const QString>& parts) 
 
 void DAQModule::setFC7Power(bool power) {
 	if (power)
-		_fc7comhandler->SendCommand("1");
+		_fc7comhandler->SendCommand("1", false);
 	else
-		_fc7comhandler->SendCommand("0");
+		_fc7comhandler->SendCommand("0", false);
 	_fc7power = power;
 }
 
