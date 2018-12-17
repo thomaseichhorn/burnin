@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QProcess>
+#include <QThread>
 
 #include <iostream>
 
@@ -59,9 +60,27 @@ void DAQModule::initialize() {
 	if (not controlhub_start.startDetached(_contrStartPath, {}))
 		throw BurnInException("Unable to start the controlhub " + _contrStartPath.toStdString());
 		
+	// FC7 arduino runs at 9600 baud. For every char send to it, it
+	// responses with the state of the device ('0' or '1'). Sending a
+	// '0' (a char without line feed) turns the device off, a '1' turns
+	// it on.
 	_fc7comhandler = new ComHandler(_fc7Port, B9600);
+	
 	// Get whether FC7 is powered on
-	// TODO
+	char buf[1024];
+	_fc7comhandler->SendCommand ("2", false);
+	// wait for arduino to process this
+	// 1000 from comhandler...
+	QThread::usleep(10000);
+	_fc7comhandler->ReceiveString(buf);
+	if (buf[0] == '0') {
+		_fc7power = false;
+		std::cout << "FC7 power is OFF!" << std::endl;
+	} else if (buf[0] == '1') {
+		_fc7power = true;
+		std::cout << "FC7 power is ON!" << std::endl;
+	} else
+		throw BurnInException("Can't get FC7 power status!");
 }
 
 QString DAQModule::_pathjoin(const std::initializer_list<const QString>& parts) const {
@@ -79,7 +98,23 @@ void DAQModule::setFC7Power(bool power) {
 		_fc7comhandler->SendCommand("1", false);
 	else
 		_fc7comhandler->SendCommand("0", false);
-	_fc7power = power;
+	
+	char buf[1024];
+	QThread::usleep(10000);
+	_fc7comhandler->ReceiveString(buf);
+	switch (buf[0]) {
+	case '0':
+		_fc7power = false;
+		break;
+	case '1':
+		_fc7power = true;
+		break;
+	default:
+		std::cerr << "Got invalid response from FC7: " << buf[0] << std::endl;
+		break;
+	}
+	if (_fc7power != power)
+		std::cerr << "Could not set FC7 power" << std::endl;
 }
 
 bool DAQModule::getFC7Power() const {
