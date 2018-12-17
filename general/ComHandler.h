@@ -40,9 +40,7 @@ class ComHandler {
  public:
   
   //! Constructor.
-  ComHandler( ioport_t );
-
-  ComHandler( ioport_t, speed_t );
+  ComHandler( ioport_t, speed_t = B9600);
 
   //! Destructor.
   ~ComHandler();
@@ -50,8 +48,7 @@ class ComHandler {
   //! Default bitwise copy constructor.
   ComHandler( const ComHandler& );
 
-  void SendCommand( const char* );
-  void SendCommand( const char*, bool );
+  void SendCommand( const char*, bool sendfeed = true );
   void ReceiveString( char* );
   void ReceiveByte ( char* );
 

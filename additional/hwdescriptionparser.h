@@ -5,6 +5,7 @@
 #include <QXmlStreamReader>
 
 struct GenericInstrumentDescription_t {
+    std::string section;
     std::string name;
     std::string classOfInstr;
     std::string description;
@@ -28,8 +29,8 @@ private:
     void ParsePeltier(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
     void ParseRaspberry(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
     
-    void ParseDataAquisition(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) const;
-    void ParseDAQModule(const QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) const;
+    void ParseDataAquisition(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
+    void ParseDAQModule(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
 };
 
 #endif // HWDESCRIPTIONPARSER_H

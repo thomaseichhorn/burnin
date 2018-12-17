@@ -251,7 +251,7 @@
       </widget>
       <widget class="QWidget" name="DAQControl">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="minimumSize">
         <size>

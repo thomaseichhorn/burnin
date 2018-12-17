@@ -19,11 +19,13 @@ using namespace std;
 SystemControllerClass::SystemControllerClass()
 {
     fDatabase = new DatabaseInterfaceClass();
-    fConnectRasp = NULL;
+    _daqmodule = nullptr;
+    fConnectRasp = nullptr;
 }
 
-SystemControllerClass::~SystemControllerClass()
-{}
+SystemControllerClass::~SystemControllerClass() {
+    _removeAllDevices();
+}
 
 void SystemControllerClass::Initialize()
 {
@@ -136,63 +138,82 @@ string SystemControllerClass::_getIdentifierForDescription(const GenericInstrume
 //reads file and makes map with name and object of power supply
 void SystemControllerClass::_parseVSources()
 {
-    string cConnection, cAddress;
+    for (const auto& desc: fHWDescription) {
+        if (desc.section != "VoltageSource")
+            continue;
+        if (desc.classOfInstr != "TTI" and desc.classOfInstr != "Keithley2410")
+            throw BurnInException("Invalid class " + desc.classOfInstr + " for a VoltageSource device.");
+            
+        string ident = _getIdentifierForDescription(desc);
+        string address = desc.interface_settings.at("address");
+        if (address == "")
+            throw BurnInException("Invalid address for VoltageSource device of class " + desc.classOfInstr + ".");
+            
+        PowerControlClass *dev;
+        if (desc.classOfInstr == "TTI") {
+            int cPort;
+            vector<double> cVolt(2, 0);
+            vector<double> cCurr(2, 0);
+            
+            try {
+                cPort = stoi(desc.interface_settings.at("port"));
+            } catch (logic_error) {
+                throw BurnInException("Invalid port number for TTi.");
+            }
 
-    for(size_t i = 0 ; i != fHWDescription.size() ; i++){
-        string ident = _getIdentifierForDescription(fHWDescription[i]);
-
-            if(fHWDescription[i].classOfInstr == "TTI"){
-                int cPort;
-                vector<double> cVolt(2, 0);
-                vector<double> cCurr(2, 0);
-                
-                cConnection = fHWDescription[i].interface_settings["connection"];
-                cAddress = fHWDescription[i].interface_settings["address"];
-                cPort = stoi(fHWDescription[i].interface_settings["port"]);
-
-                int opset_size = fHWDescription[i].operational_settings.size();
-                for (int j = 0; j < min(2, opset_size); ++j) {
-                    cVolt[1 - j] = stod(fHWDescription[i].operational_settings[j]["Voltage"]);
-                    cCurr[1 - j] = stod(fHWDescription[i].operational_settings[j]["CurrentLimit"]);
+            int opset_size = desc.operational_settings.size();
+            if (opset_size > 2) {
+                cerr << "More than two Output given for TTI. Only using first two." << endl;
+                opset_size = 2;
+            }
+            try {
+                for (int j = 0; j < opset_size; ++j) {
+                    cVolt[1 - j] = stod(desc.operational_settings[j].at("Voltage"));
+                    cCurr[1 - j] = stod(desc.operational_settings[j].at("CurrentLimit"));
                 }
-                PowerControlClass *fPowerLow = new ControlTTiPower(cAddress, cPort, cVolt, cCurr);
-                
-                fMapSources.insert(pair<string , PowerControlClass*>(ident , fPowerLow));
-                fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fPowerLow));
-                fNamesVoltageSources.push_back(ident);
-                fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
-                std::cout << "Added \"" << fHWDescription[i].classOfInstr << "\" on " << cAddress << std::endl;
+            } catch (logic_error) {
+                throw BurnInException("Invalid output setting for TTi.");
             }
-
-            if(fHWDescription[i].classOfInstr == "Keithley2410"){
-                double cSetVolt, cSetCurr;
-                
-                cConnection = fHWDescription[i].interface_settings["connection"];
-                cAddress = fHWDescription[i].interface_settings["address"];
-                cSetVolt = stod(fHWDescription[i].operational_settings[0]["Voltage"]);
-                cSetCurr = stod(fHWDescription[i].operational_settings[0]["CurrentLimit"]);
-                PowerControlClass *fPowerHigh = new ControlKeithleyPower(cAddress, cSetVolt, cSetCurr);
-                fMapSources.insert(pair<string , PowerControlClass*>(ident, fPowerHigh));
-                fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fPowerHigh));
-                fNamesVoltageSources.push_back(ident);
-                fNamesInstruments.push_back(fHWDescription[i].classOfInstr);
-                std::cout << "Added \"" << fHWDescription[i].classOfInstr << "\" on " << cAddress << std::endl;
+            dev = new ControlTTiPower(address, cPort, cVolt, cCurr);
+        } else if (desc.classOfInstr == "Keithley2410") {
+            double cSetVolt = 0;
+            double cSetCurr = 0;
+            if (desc.operational_settings.size() > 0) {
+                if (desc.operational_settings.size() > 1)
+                    cerr << "More than one Output given for Keithley2410. Only using first one." << endl;
+                try {
+                    cSetVolt = stod(desc.operational_settings[0].at("Voltage"));
+                    cSetCurr = stod(desc.operational_settings[0].at("CurrentLimit"));
+                } catch (logic_error) {
+                    throw BurnInException("Invalid output setting for Keithley2410.");
+                }
             }
+            dev = new ControlKeithleyPower(address, cSetVolt, cSetCurr);
+        }
+        
+        fMapSources.insert(pair<string , PowerControlClass*>(ident, dev));
+        fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, dev));
+        fNamesVoltageSources.push_back(ident);
+        fNamesInstruments.push_back(desc.classOfInstr);
     }
 }
 
 void SystemControllerClass::_parseRaspberry()
 {
-    string cConnection, cAddress;
     quint16 cPort;
-
+    
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
         if(fHWDescription[i].classOfInstr == "Thermorasp"){
             string ident = _getIdentifierForDescription(fHWDescription[i]);
             
-            cConnection = fHWDescription[i].interface_settings["connection"];
-            cAddress = fHWDescription[i].interface_settings["address"];
-            cPort = stoi(fHWDescription[i].interface_settings["port"]);
+            string cAddress = fHWDescription[i].interface_settings["address"];
+            if (cAddress == "")
+                throw BurnInException("Invalid address for RaspberryControl device of class " + fHWDescription[i].classOfInstr + ".");
+            try {
+                cPort = stoi(fHWDescription[i].interface_settings["port"]);
+            } catch (logic_error) {
+                throw BurnInException("Invalid port number for Thermorasp.");
+            }
             fConnectRasp = new Thermorasp(cAddress , cPort);
             fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fConnectRasp));
             fNamesInstruments.push_back(ident);
@@ -207,14 +228,14 @@ void SystemControllerClass::_parseRaspberry()
 
 void SystemControllerClass::_parseChiller()
 {
-    string cAddress, cConnection;
     for(size_t i = 0 ; i != fHWDescription.size() ; i++){
 
         if(fHWDescription[i].classOfInstr == "JulaboFP50"){
             string ident = _getIdentifierForDescription(fHWDescription[i]);
             
-            cAddress = fHWDescription[i].interface_settings["address"];
-            cConnection = fHWDescription[i].interface_settings["connection"];
+            string cAddress = fHWDescription[i].interface_settings["address"];
+            if (cAddress == "")
+                throw BurnInException("Invalid address for ChillerControl device of class " + fHWDescription[i].classOfInstr + ".");
 
             GenericInstrumentClass* fJulabo = new JulaboFP50(cAddress);
             fGenericInstrumentMap.insert(pair<string , GenericInstrumentClass*>(ident, fJulabo));
@@ -224,10 +245,13 @@ void SystemControllerClass::_parseChiller()
     }
 }
 
-void SystemControllerClass::_parseDataAquisition() {
+void SystemControllerClass::_parseDaqModule() {
     for (const auto& desc: fHWDescription) {
-        if (desc.classOfInstr != "DAQModule")
+        if (desc.section != "DAQModule")
             continue;
+            
+        if (desc.classOfInstr != "DAQModule")
+            throw BurnInException("Invalid class " + desc.classOfInstr + " for a VoltageSource device.");
         
         QString fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage;
         fc7Port = QString::fromStdString(desc.interface_settings.at("fc7Port"));
@@ -237,9 +261,8 @@ void SystemControllerClass::_parseDataAquisition() {
         daqImage = QString::fromStdString(desc.interface_settings.at("daqImage"));
         
         string ident = _getIdentifierForDescription(desc);
-        DAQModule* module = new DAQModule(fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
-        daqmodules.push_back(module);
-        fGenericInstrumentMap[ident] = module;
+        _daqmodule = new DAQModule(fc7Port, controlhubPath, ph2acfPath, daqHwdescFile, daqImage);
+        fGenericInstrumentMap[ident] = _daqmodule;
     }
 }
 
@@ -250,6 +273,21 @@ int SystemControllerClass::countIntrument(string instrument_name) {
 GenericInstrumentClass* SystemControllerClass::getGenericInstrObj(string pStr)
 {
     return fGenericInstrumentMap[pStr];
+}
+
+void SystemControllerClass::_removeAllDevices() {
+    fNamesInstruments.clear();
+    _daqmodule = nullptr;
+    fConnectRasp = nullptr;
+    fRaspberrySensorsNames.clear();
+    fNamesVoltageSources.clear();
+    fMapSources.clear();
+    fHWDescription.clear();
+    fListOfCommands.clear();
+    
+    for (const auto& instrument: fGenericInstrumentMap)
+        delete instrument.second;
+    fGenericInstrumentMap.clear();
 }
 
 void SystemControllerClass::ReadXmlFile(std::string pFileName)
@@ -276,20 +314,13 @@ void SystemControllerClass::ReadXmlFile(std::string pFileName)
         _parseVSources();
         _parseRaspberry();
         _parseChiller();
-        _parseDataAquisition();
+        _parseDaqModule();
+        
+        if (_daqmodule == nullptr)
+            cerr << "No DAQ module was found in config." << endl;
         
     } catch (BurnInException e) {
-        fNamesInstruments.clear();
-        fConnectRasp = nullptr;
-        fRaspberrySensorsNames.clear();
-        fNamesVoltageSources.clear();
-        fMapSources.clear();
-        fHWDescription.clear();
-        fListOfCommands.clear();
-        
-        for (const auto& instrument: fGenericInstrumentMap)
-            delete instrument.second;
-        fGenericInstrumentMap.clear();
+        _removeAllDevices();
         
         throw;
     }
@@ -306,6 +337,6 @@ vector<string> SystemControllerClass::getSourceNameVec()
     return fNamesVoltageSources;
 }
 
-const vector<DAQModule*> SystemControllerClass::getDaqModules() const {
-    return daqmodules;
+DAQModule* SystemControllerClass::getDaqModule() const {
+    return _daqmodule;
 }

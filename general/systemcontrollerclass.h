@@ -25,7 +25,9 @@ class SystemControllerClass:public QObject
     Q_OBJECT
 public:
     SystemControllerClass();
-    ~SystemControllerClass();
+    virtual ~SystemControllerClass();
+    SystemControllerClass(const SystemControllerClass&) = delete;
+    SystemControllerClass& operator=(const SystemControllerClass&) = delete;
 
     Thermorasp *fConnectRasp;
     EnvironmentControlClass *fEnv;
@@ -55,17 +57,19 @@ public:
     vector<string> getSourceNameVec();
     vector<QString>* readFile();
     
-    const vector<DAQModule*> getDaqModules() const;
+    DAQModule* getDaqModule() const;
 
 private:
     string _getIdentifierForDescription(const GenericInstrumentDescription_t& desc) const;
     
+    void _removeAllDevices();
+    
     void _parseChiller();
     void _parseVSources();
     void _parseRaspberry();
-    void _parseDataAquisition();
+    void _parseDaqModule();
     
-    vector<DAQModule*> daqmodules;
+    DAQModule* _daqmodule;
 
 private slots:
     void wait(double pTime);

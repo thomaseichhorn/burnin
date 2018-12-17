@@ -4,11 +4,14 @@
 #include "genericinstrumentclass.h"
 #include "ComHandler.h"
 
+#include <QObject>
 #include <QString>
 #include <initializer_list>
 
-class DAQModule : public GenericInstrumentClass
+class DAQModule : public QObject, public GenericInstrumentClass
 {
+Q_OBJECT
+    
 public:
     DAQModule(const QString& fc7Port, const QString& controlhubPath, const QString& ph2acfPath, const QString& daqHwdescFile, const QString& daqImage);
     ~DAQModule();
@@ -28,6 +31,11 @@ public:
     void runCmtest() const;
     void runCommission() const;
     
+    const int FC7SLEEP = 10000; //us
+
+signals:
+    void fc7PowerChanged(bool);
+    
 private:
     QString _contrStartPath;
     QString _ph2SetupPath;
@@ -42,7 +50,7 @@ private:
     QString _daqHwdescFile;
     QString _daqImage;
     
-    QString _fc7Port;
+    char* _fc7Port;
     ComHandler* _fc7comhandler;
     bool _fc7power;
     
