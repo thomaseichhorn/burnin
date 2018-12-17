@@ -27,19 +27,6 @@
   ttyS0 ... ttyS3<br>
   "/dev/ttyS1" ... "/dev/ttyS3"
 */
-ComHandler::ComHandler( const ioport_t ioPort ) {
-
-  // save ioport 
-  fIoPort = ioPort;
-
-  // default baud rate
-  speed_t defaultbaud = B9600;
-
-  // initialize
-  OpenIoPort();
-  InitializeIoPort( defaultbaud );
-}
-
 ComHandler::ComHandler( const ioport_t ioPort, speed_t baud ) {
 
   // save ioport 
@@ -86,13 +73,8 @@ void ComHandler::SendCommand( const char *commandString, bool sendfeed ) {
 
 //! Read a string from device.
 /*!
-\par Input:
-  <br><b>Receive string must be at least 41 characters long.</b>
-
-  This function must be placed right in time before
-  the device starts sending.
-
-  See example program in class description.
+\par receiveString:
+  <br><b>receiveString array must be at least 1024 bytes long.</b>
 */
 void ComHandler::ReceiveString( char *receiveString ) {
 
@@ -243,7 +225,7 @@ void ComHandler::CloseIoPort( void ) {
   close( fIoPortFileDescriptor );
 }
 
-//! Send command termination string (<CR><NL>).
+//! Send command termination string (<NL>).
 /*!
   \internal
 */
@@ -254,7 +236,6 @@ void ComHandler::SendFeedString( void ) {
 
   ssize_t bytes_written;
 
-  // write <CR> and get echo
   bytes_written = write( fIoPortFileDescriptor, &feedString, 1 );
 
   if ( bytes_written < 0 )

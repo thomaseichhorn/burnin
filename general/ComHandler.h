@@ -40,9 +40,7 @@ class ComHandler {
  public:
   
   //! Constructor.
-  ComHandler( ioport_t );
-
-  ComHandler( ioport_t, speed_t );
+  ComHandler( ioport_t, speed_t = B9600);
 
   //! Destructor.
   ~ComHandler();
