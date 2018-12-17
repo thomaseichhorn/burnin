@@ -28,8 +28,8 @@ private:
     void ParsePeltier(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
     void ParseRaspberry(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
     
-    void ParseDataAquisition(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) const;
-    void ParseDAQModule(const QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) const;
+    void ParseDataAquisition(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
+    void ParseDAQModule(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments);
 };
 
 #endif // HWDESCRIPTIONPARSER_H

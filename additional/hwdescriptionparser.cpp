@@ -4,12 +4,12 @@
 #include "general/BurnInException.h"
 
 // Qt includes
-#include "QFile"
-#include "QXmlStreamReader"
-#include "QXmlStreamAttributes"
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttributes>
 
 // C++ includes
-#include "iostream"
+#include <iostream>
 
 // Code
 HWDescriptionParser::HWDescriptionParser()
@@ -43,6 +43,8 @@ std::vector<GenericInstrumentDescription_t> HWDescriptionParser::ParseXML(std::s
                 ParseDataAquisition(cXmlFile, cInstruments);
         }
     }
+    if (cXmlFile->hasError())
+        throw BurnInException("Invalid XML in configuration file. Missing end tag?");
     delete cXmlFile;
     delete cFile;
 
@@ -51,19 +53,12 @@ std::vector<GenericInstrumentDescription_t> HWDescriptionParser::ParseXML(std::s
 
 void HWDescriptionParser::ParsePower(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) {
 
-    while (!(pXmlFile->tokenType() == QXmlStreamReader::EndElement && pXmlFile->name() == "Power"))
-    {
-        pXmlFile->readNext();
-        if (pXmlFile->tokenType() == QXmlStreamReader::StartElement)
-        {
-            if(pXmlFile->name() == "LowVoltage")
-                continue;
-            if(pXmlFile->name() == "HighVoltage")
-                continue;
-            if(pXmlFile->name() == "VoltageSource")
-                ParseVoltageSource(pXmlFile, pInstruments);
-        }
-
+    while (pXmlFile->readNextStartElement()) {
+        std::string name = pXmlFile->name().toString().toStdString();
+        if(name == "VoltageSource")
+            ParseVoltageSource(pXmlFile, pInstruments);
+        else
+            throw BurnInException("Invalid Power tag \"" + name + "\". Valid tags are: VoltageSource");
     }
 
 }
@@ -91,20 +86,19 @@ void HWDescriptionParser::ParseVoltageSource(QXmlStreamReader *pXmlFile, std::ve
 
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
 
-    while (!(pXmlFile->tokenType() == QXmlStreamReader::EndElement && pXmlFile->name() == "VoltageSource"))
-    {
-        pXmlFile->readNext();
-        if (pXmlFile->tokenType() == QXmlStreamReader::StartElement)
-        {
-            if(pXmlFile->name() == "Output") {
-                std::map<std::string, std::string> cMap;
-                QXmlStreamAttributes attributes = pXmlFile->attributes();
-                for(int i = 0; i < attributes.length(); i++) {
-                    cMap[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
-                }
-                cInstrument.operational_settings.push_back(cMap);
+    while (pXmlFile->readNextStartElement()) {
+        std::string name = pXmlFile->name().toString().toStdString();
+        if(name == "Output") {
+            std::map<std::string, std::string> cMap;
+            QXmlStreamAttributes attributes = pXmlFile->attributes();
+            for(int i = 0; i < attributes.length(); i++) {
+                cMap[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
             }
-        }
+            cInstrument.operational_settings.push_back(cMap);
+            pXmlFile->skipCurrentElement();
+            
+        } else
+            throw BurnInException("Invalid VoltageSource tag \"" + name + "\". Valid tags are: Output");
     }
 
     // push back now
@@ -114,25 +108,23 @@ void HWDescriptionParser::ParseVoltageSource(QXmlStreamReader *pXmlFile, std::ve
 
 void HWDescriptionParser::ParseEnvironment(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
-    while (!(pXmlFile->tokenType() == QXmlStreamReader::EndElement && pXmlFile->name() == "Environment"))
-    {
-        pXmlFile->readNext();
-        if (pXmlFile->tokenType() == QXmlStreamReader::StartElement)
-        {
-            if(pXmlFile->name() == "ChillerControl")
-                ParseChiller(pXmlFile , pInstruments);
-            if(pXmlFile->name() == "PeltierControl")
-                ParsePeltier(pXmlFile , pInstruments);
-            if(pXmlFile->name() == "RaspberryControl")
-                ParseRaspberry(pXmlFile, pInstruments);
-        }
-
+    while (pXmlFile->readNextStartElement()) {
+        std::string name = pXmlFile->name().toString().toStdString();
+        if(name == "ChillerControl")
+            ParseChiller(pXmlFile, pInstruments);
+        else if(name == "PeltierControl")
+            ParsePeltier(pXmlFile, pInstruments);
+        else if(name == "RaspberryControl")
+            ParseRaspberry(pXmlFile, pInstruments);
+        else
+            throw BurnInException("Invalid DataAquisition tag \"" + name + "\". Valid tags are: DAQModule");
     }
 }
 
 void HWDescriptionParser::ParseChiller(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    pXmlFile->skipCurrentElement();
     // push back now
     pInstruments.push_back(cInstrument);
 }
@@ -140,6 +132,7 @@ void HWDescriptionParser::ParseChiller(QXmlStreamReader *pXmlFile, std::vector<G
 void HWDescriptionParser::ParsePeltier(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments)
 {
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    pXmlFile->skipCurrentElement();
     pInstruments.push_back(cInstrument);
 }
 
@@ -147,30 +140,25 @@ void HWDescriptionParser::ParseRaspberry(QXmlStreamReader *pXmlFile, std::vector
 {
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
 
-    while (!(pXmlFile->tokenType() == QXmlStreamReader::EndElement && pXmlFile->name() == "RaspberryControl"))
-    {
-        pXmlFile->readNext();
-        if (pXmlFile->tokenType() == QXmlStreamReader::StartElement)
-        {
-            if(pXmlFile->name() == "Sensor") {
-                std::map<std::string, std::string> cMap;
-                QXmlStreamAttributes attributes = pXmlFile->attributes();
-                for(int i = 0; i < attributes.length(); i++) {
-                    cMap[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
-                }
-                cInstrument.operational_settings.push_back(cMap);
+    while (pXmlFile->readNextStartElement()) {
+        std::string name = pXmlFile->name().toString().toStdString();
+        if(name == "Sensor") {
+            std::map<std::string, std::string> cMap;
+            QXmlStreamAttributes attributes = pXmlFile->attributes();
+            for(int i = 0; i < attributes.length(); i++) {
+                cMap[attributes.at(i).name().toString().toStdString()] = attributes.at(i).value().toString().toStdString();
             }
-        }
+            cInstrument.operational_settings.push_back(cMap);
+            pXmlFile->skipCurrentElement();
+        } else
+            throw BurnInException("Invalid RaspberryControl tag \"" + name + "\". Valid tags are: Sensor");
+        
     }
     pInstruments.push_back(cInstrument);
 }
 
-void HWDescriptionParser::ParseDataAquisition(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) const {
-    while (pXmlFile->tokenType() != QXmlStreamReader::EndElement) {
-        pXmlFile->readNext();
-        if (pXmlFile->tokenType() != QXmlStreamReader::StartElement)
-            continue;
-        
+void HWDescriptionParser::ParseDataAquisition(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) {
+    while (pXmlFile->readNextStartElement()) {
         std::string name = pXmlFile->name().toString().toStdString();
         if(name == "DAQModule")
             ParseDAQModule(pXmlFile , pInstruments);
@@ -179,7 +167,8 @@ void HWDescriptionParser::ParseDataAquisition(QXmlStreamReader *pXmlFile, std::v
     }
 }
 
-void HWDescriptionParser::ParseDAQModule(const QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) const {
+void HWDescriptionParser::ParseDAQModule(QXmlStreamReader *pXmlFile, std::vector<GenericInstrumentDescription_t>& pInstruments) {
     GenericInstrumentDescription_t cInstrument = ParseGeneric(pXmlFile);
+    pXmlFile->skipCurrentElement();
     pInstruments.push_back(cInstrument);
 }
