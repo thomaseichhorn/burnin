@@ -820,7 +820,8 @@ void MainWindow::on_read_conf_button_clicked()
     bool xml_was_read = false;
     try {
         // read the xml file
-        readXmlFile();
+        if (not readXmlFile())
+            return;
         xml_was_read = true;
         
         initHard();
