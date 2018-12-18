@@ -106,7 +106,6 @@ private:
     vector<output_pointer_t*> gui_pointers_high_voltage;
 
     void doListOfCommands();
-    void voltageControlWidget();
     void getVoltAndCurr();
     void getVoltAndCurrKeithley();
     void getChillerStatus();

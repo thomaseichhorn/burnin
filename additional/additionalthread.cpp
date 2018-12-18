@@ -55,22 +55,6 @@ void AdditionalThread::getVACKeithley()
     }
 }
 
-void AdditionalThread::onVolt()
-{
-    PowerControlClass *cPowerObj;
-    cPowerObj = fAddControl->getObject("Keithley2410");
-    cPowerObj->onPower(0);
-
-}
-
-void AdditionalThread::offVolt()
-{
-    PowerControlClass *cPowerObj;
-    cPowerObj = fAddControl->getObject("Keithley2410");
-    cPowerObj->offPower(0);
-
-}
-
 void AdditionalThread::getChillerStatus()
 {
     float cBathTemp, cPressure, cSensorTemp, cWorkingTemp;

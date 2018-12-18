@@ -173,10 +173,6 @@ output_Chiller MainWindow::setChilerLayout()
     cOutputPointers.onoff_button->setMaximumHeight(20);
     cOutputPointers.layout->addWidget(cOutputPointers.onoff_button);
 
-    // add stretch
-    //QSpacerItem *item = new QSpacerItem(5,0, QSizePolicy::Expanding, QSizePolicy::Fixed);
-    //cOutputPointers.layout->addItem(item);
-
     return cOutputPointers;
 }
 
@@ -309,37 +305,6 @@ output_Raspberry* MainWindow::SetRaspberryOutput(QLayout *pMainLayout , vector<s
     return cOutputPointers;
 }
 
-void MainWindow::voltageControlWidget()
-{
-//    QStandardItemModel *model = new QStandardItemModel(this);
-
-//    QStandardItem *cItem1 = new QStandardItem("Source name");
-//    model->setItem( 0 , 0 , cItem1);
-//    model->index(0 , 0);
-//    QStandardItem *cItem2 = new QStandardItem("V_set");
-//    model->setItem( 0 , 1 , cItem2);
-//    model->index(0 , 1);
-//    QStandardItem *cItem3 = new QStandardItem("I_set");
-//    model->setItem( 0 , 2 , cItem3);
-//    model->index(0 , 2);
-//    QStandardItem *cItem4 = new QStandardItem("V_app");
-//    model->setItem( 0 , 3 , cItem4);
-//    model->index(0 , 3);
-//    QStandardItem *cItem5 = new QStandardItem("I_app");
-//    model->setItem( 0 , 4 , cItem5);
-//    model->index(0 , 4);
-
-//    int j = 1;
-//    for(auto const &i: fControl->fMapSources){
-//        QStandardItem *cIt = new QStandardItem(QString::fromStdString(i.first));
-//        model->setItem(j , 0 , cIt);
-//        model->index(j , 0);
-//        j++;
-//    }
-
-//    ui->voltageTableView->setModel(model);
-
-}
 //creates a List with all commands
 void MainWindow::doListOfCommands()
 {
@@ -388,6 +353,10 @@ void MainWindow::getVoltAndCurr()
         gui_pointers_low_voltage[dev_num][0].v_set->setValue(vals->pVSet2);
         ++dev_num;
     }
+    if (dev_num == 0) {
+        ui->groupBox->setEnabled(false);
+        return;
+    }
     
     AdditionalThread *cThread  = new AdditionalThread("A", fControl);
     QThread *cQThread = new QThread();
@@ -401,6 +370,11 @@ void MainWindow::getVoltAndCurr()
 
 void MainWindow::getMeasurments()
 {
+    if (fControl->countIntrument("Thermorasp") == 0) {
+        ui->groupBox_3->setEnabled(false);
+        return;
+    }
+    
     AdditionalThread *cThread = new AdditionalThread("B" , fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getRaspSensors()));
@@ -411,10 +385,24 @@ void MainWindow::getMeasurments()
 
 void MainWindow::getVoltAndCurrKeithley()
 {
+    if (fControl->countIntrument("Keithley2410") == 0) {
+        ui->groupBox_2->setEnabled(false);
+        return;
+    }
+    
     ControlKeithleyPower* keihleydev = dynamic_cast<ControlKeithleyPower*>(fControl->getGenericInstrObj("Keithley2410"));
+    // Keithley is supposed to turn off on init so no need to set onoff_button
     PowerControlClass::fVACvalues* vals = keihleydev->getVoltAndCurr();
+    
+    bool blocked = gui_pointers_high_voltage[0]->i_set->signalsBlocked();
+    gui_pointers_high_voltage[0]->i_set->blockSignals(true);
     gui_pointers_high_voltage[0]->i_set->setValue(vals->pISet1);
+    gui_pointers_high_voltage[0]->i_set->blockSignals(blocked);
+    
+    blocked = gui_pointers_high_voltage[0]->v_set->signalsBlocked();
+    gui_pointers_high_voltage[0]->v_set->blockSignals(true);
     gui_pointers_high_voltage[0]->v_set->setValue(vals->pVSet1);
+    gui_pointers_high_voltage[0]->v_set->blockSignals(blocked);
     
     AdditionalThread *cThread  = new AdditionalThread("C", fControl);
     QThread *cQThread = new QThread();
@@ -427,6 +415,23 @@ void MainWindow::getVoltAndCurrKeithley()
 
 void MainWindow::getChillerStatus()
 {
+    if (fControl->countIntrument("JulaboFP50") == 0) {
+        ui->groupBox_Chiller->setEnabled(false);
+        return;
+    }
+    
+    JulaboFP50* chiller = dynamic_cast<JulaboFP50*>(fControl->getGenericInstrObj("JulaboFP50"));
+    bool state = chiller->GetCirculatorStatus();
+    bool blocked = gui_chiller->onoff_button->signalsBlocked();
+    gui_chiller->onoff_button->blockSignals(true);
+    gui_chiller->onoff_button->setChecked(state);
+    gui_chiller->onoff_button->blockSignals(blocked);
+    if (state) {
+        float temperature = chiller->GetWorkingTemperature();
+        gui_chiller->setTemperature->setValue(temperature);
+        gui_chiller->setTemperature->setEnabled(false);
+    }
+    
     AdditionalThread *cThread  = new AdditionalThread("C", fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getChillerStatus()));
@@ -720,8 +725,6 @@ void MainWindow::updateTTiIWidget(PowerControlClass::fVACvalues* pObject, int de
 
 void MainWindow::updateKeithleyWidget(PowerControlClass::fVACvalues* pObject)
 {
-    //gui_pointers_high_voltage[0]->i_set->setValue(pObject->pISet1);
-    //gui_pointers_high_voltage[0]->v_set->setValue(pObject->pVSet1);
     gui_pointers_high_voltage[0]->i_applied->display(pObject->pIApp1);
     gui_pointers_high_voltage[0]->v_applied->display(pObject->pVApp1);
     
@@ -733,15 +736,13 @@ void MainWindow::initHard()
     // init hard
     fControl->Initialize();
 
-    // start threads
+    // init the controls and start threads
     this->getMeasurments();
     this->getVoltAndCurr();
     this->getVoltAndCurrKeithley();
     this->getChillerStatus();
 
     connect(fControl, SIGNAL(sendOnOff(string,bool)) , this , SLOT(receiveOnOff(string,bool)));
-
-    this->voltageControlWidget();
 }
 
 bool MainWindow::readXmlFile()
@@ -820,7 +821,8 @@ void MainWindow::on_read_conf_button_clicked()
     bool xml_was_read = false;
     try {
         // read the xml file
-        readXmlFile();
+        if (not readXmlFile())
+            return;
         xml_was_read = true;
         
         initHard();

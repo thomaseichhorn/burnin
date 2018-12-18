@@ -46,8 +46,8 @@ public:
     PowerControlClass::fVACvalues* getVoltAndCurr();
     void setVolt(double pVoltage, int = 0);
     void setCurr(double pCurrent , int = 0);
-    void onPower(int);
-    void offPower(int);
+    void onPower(int = 0);
+    void offPower(int = 0);
     void closeConnection();
 
     void sendVoltageCommand(double pVoltage);

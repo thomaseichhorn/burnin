@@ -37,6 +37,9 @@ KeithleyPowerSweepWorker::KeithleyPowerSweepWorker(ControlKeithleyPower* keithle
 
 void KeithleyPowerSweepWorker::doSweeping() {
     if (not _outputState or _voltTarget == _voltApplied) {
+	if (_voltTarget == _voltApplied)
+	    emit targetReached(_voltTarget);
+	
 	_timer.start(SWEEP_INTERVAL);
 	return;
     }
@@ -92,9 +95,25 @@ void ControlKeithleyPower::initialize(){
     const ioport_t ioPort = fConnection.c_str();
     speed_t keithleybaud = B19200;
     comHandler_ = new ComHandler( ioPort, keithleybaud );
-    std::cout << "Created ComHandler on port " << ioPort << " at " << comHandler_ << std::endl;
-    setKeithleyOutputState(0);
+    
     setCurr(fCurrCompliance);
+    
+    // check whether output is on
+    char buf[1024];
+    comHandler_->SendCommand(":OUTPUT1:STATE?");
+    usleep(1000);
+    comHandler_->ReceiveString(buf);
+    
+    if (buf[0] == '0')
+	keithleyOutputOn = false;
+    else {
+	double setvolt = fVoltSet;
+	keithleyOutputOn = true;
+	checkVAC();
+	offPower();
+	emit outputStateChanged(keithleyOutputOn);
+	fVoltSet = setvolt;
+    }
 }
 
 
@@ -138,6 +157,7 @@ void ControlKeithleyPower::setCurr(double pCurrent, int)
     sprintf(stringinput ,":SENS:CURR:PROT %lGE-6" , pCurrent);
     comHandler_->SendCommand(stringinput);
     _commMutex.unlock();
+    fCurrCompliance = pCurrent;
 }
 
 PowerControlClass::fVACvalues *ControlKeithleyPower::getVoltAndCurr()

@@ -29,14 +29,6 @@ SystemControllerClass::~SystemControllerClass() {
 
 void SystemControllerClass::Initialize()
 {
-
-//    for(size_t i = 0 ; i != fNamesVoltageSources.size() ; i++){
-//        getObject(fNamesVoltageSources[i])->initialize();
-//        getObject(fNamesSources[i])->offPower(0);
-//    }
-    //if(fConnectRasp != NULL);
-        //fConnectRasp->raspInitialize();
-
     for(auto &i: fGenericInstrumentMap){
         i.second->initialize();
     }
@@ -272,7 +264,7 @@ int SystemControllerClass::countIntrument(string instrument_name) {
 
 GenericInstrumentClass* SystemControllerClass::getGenericInstrObj(string pStr)
 {
-    return fGenericInstrumentMap[pStr];
+    return fGenericInstrumentMap.at(pStr);
 }
 
 void SystemControllerClass::_removeAllDevices() {
