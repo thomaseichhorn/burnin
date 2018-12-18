@@ -264,7 +264,7 @@ int SystemControllerClass::countIntrument(string instrument_name) {
 
 GenericInstrumentClass* SystemControllerClass::getGenericInstrObj(string pStr)
 {
-    return fGenericInstrumentMap[pStr];
+    return fGenericInstrumentMap.at(pStr);
 }
 
 void SystemControllerClass::_removeAllDevices() {
