@@ -377,9 +377,23 @@ void MainWindow::getMeasurments()
 void MainWindow::getVoltAndCurrKeithley()
 {
     ControlKeithleyPower* keihleydev = dynamic_cast<ControlKeithleyPower*>(fControl->getGenericInstrObj("Keithley2410"));
+    bool blocked;
+    if (keihleydev == nullptr) {
+        ui->groupBox_2->setEnabled(false);
+        return;
+    }
+    // Keithley is supposed to turn off on init so no need to set onoff_button
     PowerControlClass::fVACvalues* vals = keihleydev->getVoltAndCurr();
+    
+    blocked = gui_pointers_high_voltage[0]->i_set->signalsBlocked();
+    gui_pointers_high_voltage[0]->i_set->blockSignals(true);
     gui_pointers_high_voltage[0]->i_set->setValue(vals->pISet1);
+    gui_pointers_high_voltage[0]->i_set->blockSignals(blocked);
+    
+    blocked = gui_pointers_high_voltage[0]->v_set->signalsBlocked();
+    gui_pointers_high_voltage[0]->v_set->blockSignals(true);
     gui_pointers_high_voltage[0]->v_set->setValue(vals->pVSet1);
+    gui_pointers_high_voltage[0]->v_set->blockSignals(blocked);
     
     AdditionalThread *cThread  = new AdditionalThread("C", fControl);
     QThread *cQThread = new QThread();
