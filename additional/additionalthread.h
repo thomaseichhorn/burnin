@@ -20,15 +20,12 @@ signals:
     void sendToThread(PowerControlClass::fVACvalues *, int dev_num);
     void sendToThreadKeithley(PowerControlClass::fVACvalues *);
     void updatedThermorasp(QMap<QString, QString>);
-    void volt();
     void sendFromChiller(QString);
 
 public slots:
     void getVAC();
     void getRaspSensors();
     void getVACKeithley();
-    void onVolt();
-    void offVolt();
     void getChillerStatus();
 private:
     QString fName;

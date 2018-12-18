@@ -173,10 +173,6 @@ output_Chiller MainWindow::setChilerLayout()
     cOutputPointers.onoff_button->setMaximumHeight(20);
     cOutputPointers.layout->addWidget(cOutputPointers.onoff_button);
 
-    // add stretch
-    //QSpacerItem *item = new QSpacerItem(5,0, QSizePolicy::Expanding, QSizePolicy::Fixed);
-    //cOutputPointers.layout->addItem(item);
-
     return cOutputPointers;
 }
 
@@ -309,37 +305,6 @@ output_Raspberry* MainWindow::SetRaspberryOutput(QLayout *pMainLayout , vector<s
     return cOutputPointers;
 }
 
-void MainWindow::voltageControlWidget()
-{
-//    QStandardItemModel *model = new QStandardItemModel(this);
-
-//    QStandardItem *cItem1 = new QStandardItem("Source name");
-//    model->setItem( 0 , 0 , cItem1);
-//    model->index(0 , 0);
-//    QStandardItem *cItem2 = new QStandardItem("V_set");
-//    model->setItem( 0 , 1 , cItem2);
-//    model->index(0 , 1);
-//    QStandardItem *cItem3 = new QStandardItem("I_set");
-//    model->setItem( 0 , 2 , cItem3);
-//    model->index(0 , 2);
-//    QStandardItem *cItem4 = new QStandardItem("V_app");
-//    model->setItem( 0 , 3 , cItem4);
-//    model->index(0 , 3);
-//    QStandardItem *cItem5 = new QStandardItem("I_app");
-//    model->setItem( 0 , 4 , cItem5);
-//    model->index(0 , 4);
-
-//    int j = 1;
-//    for(auto const &i: fControl->fMapSources){
-//        QStandardItem *cIt = new QStandardItem(QString::fromStdString(i.first));
-//        model->setItem(j , 0 , cIt);
-//        model->index(j , 0);
-//        j++;
-//    }
-
-//    ui->voltageTableView->setModel(model);
-
-}
 //creates a List with all commands
 void MainWindow::doListOfCommands()
 {
@@ -720,8 +685,6 @@ void MainWindow::updateTTiIWidget(PowerControlClass::fVACvalues* pObject, int de
 
 void MainWindow::updateKeithleyWidget(PowerControlClass::fVACvalues* pObject)
 {
-    //gui_pointers_high_voltage[0]->i_set->setValue(pObject->pISet1);
-    //gui_pointers_high_voltage[0]->v_set->setValue(pObject->pVSet1);
     gui_pointers_high_voltage[0]->i_applied->display(pObject->pIApp1);
     gui_pointers_high_voltage[0]->v_applied->display(pObject->pVApp1);
     
@@ -740,8 +703,6 @@ void MainWindow::initHard()
     this->getChillerStatus();
 
     connect(fControl, SIGNAL(sendOnOff(string,bool)) , this , SLOT(receiveOnOff(string,bool)));
-
-    this->voltageControlWidget();
 }
 
 bool MainWindow::readXmlFile()
