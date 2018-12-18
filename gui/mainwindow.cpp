@@ -353,6 +353,10 @@ void MainWindow::getVoltAndCurr()
         gui_pointers_low_voltage[dev_num][0].v_set->setValue(vals->pVSet2);
         ++dev_num;
     }
+    if (dev_num == 0) {
+        ui->groupBox->setEnabled(false);
+        return;
+    }
     
     AdditionalThread *cThread  = new AdditionalThread("A", fControl);
     QThread *cQThread = new QThread();
@@ -366,6 +370,11 @@ void MainWindow::getVoltAndCurr()
 
 void MainWindow::getMeasurments()
 {
+    if (fControl->countIntrument("Thermorasp") == 0) {
+        ui->groupBox_3->setEnabled(false);
+        return;
+    }
+    
     AdditionalThread *cThread = new AdditionalThread("B" , fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getRaspSensors()));
@@ -727,7 +736,7 @@ void MainWindow::initHard()
     // init hard
     fControl->Initialize();
 
-    // start threads
+    // init the controls and start threads
     this->getMeasurments();
     this->getVoltAndCurr();
     this->getVoltAndCurrKeithley();
