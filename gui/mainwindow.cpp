@@ -411,6 +411,18 @@ void MainWindow::getChillerStatus()
         return;
     }
     
+    JulaboFP50* chiller = dynamic_cast<JulaboFP50*>(fControl->getGenericInstrObj("JulaboFP50"));
+    bool state = chiller->GetCirculatorStatus();
+    bool blocked = gui_chiller->onoff_button->signalsBlocked();
+    gui_chiller->onoff_button->blockSignals(true);
+    gui_chiller->onoff_button->setChecked(state);
+    gui_chiller->onoff_button->blockSignals(blocked);
+    if (state) {
+        float temperature = chiller->GetWorkingTemperature();
+        gui_chiller->setTemperature->setValue(temperature);
+        gui_chiller->setTemperature->setEnabled(false);
+    }
+    
     AdditionalThread *cThread  = new AdditionalThread("C", fControl);
     QThread *cQThread = new QThread();
     connect(cQThread , SIGNAL(started()), cThread, SLOT(getChillerStatus()));
